@@ -1,103 +1,99 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, Input } from '@nextui-org/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { Button, Card, CardBody, Input } from '@nextui-org/react';
+import toast from 'react-hot-toast';
 
-export default function Register() {
+export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Production ortamında register sayfasına erişimi engelle
+    if (process.env.NODE_ENV === 'production') {
+      router.replace('/login');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    setIsLoading(true);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email, password }),
-        credentials: 'include',
-        mode: 'cors'
+        body: JSON.stringify({
+          name,
+          email,
+          password
+        })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(data.error || 'Kayıt işlemi başarısız');
       }
 
-      // Save token to cookie
-      Cookies.set('token', data.token, { expires: 7 }); // Expires in 7 days
-      
-      // Redirect to dashboard
-      router.push('/dashboard');
+      toast.success('Kayıt başarılı! Giriş yapabilirsiniz.');
+      router.push('/login');
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An error occurred');
-      }
+      console.error(err);
+      toast.error('Kayıt sırasında bir hata oluştu!');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Production ortamında içerik gösterme
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
+
   return (
-    <main className="flex min-h-screen items-center justify-center p-24">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="flex flex-col gap-3 text-center">
-          <h1 className="text-2xl font-bold">Register</h1>
-        </CardHeader>
-        <CardBody>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <CardBody className="space-y-4">
+          <h1 className="text-2xl font-bold text-center mb-6">Kayıt Ol</h1>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              type="text"
-              label="Full Name"
+              label="Ad Soyad"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
             <Input
+              label="E-posta"
               type="email"
-              label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
             <Input
+              label="Şifre"
               type="password"
-              label="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Input
-              type="password"
-              label="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            {error && (
-              <p className="text-red-500 text-sm">{error}</p>
-            )}
-            <Button type="submit" color="primary">
-              Register
+            <Button
+              type="submit"
+              color="primary"
+              className="w-full"
+              isLoading={isLoading}
+            >
+              Kayıt Ol
             </Button>
           </form>
         </CardBody>
       </Card>
-    </main>
+    </div>
   );
 } 
