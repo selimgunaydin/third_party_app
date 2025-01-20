@@ -107,6 +107,8 @@ export default function AccountPage() {
   }
 
   return (
+    <div className="min-h-screen space-y-8">
+       <h1 className="text-2xl font-bold">Dashboard</h1>
     <div className="space-y-6">
       <Card>
         <CardBody>
@@ -163,6 +165,7 @@ export default function AccountPage() {
           </p>
         </CardBody>
       </Card>
+    </div>
     </div>
   );
 } 

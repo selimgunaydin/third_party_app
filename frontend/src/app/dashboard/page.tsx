@@ -99,15 +99,15 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen">
+      <div className="max-w-6xl space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <div className="flex gap-4">
             <Button
               as={Link}
               href="/dashboard/default-components"
-              color="secondary"
+              variant="light"
             >
               Default Components
             </Button>
@@ -128,7 +128,7 @@ export default function Dashboard() {
               <p className="text-sm text-gray-600 mb-4">
                 Add the following code between the &lt;head&gt; or &lt;body&gt; tags of your HTML page to integrate the widget:
               </p>
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
+              <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-xs">
                 {`<script defer src="${process.env.NEXT_PUBLIC_API_URL}/widget.js?apiKey=${apiKey}"></script>`}
               </div>
             </CardBody>
@@ -159,6 +159,7 @@ export default function Dashboard() {
                     <h3 className="text-lg font-semibold">{component.name}</h3>
                     <div className="flex items-center gap-4">
                       <Switch
+                        defaultSelected={component.isActive}  
                         checked={component.isActive}
                         onChange={async () => {
                           try {

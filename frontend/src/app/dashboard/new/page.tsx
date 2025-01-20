@@ -33,7 +33,7 @@ export default function NewComponent() {
         setPosition('after');
         setHtml(template.html);
         setCss(template.css);
-        setJavascript('');
+        setJavascript(template.javascript);
         setSelectedTemplate(templateId);
         toast.success('Template başarıyla yüklendi!');
       }
@@ -49,7 +49,7 @@ export default function NewComponent() {
         setPosition('after');
         setHtml(template.html);
         setCss(template.css);
-        setJavascript('');
+        setJavascript(template.javascript);
         toast.success('Template başarıyla yüklendi!');
       }
     } else {
@@ -162,8 +162,9 @@ export default function NewComponent() {
   ];
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen space-y-8">
+      <h1 className="text-2xl font-bold">Default Components</h1>
+      <div className="max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card>
             <CardBody>
