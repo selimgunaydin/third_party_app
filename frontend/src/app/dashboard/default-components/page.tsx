@@ -33,7 +33,6 @@ export default function DefaultComponentsPage() {
             onClick={() => setSelectedComponent(component)}
           >
             <h3 className="font-semibold mb-2">{component.name}</h3>
-            <p className="text-gray-600 text-sm mb-3">{component.description}</p>
             <div className="bg-white p-3 rounded border">
               <Preview
                 html={component.html}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Card, CardBody, Input, Select, SelectItem } from '@nextui-org/react';
 import Editor from '@monaco-editor/react';
@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import Preview from '@/components/Preview';
 import Cookies from 'js-cookie';
 
-export default function NewComponent() {
+function NewComponentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [name, setName] = useState('');
@@ -286,5 +286,13 @@ export default function NewComponent() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewComponent() {
+  return (
+    <Suspense fallback={<div>Yükleniyor...</div>}>
+      <NewComponentForm />
+    </Suspense>
   );
 } 
