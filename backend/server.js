@@ -10,7 +10,7 @@ const Component = require('./models/Component');
 
 const app = express();
 
-// CORS ayarları
+// CORS settings
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001'],
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -21,26 +21,31 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB bağlantısı
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB bağlantısı başarılı'))
-  .catch((err) => console.error('MongoDB bağlantı hatası:', err));
+  .then(() => console.log('MongoDB connection successful'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/components', componentRoutes);
 
-// Widget endpoint'i
-app.get('/widget/:apiKey', async (req, res) => {
+// Widget endpoint
+app.get('/widget.js', async (req, res) => {
   try {
-    const user = await User.findOne({ apiKey: req.params.apiKey });
+    const apiKey = req.query.apiKey;
+    if (!apiKey) {
+      return res.status(400).send('API key is required');
+    }
+
+    const user = await User.findOne({ apiKeys: apiKey });
     if (!user) {
-      return res.status(404).send('Geçersiz API key');
+      return res.status(404).send('Invalid API key');
     }
 
     const components = await Component.find({ userId: user._id, isActive: true });
     
-    // Widget JavaScript kodunu oluştur
+    // Generate widget JavaScript code
     const widgetCode = `
       (function() {
         const components = ${JSON.stringify(components)};
@@ -49,32 +54,32 @@ app.get('/widget/:apiKey', async (req, res) => {
           const targetElement = document.querySelector(component.selector);
           if (!targetElement) return;
           
-          // Container div oluştur
+          // Create container div
           const container = document.createElement('div');
           container.innerHTML = component.html;
           
-          // CSS ekle
+          // Add CSS
           if (component.css) {
             const style = document.createElement('style');
             style.textContent = component.css;
             document.head.appendChild(style);
           }
           
-          // Component'i ekle
+          // Add component
           if (component.position === 'before') {
             targetElement.insertBefore(container, targetElement.firstChild);
           } else {
             targetElement.appendChild(container);
           }
           
-          // JavaScript ekle
+          // Add JavaScript
           if (component.javascript) {
             try {
               const script = document.createElement('script');
               script.text = component.javascript;
               document.body.appendChild(script);
             } catch (error) {
-              console.error('Widget JavaScript hatası:', error);
+              console.error('Widget JavaScript error:', error);
             }
           }
         });
@@ -84,12 +89,12 @@ app.get('/widget/:apiKey', async (req, res) => {
     res.setHeader('Content-Type', 'application/javascript');
     res.send(widgetCode);
   } catch (error) {
-    console.error('Widget yükleme hatası:', error);
-    res.status(500).send('Widget yüklenirken bir hata oluştu');
+    console.error('Widget loading error:', error);
+    res.status(500).send('An error occurred while loading the widget');
   }
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server ${PORT} portunda çalışıyor`);
+  console.log(`Server running on port ${PORT}`);
 }); 

@@ -1,94 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Card, CardBody, Input, Select, SelectItem } from '@nextui-org/react';
 import Editor from '@monaco-editor/react';
-
-interface Component {
-  _id: string;
-  name: string;
-  selector: string;
-  position: 'before' | 'after';
-  html: string;
-  css: string;
-  javascript: string;
-  isTemplate?: boolean;
-  isActive: boolean;
-}
-
-const defaultTemplates: Omit<Component, '_id'>[] = [
-  {
-    name: 'Basit Banner',
-    selector: '#banner',
-    position: 'after',
-    html: '<div class="banner">Özel Banner İçeriği</div>',
-    css: `.banner {
-  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-  color: white;
-  padding: 20px;
-  text-align: center;
-  border-radius: 8px;
-  margin: 10px 0;
-}`,
-    javascript: '',
-    isTemplate: true,
-    isActive: true
-  },
-  {
-    name: 'Popup Form',
-    selector: '#popup-container',
-    position: 'after',
-    html: `<div class="popup">
-  <div class="popup-content">
-    <h3>İletişime Geçin</h3>
-    <form id="contact-form">
-      <input type="email" placeholder="Email" required>
-      <textarea placeholder="Mesajınız" required></textarea>
-      <button type="submit">Gönder</button>
-    </form>
-  </div>
-</div>`,
-    css: `.popup {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  border-radius: 8px;
-  padding: 20px;
-  width: 300px;
-}
-.popup-content h3 {
-  margin-bottom: 15px;
-}
-.popup-content input,
-.popup-content textarea {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-.popup-content button {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-}`,
-    javascript: `document.getElementById('contact-form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  alert('Form gönderildi!');
-});`,
-    isTemplate: true,
-    isActive: true
-  }
-];
+import { defaultComponents } from '@/data/defaultComponents';
+import toast from 'react-hot-toast';
+import Preview from '@/components/Preview';
 
 export default function NewComponent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState('');
   const [selector, setSelector] = useState('');
   const [position, setPosition] = useState<'before' | 'after'>('after');
@@ -97,20 +19,40 @@ export default function NewComponent() {
   const [javascript, setJavascript] = useState('');
   const [error, setError] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [isCheckingSelector, setIsCheckingSelector] = useState(false);
+
+  useEffect(() => {
+    // URL'den template parametresini al
+    const templateId = searchParams.get('template');
+    if (templateId) {
+      // Default components içinden seçili olanı bul
+      const template = defaultComponents.find(c => c.id === templateId);
+      if (template) {
+        setName(template.name);
+        setSelector('');
+        setPosition('after');
+        setHtml(template.html);
+        setCss(template.css);
+        setJavascript('');
+        setSelectedTemplate(templateId);
+        toast.success('Template başarıyla yüklendi!');
+      }
+    }
+  }, [searchParams]);
 
   const handleTemplateChange = (templateId: string) => {
     if (templateId) {
-      const template = defaultTemplates.find((t, index) => index.toString() === templateId);
+      const template = defaultComponents.find(c => c.id === templateId);
       if (template) {
         setName(template.name);
-        setSelector(template.selector);
-        setPosition(template.position);
+        setSelector('');
+        setPosition('after');
         setHtml(template.html);
         setCss(template.css);
-        setJavascript(template.javascript);
+        setJavascript('');
+        toast.success('Template başarıyla yüklendi!');
       }
     } else {
-      // Template seçimi kaldırıldığında formu temizle
       setName('');
       setSelector('');
       setPosition('after');
@@ -121,9 +63,58 @@ export default function NewComponent() {
     setSelectedTemplate(templateId);
   };
 
+  // Selector değiştiğinde kontrol et
+  const checkSelector = async (value: string) => {
+    if (!value) return;
+    
+    setIsCheckingSelector(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/check-selector?selector=${encodeURIComponent(value)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        mode: 'cors'
+      });
+      
+      const data = await res.json();
+      
+      if (data.exists) {
+        toast.error('Bu selector zaten kullanımda!');
+        setError('Bu selector zaten kullanımda. Lütfen başka bir selector seçin.');
+      } else {
+        setError('');
+      }
+    } catch (err) {
+      console.error('Selector kontrol hatası:', err);
+    } finally {
+      setIsCheckingSelector(false);
+    }
+  };
+
+  // Selector değişikliğini yönet
+  const handleSelectorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSelector(value);
+    setError('');
+    
+    // Debounce ile selector kontrolü
+    const timeoutId = setTimeout(() => {
+      checkSelector(value);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (isCheckingSelector) {
+      toast.error('Lütfen selector kontrolünün tamamlanmasını bekleyin.');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -152,16 +143,23 @@ export default function NewComponent() {
         throw new Error(data.error || 'Component oluşturma başarısız');
       }
 
-      // Dashboard'a yönlendir
+      toast.success('Component başarıyla oluşturuldu!');
       router.push('/dashboard');
     } catch (err) {
       if (err instanceof Error) {
+        toast.error(err.message);
         setError(err.message);
       } else {
+        toast.error('Bir hata oluştu');
         setError('Bir hata oluştu');
       }
     }
   };
+
+  const templateOptions = [
+    { id: "", name: "Boş Template" },
+    ...defaultComponents
+  ];
 
   return (
     <div className="min-h-screen p-8">
@@ -173,12 +171,11 @@ export default function NewComponent() {
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <Select
                   label="Template Seç"
-                  value={selectedTemplate}
+                  selectedKeys={selectedTemplate ? [selectedTemplate] : []}
                   onChange={(e) => handleTemplateChange(e.target.value)}
                 >
-                  <SelectItem key="empty" value="">Boş Template</SelectItem>
-                  {defaultTemplates.map((template, index) => (
-                    <SelectItem key={index} value={index.toString()}>
+                  {templateOptions.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
                       {template.name}
                     </SelectItem>
                   ))}
@@ -193,10 +190,13 @@ export default function NewComponent() {
                   <Input
                     label="Selector"
                     value={selector}
-                    onChange={(e) => setSelector(e.target.value)}
+                    onChange={handleSelectorChange}
                     placeholder="#my-widget"
                     className="flex-1"
                     required
+                    isInvalid={!!error}
+                    errorMessage={error}
+                    description="Benzersiz bir CSS seçici girin"
                   />
                   <Select
                     label="Pozisyon"
@@ -235,9 +235,6 @@ export default function NewComponent() {
                     onChange={(value) => setJavascript(value || '')}
                   />
                 </div>
-                {error && (
-                  <p className="text-red-500 text-sm">{error}</p>
-                )}
                 <div className="flex gap-4">
                   <Button type="submit" color="primary">
                     Component Oluştur
@@ -250,18 +247,19 @@ export default function NewComponent() {
             </CardBody>
           </Card>
 
-          <Card>
-            <CardBody>
-              <h2 className="text-xl font-semibold mb-4">Önizleme</h2>
-              <div className="border rounded p-4">
-                <style dangerouslySetInnerHTML={{ __html: css }} />
-                <div dangerouslySetInnerHTML={{ __html: html }} />
-                {javascript && (
-                  <script dangerouslySetInnerHTML={{ __html: javascript }} />
-                )}
-              </div>
-            </CardBody>
-          </Card>
+          <div className="space-y-4">
+            <Card>
+              <CardBody>
+                <h2 className="text-xl font-semibold mb-4">Önizleme</h2>
+                <Preview
+                  html={html}
+                  css={css}
+                  javascript={javascript}
+                  className="bg-gray-50"
+                />
+              </CardBody>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

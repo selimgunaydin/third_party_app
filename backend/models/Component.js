@@ -51,10 +51,22 @@ const componentSchema = new mongoose.Schema({
   }
 });
 
+// Selector ve userId için compound unique index
+componentSchema.index({ selector: 1, userId: 1 }, { unique: true });
+
 // Güncelleme tarihini otomatik güncelle
 componentSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
+});
+
+// Duplicate key error için özel hata mesajı
+componentSchema.post('save', function(error, doc, next) {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    next(new Error('Bu selector zaten kullanımda'));
+  } else {
+    next(error);
+  }
 });
 
 const Component = mongoose.model('Component', componentSchema);

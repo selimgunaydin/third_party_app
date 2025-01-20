@@ -11,7 +11,7 @@ export default function Home() {
           Widget Builder Platform
         </h1>
         <p className="text-xl mb-8">
-          Kendi özel widget&apos;larınızı oluşturun ve web sitenize ekleyin
+          Create and add your custom widgets to your website
         </p>
         <div className="flex gap-4 justify-center">
           <Button
@@ -21,7 +21,7 @@ export default function Home() {
             variant="solid"
             size="lg"
           >
-            Giriş Yap
+            Login
           </Button>
           <Button
             as={Link}
@@ -30,7 +30,7 @@ export default function Home() {
             variant="solid"
             size="lg"
           >
-            Kayıt Ol
+            Register
           </Button>
         </div>
       </div>

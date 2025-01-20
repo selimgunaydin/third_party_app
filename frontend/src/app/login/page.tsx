@@ -3,6 +3,7 @@
 import { Button, Card, CardBody, CardHeader, Input } from '@nextui-org/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 export default function Login() {
   const router = useRouter();
@@ -28,19 +29,19 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Giriş başarısız');
+        throw new Error(data.error || 'Login failed');
       }
 
-      // Token'ı localStorage'a kaydet
-      localStorage.setItem('token', data.token);
+      // Save token to cookie
+      Cookies.set('token', data.token, { expires: 7 }); // Expires in 7 days
       
-      // Dashboard'a yönlendir
+      // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Bir hata oluştu');
+        setError('An error occurred');
       }
     }
   };
@@ -49,7 +50,7 @@ export default function Login() {
     <main className="flex min-h-screen items-center justify-center p-24">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col gap-3 text-center">
-          <h1 className="text-2xl font-bold">Giriş Yap</h1>
+          <h1 className="text-2xl font-bold">Login</h1>
         </CardHeader>
         <CardBody>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -62,7 +63,7 @@ export default function Login() {
             />
             <Input
               type="password"
-              label="Şifre"
+              label="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -71,7 +72,7 @@ export default function Login() {
               <p className="text-red-500 text-sm">{error}</p>
             )}
             <Button type="submit" color="primary">
-              Giriş Yap
+              Login
             </Button>
           </form>
         </CardBody>
