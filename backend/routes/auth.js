@@ -5,20 +5,59 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
 
+// Token oluşturma fonksiyonu
+const generateToken = (userId) => {
+  return jwt.sign(
+    { _id: userId }, 
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' } // 7 gün geçerli token
+  );
+};
+
 // Register endpoint
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    // Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        error: 'Tüm alanlar zorunludur',
+        code: 'MISSING_FIELDS'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Şifre en az 6 karakter olmalıdır',
+        code: 'INVALID_PASSWORD'
+      });
+    }
+
     const user = new User({ name, email, password });
     await user.save();
     
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-    res.status(201).send({ user, token });
+    const token = generateToken(user._id);
+    
+    // Password'ü response'dan çıkar
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(201).json({ 
+      user: userResponse, 
+      token 
+    });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).send({ error: 'Email address is already in use' });
+      return res.status(400).json({
+        error: 'Bu email adresi zaten kullanımda',
+        code: 'DUPLICATE_EMAIL'
+      });
     }
-    res.status(400).send({ error: error.message });
+    res.status(400).json({
+      error: error.message,
+      code: 'REGISTRATION_ERROR'
+    });
   }
 });
 
@@ -26,21 +65,47 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Email ve şifre zorunludur',
+        code: 'MISSING_CREDENTIALS'
+      });
+    }
+
     const user = await User.findOne({ email });
     
     if (!user) {
-      throw new Error('Invalid credentials');
+      return res.status(401).json({
+        error: 'Geçersiz giriş bilgileri',
+        code: 'INVALID_CREDENTIALS'
+      });
     }
     
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      throw new Error('Invalid credentials');
+      return res.status(401).json({
+        error: 'Geçersiz giriş bilgileri',
+        code: 'INVALID_CREDENTIALS'
+      });
     }
     
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-    res.send({ user, token });
+    const token = generateToken(user._id);
+
+    // Password'ü response'dan çıkar
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    
+    res.json({ 
+      user: userResponse, 
+      token 
+    });
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({
+      error: 'Giriş yapılırken hata oluştu',
+      code: 'LOGIN_ERROR'
+    });
   }
 });
 
@@ -48,26 +113,44 @@ router.post('/login', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({
+        error: 'Kullanıcı bulunamadı',
+        code: 'USER_NOT_FOUND'
+      });
+    }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to get user information' });
+    res.status(500).json({
+      error: 'Kullanıcı bilgileri alınırken hata oluştu',
+      code: 'FETCH_ERROR'
+    });
   }
 });
 
 // Create new API key
 router.post('/api-key', auth, async (req, res) => {
   try {
-    // Generate new API key
-    const apiKey = crypto.randomBytes(32).toString('hex');
+    // 64 byte (512 bit) API key
+    const apiKey = crypto.randomBytes(64).toString('hex');
     
-    // Add to user
     const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        error: 'Kullanıcı bulunamadı',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
     user.apiKeys.push(apiKey);
     await user.save();
 
     res.status(201).json({ apiKey });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create API key' });
+    res.status(500).json({
+      error: 'API key oluşturulurken hata oluştu',
+      code: 'API_KEY_ERROR'
+    });
   }
 });
 
@@ -75,19 +158,41 @@ router.post('/api-key', auth, async (req, res) => {
 router.delete('/api-key/:key', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        error: 'Kullanıcı bulunamadı',
+        code: 'USER_NOT_FOUND'
+      });
+    }
     
-    // User must have at least one API key
+    // En az bir API key olmalı
     if (user.apiKeys.length <= 1) {
-      return res.status(400).json({ error: 'You must have at least one API key' });
+      return res.status(400).json({
+        error: 'En az bir API key\'iniz olmak zorunda',
+        code: 'MIN_API_KEY'
+      });
     }
 
-    // Delete API key
+    // API key'i sil
+    if (!user.apiKeys.includes(req.params.key)) {
+      return res.status(404).json({
+        error: 'API key bulunamadı',
+        code: 'API_KEY_NOT_FOUND'
+      });
+    }
+
     user.apiKeys = user.apiKeys.filter(key => key !== req.params.key);
     await user.save();
 
-    res.json({ message: 'API key deleted successfully' });
+    res.json({ 
+      message: 'API key başarıyla silindi',
+      remainingKeys: user.apiKeys.length
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete API key' });
+    res.status(500).json({
+      error: 'API key silinirken hata oluştu',
+      code: 'DELETE_ERROR'
+    });
   }
 });
 

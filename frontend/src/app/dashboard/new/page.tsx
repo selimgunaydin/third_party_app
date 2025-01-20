@@ -7,6 +7,7 @@ import Editor from '@monaco-editor/react';
 import { defaultComponents } from '@/data/defaultComponents';
 import toast from 'react-hot-toast';
 import Preview from '@/components/Preview';
+import Cookies from 'js-cookie';
 
 export default function NewComponent() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function NewComponent() {
   const [javascript, setJavascript] = useState('');
   const [error, setError] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [isCheckingSelector, setIsCheckingSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // URL'den template parametresini al
@@ -63,13 +64,15 @@ export default function NewComponent() {
     setSelectedTemplate(templateId);
   };
 
-  // Selector değiştiğinde kontrol et
-  const checkSelector = async (value: string) => {
-    if (!value) return;
-    
-    setIsCheckingSelector(true);
+  // Selector kontrolü
+  const checkSelector = async (value: string): Promise<boolean> => {
     try {
-      const token = localStorage.getItem('token');
+      const token = Cookies.get('token');
+      if (!token) {
+        router.push('/login');
+        return false;
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/check-selector?selector=${encodeURIComponent(value)}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -78,46 +81,43 @@ export default function NewComponent() {
         mode: 'cors'
       });
       
-      const data = await res.json();
-      
-      if (data.exists) {
-        toast.error('Bu selector zaten kullanımda!');
-        setError('Bu selector zaten kullanımda. Lütfen başka bir selector seçin.');
-      } else {
-        setError('');
+      if (!res.ok) {
+        if (res.status === 401) {
+          Cookies.remove('token');
+          router.push('/login');
+          return false;
+        }
+        throw new Error('Selector kontrolü başarısız');
       }
+
+      const data = await res.json();
+      return !data.exists;
     } catch (err) {
       console.error('Selector kontrol hatası:', err);
-    } finally {
-      setIsCheckingSelector(false);
+      toast.error('Selector kontrolü sırasında hata oluştu');
+      return false;
     }
-  };
-
-  // Selector değişikliğini yönet
-  const handleSelectorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSelector(value);
-    setError('');
-    
-    // Debounce ile selector kontrolü
-    const timeoutId = setTimeout(() => {
-      checkSelector(value);
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (isCheckingSelector) {
-      toast.error('Lütfen selector kontrolünün tamamlanmasını bekleyin.');
-      return;
-    }
+    setIsLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      // Önce selector kontrolü yap
+      if (!selector) {
+        setError('Selector alanı zorunludur');
+        setIsLoading(false);
+        return;
+      }
+
+      const token = Cookies.get('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components`, {
         method: 'POST',
         headers: {
@@ -140,6 +140,19 @@ export default function NewComponent() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 401) {
+          Cookies.remove('token');
+          router.push('/login');
+          return;
+        }
+
+        // Selector duplicate hatası kontrolü
+        if (data.code === 'DUPLICATE_SELECTOR') {
+          setError('Bu selector zaten kullanımda. Lütfen başka bir selector seçin.');
+          setIsLoading(false);
+          return;
+        }
+
         throw new Error(data.error || 'Component oluşturma başarısız');
       }
 
@@ -153,7 +166,16 @@ export default function NewComponent() {
         toast.error('Bir hata oluştu');
         setError('Bir hata oluştu');
       }
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Selector değişikliğini yönet
+  const handleSelectorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSelector(value);
+    setError('');
   };
 
   const templateOptions = [
@@ -237,7 +259,7 @@ export default function NewComponent() {
                   />
                 </div>
                 <div className="flex gap-4">
-                  <Button type="submit" color="primary">
+                  <Button type="submit" color="primary" isLoading={isLoading}>
                     Component Oluştur
                   </Button>
                   <Button color="default" onClick={() => router.push('/dashboard')}>

@@ -19,11 +19,59 @@ interface Component {
   isActive: boolean;
 }
 
+interface PaginatedResponse {
+  components: Component[];
+  pagination: {
+    total: number;
+    page: number;
+    pages: number;
+  };
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [components, setComponents] = useState<Component[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchComponents = async (page: number = 1) => {
+    try {
+      const token = Cookies.get('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components?page=${page}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        mode: 'cors'
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          Cookies.remove('token');
+          router.push('/login');
+          return;
+        }
+        throw new Error('Failed to fetch components');
+      }
+
+      const data: PaginatedResponse = await res.json();
+      setComponents(data.components);
+      setCurrentPage(data.pagination.page);
+      setTotalPages(data.pagination.pages);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      toast.error('Componentler yüklenirken hata oluştu!');
+    }
+  };
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -40,41 +88,38 @@ export default function Dashboard() {
       credentials: 'include',
       mode: 'cors'
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        if (res.status === 401) {
+          Cookies.remove('token');
+          router.push('/login');
+          return;
+        }
+        throw new Error('Failed to get user information');
+      }
+      return res.json();
+    })
     .then(data => {
       if (data.apiKeys && data.apiKeys.length > 0) {
-        setApiKey(data.apiKeys[0]); // Use first API key
+        setApiKey(data.apiKeys[0]);
       }
     })
     .catch(err => {
       console.error(err);
-      toast.error('Failed to get user information!');
+      toast.error('Kullanıcı bilgileri alınamadı!');
     });
 
-    // Get components
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      credentials: 'include',
-      mode: 'cors'
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (Array.isArray(data)) {
-        setComponents(data);
-      }
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error(err);
-      setLoading(false);
-    });
+    fetchComponents();
   }, [router]);
 
   const handleDelete = async (id: string) => {
     try {
       const token = Cookies.get('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${id}`, {
         method: 'DELETE',
         headers: {
@@ -85,16 +130,61 @@ export default function Dashboard() {
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          Cookies.remove('token');
+          router.push('/login');
+          return;
+        }
         throw new Error('Component could not be deleted');
       }
 
-      // Reload components
       const updatedComponents = components.filter(c => c._id !== id);
       setComponents(updatedComponents);
-      toast.success('Component deleted successfully!');
+      toast.success('Component başarıyla silindi!');
     } catch (err) {
       console.error('Error deleting component:', err);
-      toast.error('Error deleting component!');
+      toast.error('Component silinirken hata oluştu!');
+    }
+  };
+
+  const handleStatusChange = async (component: Component) => {
+    try {
+      const token = Cookies.get('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${component._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          isActive: !component.isActive
+        }),
+        credentials: 'include',
+        mode: 'cors'
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          Cookies.remove('token');
+          router.push('/login');
+          return;
+        }
+        throw new Error('Status could not be updated');
+      }
+
+      const updatedComponents = components.map(c =>
+        c._id === component._id ? { ...c, isActive: !c.isActive } : c
+      );
+      setComponents(updatedComponents);
+      toast.success('Durum başarıyla güncellendi!');
+    } catch (err) {
+      console.error('Error updating status:', err);
+      toast.error('Durum güncellenirken hata oluştu!');
     }
   };
 
@@ -159,38 +249,8 @@ export default function Dashboard() {
                     <h3 className="text-lg font-semibold">{component.name}</h3>
                     <div className="flex items-center gap-4">
                       <Switch
-                        defaultSelected={component.isActive}  
-                        checked={component.isActive}
-                        onChange={async () => {
-                          try {
-                            const token = Cookies.get('token');
-                            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${component._id}`, {
-                              method: 'PATCH',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                              },
-                              body: JSON.stringify({
-                                isActive: !component.isActive
-                              }),
-                              credentials: 'include',
-                              mode: 'cors'
-                            });
-
-                            if (!res.ok) {
-                              throw new Error('Status could not be updated');
-                            }
-
-                            const updatedComponents = components.map(c =>
-                              c._id === component._id ? { ...c, isActive: !c.isActive } : c
-                            );
-                            setComponents(updatedComponents);
-                            toast.success('Status updated successfully!');
-                          } catch (err) {
-                            console.error('Error updating status:', err);
-                            toast.error('Error updating status!');
-                          }
-                        }}
+                        defaultSelected={component.isActive}
+                        onChange={() => handleStatusChange(component)}
                       />
                       <Button
                         as={Link}
@@ -226,6 +286,23 @@ export default function Dashboard() {
             </Card>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-4">
+            <div className="flex gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  size="sm"
+                  variant={page === currentPage ? "solid" : "light"}
+                  onPress={() => fetchComponents(page)}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

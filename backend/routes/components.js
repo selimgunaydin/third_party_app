@@ -3,6 +3,39 @@ const Component = require('../models/Component');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
+// Özel route'lar için ayrı router
+const specialRouter = express.Router();
+router.use('/', specialRouter);
+
+// Check selector - Özel router'da tanımla
+specialRouter.get('/check-selector', auth, async (req, res) => {
+  try {
+    const { selector } = req.query;
+    
+    if (!selector) {
+      return res.status(400).json({ 
+        error: 'Selector parametresi gerekli',
+        code: 'MISSING_SELECTOR'
+      });
+    }
+
+    const existingComponent = await Component.findOne({
+      userId: req.user._id,
+      selector: selector
+    });
+
+    res.json({ 
+      exists: !!existingComponent,
+      message: existingComponent ? 'Bu selector zaten kullanımda' : null
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Selector kontrolü sırasında hata oluştu',
+      code: 'CHECK_ERROR'
+    });
+  }
+});
+
 // Create new component
 router.post('/', auth, async (req, res) => {
   try {
@@ -13,41 +46,64 @@ router.post('/', auth, async (req, res) => {
     await component.save();
     res.status(201).send(component);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        error: 'Bu selector zaten kullanımda',
+        code: 'DUPLICATE_SELECTOR'
+      });
+    }
+    res.status(400).json({ 
+      error: error.message,
+      code: 'VALIDATION_ERROR'
+    });
   }
 });
 
 // Get all components for user
 router.get('/', auth, async (req, res) => {
   try {
-    const components = await Component.find({ userId: req.user._id });
-    res.send(components);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-// Get specific component
-router.get('/:id', auth, async (req, res) => {
-  try {
-    const component = await Component.findOne({
-      _id: req.params.id,
-      userId: req.user._id
+    const [components, total] = await Promise.all([
+      Component.find({ userId: req.user._id })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Component.countDocuments({ userId: req.user._id })
+    ]);
+
+    res.json({
+      components,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
     });
-    
-    if (!component) {
-      return res.status(404).send({ error: 'Component not found' });
-    }
-    
-    res.send(component);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ 
+      error: 'Componentler yüklenirken hata oluştu',
+      code: 'FETCH_ERROR'
+    });
   }
 });
 
 // Update component
 router.patch('/:id', auth, async (req, res) => {
   try {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['name', 'selector', 'position', 'html', 'css', 'javascript', 'isActive'];
+    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+
+    if (!isValidOperation) {
+      return res.status(400).json({ 
+        error: 'Geçersiz güncelleme alanları',
+        code: 'INVALID_UPDATES'
+      });
+    }
+
     const component = await Component.findOneAndUpdate(
       { _id: req.params.id, userId: req.user._id },
       req.body,
@@ -55,12 +111,24 @@ router.patch('/:id', auth, async (req, res) => {
     );
     
     if (!component) {
-      return res.status(404).send({ error: 'Component not found' });
+      return res.status(404).json({ 
+        error: 'Component bulunamadı',
+        code: 'NOT_FOUND'
+      });
     }
     
-    res.send(component);
+    res.json(component);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        error: 'Bu selector zaten kullanımda',
+        code: 'DUPLICATE_SELECTOR'
+      });
+    }
+    res.status(400).json({ 
+      error: error.message,
+      code: 'UPDATE_ERROR'
+    });
   }
 });
 
@@ -73,12 +141,21 @@ router.delete('/:id', auth, async (req, res) => {
     });
     
     if (!component) {
-      return res.status(404).send({ error: 'Component not found' });
+      return res.status(404).json({ 
+        error: 'Component bulunamadı',
+        code: 'NOT_FOUND'
+      });
     }
     
-    res.send(component);
+    res.json({ 
+      message: 'Component başarıyla silindi',
+      component 
+    });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ 
+      error: 'Component silinirken hata oluştu',
+      code: 'DELETE_ERROR'
+    });
   }
 });
 
@@ -94,31 +171,6 @@ router.get('/widget/:apiKey', async (req, res) => {
     res.send(components);
   } catch (error) {
     res.status(500).send({ error: error.message });
-  }
-});
-
-// Check selector
-router.get('/check-selector', auth, async (req, res) => {
-  try {
-    const { selector } = req.query;
-    
-    if (!selector) {
-      return res.status(400).json({ error: 'Selector parameter is required' });
-    }
-
-    // Search among user's components
-    const existingComponent = await Component.findOne({
-      userId: req.user._id,
-      selector: selector
-    });
-
-    res.json({ 
-      exists: !!existingComponent,
-      message: existingComponent ? 'This selector is already in use' : null
-    });
-  } catch (error) {
-    console.error('Selector check error:', error);
-    res.status(500).json({ error: 'Server error' });
   }
 });
 
