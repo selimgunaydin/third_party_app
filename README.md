@@ -1,13 +1,13 @@
 # Third Party App
 
-Bu proje, modern web teknolojileri kullanılarak geliştirilmiş full-stack bir uygulamadır.
+This is a full-stack application developed using modern web technologies.
 
-## 🚀 Teknoloji Yığını
+## 🚀 Technology Stack
 
 ### Backend
 - Node.js
 - Express.js
-- MongoDB (varsayılan)
+- MongoDB (default)
 - JWT Authentication
 
 ### Frontend
@@ -16,7 +16,7 @@ Bu proje, modern web teknolojileri kullanılarak geliştirilmiş full-stack bir 
 - Tailwind CSS
 - ESLint
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
 ├── backend/
@@ -32,58 +32,58 @@ Bu proje, modern web teknolojileri kullanılarak geliştirilmiş full-stack bir 
     └── certificates/
 ```
 
-## 🛠 Kurulum
+## 🛠 Installation
 
-### Backend Kurulumu
-1. Backend dizinine gidin:
+### Backend Setup
+1. Navigate to backend directory:
 ```bash
 cd backend
 ```
 
-2. Bağımlılıkları yükleyin:
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. `.env` dosyasını yapılandırın:
+3. Configure `.env` file:
 ```
 PORT=3001
 MONGODB_URI=your_mongodb_uri
 JWT_SECRET=your_jwt_secret
 ```
 
-4. Sunucuyu başlatın:
+4. Start the server:
 ```bash
 npm start
 ```
 
-### Frontend Kurulumu
-1. Frontend dizinine gidin:
+### Frontend Setup
+1. Navigate to frontend directory:
 ```bash
 cd frontend
 ```
 
-2. Bağımlılıkları yükleyin:
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. `.env.local` dosyasını yapılandırın:
+3. Configure `.env.local` file:
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
-4. Geliştirme sunucusunu başlatın:
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-## 🔒 SSL Sertifikaları
-Frontend'de SSL sertifikaları `certificates/` dizininde bulunmaktadır.
+## 🔒 SSL Certificates
+SSL certificates are located in the `certificates/` directory in the frontend.
 
-## 🌐 Erişim
+## 🌐 Access
 - Frontend: https://localhost:3000
 - Backend API: http://localhost:3001
 
-## 📝 Lisans
-Bu proje MIT lisansı altında lisanslanmıştır. 
+## 📝 License
+This project is licensed under the MIT License. 
