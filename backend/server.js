@@ -38,7 +38,7 @@ app.get('/widget/:apiKey', async (req, res) => {
       return res.status(404).send('Geçersiz API key');
     }
 
-    const components = await Component.find({ userId: user._id });
+    const components = await Component.find({ userId: user._id, isActive: true });
     
     // Widget JavaScript kodunu oluştur
     const widgetCode = `

@@ -32,6 +32,10 @@ const componentSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
