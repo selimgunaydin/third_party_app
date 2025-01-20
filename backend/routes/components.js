@@ -90,6 +90,30 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// Get single component
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const component = await Component.findOne({
+      _id: req.params.id,
+      userId: req.user._id
+    });
+
+    if (!component) {
+      return res.status(404).json({ 
+        error: 'Component bulunamadı',
+        code: 'NOT_FOUND'
+      });
+    }
+
+    res.json(component);
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Component yüklenirken hata oluştu',
+      code: 'FETCH_ERROR'
+    });
+  }
+});
+
 // Update component
 router.patch('/:id', auth, async (req, res) => {
   try {
