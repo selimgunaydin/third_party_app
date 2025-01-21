@@ -1,17 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, Input } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 import { auth } from '@/lib/api';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { registerSchema } from '@/lib/validations';
+import { AxiosError } from 'axios';
+
+type RegisterFormData = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: yupResolver(registerSchema),
+  });
 
   useEffect(() => {
     // Production ortamında register sayfasına erişimi engelle
@@ -20,24 +33,18 @@ export default function RegisterPage() {
     }
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await auth.register({
-        name,
-        email,
-        password
-      });
-
+      await auth.register(data);
       toast.success('Kayıt başarılı! Giriş yapabilirsiniz.');
       router.push('/login');
     } catch (err) {
-      console.error(err);
-      toast.error('Kayıt sırasında bir hata oluştu!');
-    } finally {
-      setIsLoading(false);
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data?.message || 'Kayıt işlemi başarısız');
+      } else {
+        console.error(err);
+        toast.error('Kayıt sırasında bir hata oluştu!');
+      }
     }
   };
 
@@ -51,32 +58,32 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardBody className="space-y-4">
           <h1 className="text-2xl font-bold text-center mb-6">Kayıt Ol</h1>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
+              {...register('name')}
               label="Ad Soyad"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
+              isInvalid={!!errors.name}
+              errorMessage={errors.name?.message}
             />
             <Input
+              {...register('email')}
               label="E-posta"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              isInvalid={!!errors.email}
+              errorMessage={errors.email?.message}
             />
             <Input
+              {...register('password')}
               label="Şifre"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              isInvalid={!!errors.password}
+              errorMessage={errors.password?.message}
             />
             <Button
               type="submit"
               color="primary"
               className="w-full"
-              isLoading={isLoading}
+              isLoading={isSubmitting}
             >
               Kayıt Ol
             </Button>

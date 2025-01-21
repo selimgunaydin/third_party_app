@@ -10,19 +10,39 @@ import Preview from '@/components/Preview';
 import Cookies from 'js-cookie';
 import { components } from '@/lib/api';
 import { AxiosError } from 'axios';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { componentSchema } from '@/lib/validations';
+
+type ComponentFormData = {
+  name: string;
+  selector: string;
+  position: 'before' | 'after';
+  html: string;
+  css?: string;
+  javascript?: string;
+  isActive: boolean;
+};
 
 function NewComponentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [name, setName] = useState('');
-  const [selector, setSelector] = useState('');
-  const [position, setPosition] = useState<'before' | 'after'>('after');
-  const [html, setHtml] = useState('');
-  const [css, setCss] = useState('');
-  const [javascript, setJavascript] = useState('');
-  const [error, setError] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<ComponentFormData>({
+    resolver: yupResolver(componentSchema),
+    defaultValues: {
+      position: 'after',
+      isActive: true,
+    },
+  });
 
   useEffect(() => {
     // URL'den template parametresini al
@@ -31,78 +51,50 @@ function NewComponentForm() {
       // Default components içinden seçili olanı bul
       const template = defaultComponents.find(c => c.id === templateId);
       if (template) {
-        setName(template.name);
-        setSelector('');
-        setPosition('after');
-        setHtml(template.html);
-        setCss(template.css);
-        setJavascript(template.javascript);
+        setValue('name', template.name);
+        setValue('selector', '');
+        setValue('position', 'after');
+        setValue('html', template.html);
+        setValue('css', template.css);
+        setValue('javascript', template.javascript);
         setSelectedTemplate(templateId);
         toast.success('Template başarıyla yüklendi!');
       }
     }
-  }, [searchParams]);
+  }, [searchParams, setValue]);
 
   const handleTemplateChange = (templateId: string) => {
     if (templateId) {
       const template = defaultComponents.find(c => c.id === templateId);
       if (template) {
-        setName(template.name);
-        setSelector('');
-        setPosition('after');
-        setHtml(template.html);
-        setCss(template.css);
-        setJavascript(template.javascript);
+        setValue('name', template.name);
+        setValue('selector', '');
+        setValue('position', 'after');
+        setValue('html', template.html);
+        setValue('css', template.css);
+        setValue('javascript', template.javascript);
         toast.success('Template başarıyla yüklendi!');
       }
     } else {
-      setName('');
-      setSelector('');
-      setPosition('after');
-      setHtml('');
-      setCss('');
-      setJavascript('');
+      setValue('name', '');
+      setValue('selector', '');
+      setValue('position', 'after');
+      setValue('html', '');
+      setValue('css', '');
+      setValue('javascript', '');
     }
     setSelectedTemplate(templateId);
   };
 
-  // Selector değişikliğini yönet
-  const handleSelectorChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSelector(value);
-    setError('');
-
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
+  const onSubmit = async (data: ComponentFormData) => {
     try {
-      // Önce selector kontrolü yap
-      if (!selector) {
-        setError('Selector alanı zorunludur');
-        setIsLoading(false);
-        return;
-      }
-
       const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return;
       }
 
-      await components.create({
-        name,
-        selector,
-        position,
-        html,
-        css,
-        javascript,
-        isActive: true
-      });
-
+      await components.create(data);
       toast.success('Component başarıyla oluşturuldu!');
       router.push('/dashboard');
     } catch (err) {
@@ -115,19 +107,17 @@ function NewComponentForm() {
 
         // Selector duplicate hatası kontrolü
         if (err.response?.data?.code === 'DUPLICATE_SELECTOR') {
-          setError(err.response.data.message);
-          setIsLoading(false);
+          setError('selector', {
+            type: 'manual',
+            message: err.response.data.message,
+          });
           return;
         }
 
         toast.error(err.response?.data?.message || 'Component oluşturma başarısız');
-        setError(err.response?.data?.message || 'Component oluşturma başarısız');
       } else {
         toast.error('Bir hata oluştu');
-        setError('Bir hata oluştu');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -144,7 +134,7 @@ function NewComponentForm() {
           <Card>
             <CardBody>
               <h2 className="text-xl font-semibold mb-4">Yeni Component</h2>
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                 <Select
                   label="Template Seç"
                   selectedKeys={selectedTemplate ? [selectedTemplate] : []}
@@ -157,62 +147,100 @@ function NewComponentForm() {
                   ))}
                 </Select>
                 <Input
+                  {...register('name')}
                   label="Component Adı"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
+                  isInvalid={!!errors.name}
+                  errorMessage={errors.name?.message}
                 />
                 <div className="flex gap-4">
                   <Input
+                    {...register('selector')}
                     label="Selector"
-                    value={selector}
-                    onChange={handleSelectorChange}
                     placeholder="#my-widget"
                     className="flex-1"
-                    required
-                    isInvalid={!!error}
-                    errorMessage={error}
+                    isInvalid={!!errors.selector}
+                    errorMessage={errors.selector?.message}
                     description="Benzersiz bir CSS seçici girin"
                   />
-                  <Select
-                    label="Pozisyon"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value as 'before' | 'after')}
-                    className="w-48"
-                  >
-                    <SelectItem key="before" value="before">Öncesine</SelectItem>
-                    <SelectItem key="after" value="after">Sonrasına</SelectItem>
-                  </Select>
+                  <Controller
+                    name="position"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        label="Pozisyon"
+                        selectedKeys={[field.value]}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-48"
+                        isInvalid={!!errors.position}
+                        errorMessage={errors.position?.message}
+                      >
+                        <SelectItem key="before" value="before">Öncesine</SelectItem>
+                        <SelectItem key="after" value="after">Sonrasına</SelectItem>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-2">HTML</label>
-                  <Editor
-                    height="200px"
-                    defaultLanguage="html"
-                    value={html}
-                    onChange={(value) => setHtml(value || '')}
+                  <Controller
+                    name="html"
+                    control={control}
+                    render={({ field }) => (
+                      <div>
+                        <Editor
+                          height="200px"
+                          defaultLanguage="html"
+                          value={field.value}
+                          onChange={(value) => field.onChange(value || '')}
+                          options={{
+                            minimap: { enabled: false },
+                          }}
+                        />
+                        {errors.html && (
+                          <p className="text-danger text-sm mt-1">{errors.html.message}</p>
+                        )}
+                      </div>
+                    )}
                   />
                 </div>
                 <div>
                   <label className="block text-sm mb-2">CSS</label>
-                  <Editor
-                    height="200px"
-                    defaultLanguage="css"
-                    value={css}
-                    onChange={(value) => setCss(value || '')}
+                  <Controller
+                    name="css"
+                    control={control}
+                    render={({ field }) => (
+                      <Editor
+                        height="200px"
+                        defaultLanguage="css"
+                        value={field.value}
+                        onChange={(value) => field.onChange(value || '')}
+                        options={{
+                          minimap: { enabled: false },
+                        }}
+                      />
+                    )}
                   />
                 </div>
                 <div>
                   <label className="block text-sm mb-2">JavaScript</label>
-                  <Editor
-                    height="200px"
-                    defaultLanguage="javascript"
-                    value={javascript}
-                    onChange={(value) => setJavascript(value || '')}
+                  <Controller
+                    name="javascript"
+                    control={control}
+                    render={({ field }) => (
+                      <Editor
+                        height="200px"
+                        defaultLanguage="javascript"
+                        value={field.value}
+                        onChange={(value) => field.onChange(value || '')}
+                        options={{
+                          minimap: { enabled: false },
+                        }}
+                      />
+                    )}
                   />
                 </div>
                 <div className="flex gap-4">
-                  <Button type="submit" color="primary" isLoading={isLoading}>
+                  <Button type="submit" color="primary" isLoading={isSubmitting}>
                     Component Oluştur
                   </Button>
                   <Button color="default" onClick={() => router.push('/dashboard')}>
@@ -228,9 +256,9 @@ function NewComponentForm() {
               <CardBody>
                 <h2 className="text-xl font-semibold mb-4">Önizleme</h2>
                 <Preview
-                  html={html}
-                  css={css}
-                  javascript={javascript}
+                  html={control._formValues.html || ''}
+                  css={control._formValues.css || ''}
+                  javascript={control._formValues.javascript || ''}
                   className="bg-gray-50"
                 />
               </CardBody>
