@@ -18,17 +18,6 @@ import { WidgetModule } from './widget/widget.module';
     WidgetModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: 'APP_PIPE',
-      useFactory: () => ({
-        cors: {
-          origin: process.env.FRONTEND_URL,
-          credentials: true,
-        },
-      }),
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
