@@ -8,6 +8,8 @@ import { defaultComponents } from '@/data/defaultComponents';
 import toast from 'react-hot-toast';
 import Preview from '@/components/Preview';
 import Cookies from 'js-cookie';
+import { components } from '@/lib/api';
+import { AxiosError } from 'axios';
 
 function NewComponentForm() {
   const router = useRouter();
@@ -64,39 +66,12 @@ function NewComponentForm() {
     setSelectedTemplate(templateId);
   };
 
-  // Selector kontrolü
-  const checkSelector = async (value: string): Promise<boolean> => {
-    try {
-      const token = Cookies.get('access_token');
-      if (!token) {
-        router.push('/login');
-        return false;
-      }
+  // Selector değişikliğini yönet
+  const handleSelectorChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSelector(value);
+    setError('');
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/check-selector?selector=${encodeURIComponent(value)}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
-      
-      if (!res.ok) {
-        if (res.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
-          return false;
-        }
-        throw new Error('Selector kontrolü başarısız');
-      }
-
-      const data = await res.json();
-      return !data.exists;
-    } catch (err) {
-      console.error('Selector kontrol hatası:', err);
-      toast.error('Selector kontrolü sırasında hata oluştu');
-      return false;
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,50 +93,35 @@ function NewComponentForm() {
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name,
-          selector,
-          position,
-          html,
-          css,
-          javascript,
-          isActive: true
-        }),
-        credentials: 'include',
-        mode: 'cors'
+      await components.create({
+        name,
+        selector,
+        position,
+        html,
+        css,
+        javascript,
+        isActive: true
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 401) {
+      toast.success('Component başarıyla oluşturuldu!');
+      router.push('/dashboard');
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
           Cookies.remove('access_token');
           router.push('/login');
           return;
         }
 
         // Selector duplicate hatası kontrolü
-        if (data.code === 'DUPLICATE_SELECTOR') {
-          setError('Bu selector zaten kullanımda. Lütfen başka bir selector seçin.');
+        if (err.response?.data?.code === 'DUPLICATE_SELECTOR') {
+          setError(err.response.data.message);
           setIsLoading(false);
           return;
         }
 
-        throw new Error(data.error || 'Component oluşturma başarısız');
-      }
-
-      toast.success('Component başarıyla oluşturuldu!');
-      router.push('/dashboard');
-    } catch (err) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-        setError(err.message);
+        toast.error(err.response?.data?.message || 'Component oluşturma başarısız');
+        setError(err.response?.data?.message || 'Component oluşturma başarısız');
       } else {
         toast.error('Bir hata oluştu');
         setError('Bir hata oluştu');
@@ -169,13 +129,6 @@ function NewComponentForm() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Selector değişikliğini yönet
-  const handleSelectorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSelector(value);
-    setError('');
   };
 
   const templateOptions = [

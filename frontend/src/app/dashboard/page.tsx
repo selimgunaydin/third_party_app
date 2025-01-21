@@ -6,22 +6,13 @@ import { Card, CardBody, Button, Switch } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
-
-interface Component {
-  _id: string;
-  name: string;
-  selector: string;
-  position: 'before' | 'after';
-  html: string;
-  css: string;
-  javascript: string;
-  isTemplate?: boolean;
-  isActive: boolean;
-}
+import { auth, components } from '@/lib/api';
+import { AxiosError } from 'axios';
+import { Component } from '@/types';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [components, setComponents] = useState<Component[]>([]);
+  const [componentList, setComponentList] = useState<Component[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState('');
 
@@ -33,31 +24,22 @@ export default function Dashboard() {
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
+      const data = await components.getAll();
+      setComponentList(data);
+      setLoading(false);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
           Cookies.remove('access_token');
           router.push('/login');
           return;
         }
-        throw new Error('Failed to fetch components');
+        toast.error(err.response?.data?.message || 'Componentler yüklenemedi');
+      } else {
+        console.error(err);
+        toast.error('Componentler yüklenirken hata oluştu!');
       }
-
-      const data = await res.json();
-      console.log(data)
-      setComponents(data);
       setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      toast.error('Componentler yüklenirken hata oluştu!');
     }
   };
 
@@ -69,33 +51,25 @@ export default function Dashboard() {
     }
 
     // Get user information and API key
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      credentials: 'include',
-      mode: 'cors'
-    })
-    .then(res => {
-      if (!res.ok) {
-        if (res.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
-          return;
+    auth.getProfile()
+      .then(data => {
+        if (data.apiKeys && data.apiKeys.length > 0) {
+          setApiKey(data.apiKeys[0]);
         }
-        throw new Error('Failed to get user information');
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (data.apiKeys && data.apiKeys.length > 0) {
-        setApiKey(data.apiKeys[0]);
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      toast.error('Kullanıcı bilgileri alınamadı!');
-    });
+      })
+      .catch(err => {
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 401) {
+            Cookies.remove('access_token');
+            router.push('/login');
+            return;
+          }
+          toast.error(err.response?.data?.message || 'Kullanıcı bilgileri alınamadı');
+        } else {
+          console.error(err);
+          toast.error('Kullanıcı bilgileri alınamadı!');
+        }
+      });
 
     fetchComponents();
   }, [router]);
@@ -108,30 +82,22 @@ export default function Dashboard() {
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
+      await components.delete(id);
+      const updatedComponents = componentList.filter(c => c._id !== id);
+      setComponentList(updatedComponents);
+      toast.success('Component başarıyla silindi!');
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
           Cookies.remove('access_token');
           router.push('/login');
           return;
         }
-        throw new Error('Component could not be deleted');
+        toast.error(err.response?.data?.message || 'Component silinemedi');
+      } else {
+        console.error('Error deleting component:', err);
+        toast.error('Component silinirken hata oluştu!');
       }
-
-      const updatedComponents = components.filter(c => c._id !== id);
-      setComponents(updatedComponents);
-      toast.success('Component başarıyla silindi!');
-    } catch (err) {
-      console.error('Error deleting component:', err);
-      toast.error('Component silinirken hata oluştu!');
     }
   };
 
@@ -143,36 +109,27 @@ export default function Dashboard() {
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${component._id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          isActive: !component.isActive
-        }),
-        credentials: 'include',
-        mode: 'cors'
+      await components.update(component._id, {
+        isActive: !component.isActive
       });
 
-      if (!res.ok) {
-        if (res.status === 401) {
+      const updatedComponents = componentList?.map(c =>
+        c._id === component._id ? { ...c, isActive: !c.isActive } : c
+      );
+      setComponentList(updatedComponents);
+      toast.success('Durum başarıyla güncellendi!');
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
           Cookies.remove('access_token');
           router.push('/login');
           return;
         }
-        throw new Error('Status could not be updated');
+        toast.error(err.response?.data?.message || 'Durum güncellenemedi');
+      } else {
+        console.error('Error updating status:', err);
+        toast.error('Durum güncellenirken hata oluştu!');
       }
-
-      const updatedComponents = components?.map(c =>
-        c._id === component._id ? { ...c, isActive: !c.isActive } : c
-      );
-      setComponents(updatedComponents);
-      toast.success('Durum başarıyla güncellendi!');
-    } catch (err) {
-      console.error('Error updating status:', err);
-      toast.error('Durum güncellenirken hata oluştu!');
     }
   };
 
@@ -230,7 +187,7 @@ export default function Dashboard() {
               </CardBody>
             </Card>
           ) : (
-            components?.map((component) => (
+            componentList?.map((component) => (
               <Card key={component._id} className="hover:shadow-md transition-shadow">
                 <CardBody>
                   <div className="flex justify-between items-center mb-4">
@@ -251,20 +208,22 @@ export default function Dashboard() {
                       <Button
                         color="danger"
                         variant="light"
-                        onPress={() => handleDelete(component._id)}
+                        onClick={() => handleDelete(component._id)}
                       >
                         Delete
                       </Button>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">Selector: {component.selector}</p>
-                  <p className="text-sm text-gray-600">Position: {component.position}</p>
+                  <div className="text-sm text-gray-500">
+                    <p>Selector: <code>{component.selector}</code></p>
+                    <p>Position: {component.position}</p>
+                  </div>
                 </CardBody>
               </Card>
             ))
           )}
           
-          {components?.length === 0 && !loading && (
+          {componentList?.length === 0 && !loading && (
             <Card>
               <CardBody>
                 <p className="text-center text-gray-500">

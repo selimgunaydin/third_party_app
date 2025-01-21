@@ -96,6 +96,13 @@ export const components = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/api/components/${id}`);
   },
+
+  checkSelector: async (selector: string): Promise<{ exists: boolean }> => {
+    const response = await api.get<{ exists: boolean }>(`/api/components/check-selector`, {
+      params: { selector }
+    });
+    return response.data;
+  }
 };
 
 export default api; 

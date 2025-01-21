@@ -7,17 +7,9 @@ import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 import Preview from '@/components/Preview';
 import Cookies from 'js-cookie';
-
-interface Component {
-  _id: string;
-  name: string;
-  selector: string;
-  position: 'before' | 'after';
-  html: string;
-  css: string;
-  javascript: string;
-  isActive: boolean;
-}
+import { components } from '@/lib/api';
+import { AxiosError } from 'axios';
+import { Component } from '@/types';
 
 export default function EditComponent({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -39,24 +31,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
           return;
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${params.id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          credentials: 'include',
-          mode: 'cors'
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
-            Cookies.remove('access_token');
-            router.push('/login');
-            return;
-          }
-          throw new Error('Component yüklenemedi');
-        }
-
-        const data = await res.json();
+        const data = await components.getOne(params.id);
         setComponent(data);
         setName(data.name);
         setSelector(data.selector);
@@ -65,8 +40,17 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         setCss(data.css);
         setJavascript(data.javascript);
       } catch (err) {
-        console.error(err);
-        toast.error('Component yüklenirken hata oluştu!');
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 401) {
+            Cookies.remove('access_token');
+            router.push('/login');
+            return;
+          }
+          toast.error(err.response?.data?.message || 'Component yüklenemedi');
+        } else {
+          console.error(err);
+          toast.error('Component yüklenirken hata oluştu!');
+        }
       }
     };
 
@@ -84,38 +68,29 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components/${params.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name,
-          selector,
-          position,
-          html,
-          css,
-          javascript
-        }),
-        credentials: 'include',
-        mode: 'cors'
+      await components.update(params.id, {
+        name,
+        selector,
+        position,
+        html,
+        css,
+        javascript
       });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
-          return;
-        }
-        throw new Error('Component güncellenemedi');
-      }
 
       toast.success('Component başarıyla güncellendi!');
       router.push('/dashboard');
     } catch (err) {
-      console.error(err);
-      toast.error('Component güncellenirken hata oluştu!');
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          Cookies.remove('access_token');
+          router.push('/login');
+          return;
+        }
+        toast.error(err.response?.data?.message || 'Component güncellenemedi');
+      } else {
+        console.error(err);
+        toast.error('Component güncellenirken hata oluştu!');
+      }
     } finally {
       setIsLoading(false);
     }

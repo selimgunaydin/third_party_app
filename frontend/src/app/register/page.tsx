@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, Input } from '@nextui-org/react';
 import toast from 'react-hot-toast';
+import { auth } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,23 +25,11 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password
-        })
+      await auth.register({
+        name,
+        email,
+        password
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Kayıt işlemi başarısız');
-      }
 
       toast.success('Kayıt başarılı! Giriş yapabilirsiniz.');
       router.push('/login');
