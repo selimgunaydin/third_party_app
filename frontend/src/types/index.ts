@@ -12,8 +12,8 @@ export interface Component {
   name: string;
   selector: string;
   html: string;
-  css?: string;
-  javascript?: string;
+  css: string;
+  javascript: string;
   position: 'before' | 'after';
   isActive: boolean;
   createdAt: string;

@@ -22,7 +22,7 @@ const config: Config = {
           700: '#0369a1',
           800: '#075985',
           900: '#0c4a6e',
-          950: '#082f49',
+          DEFAULT: '#0ea5e9',
         },
         secondary: {
           50: '#f8fafc',
@@ -35,7 +35,7 @@ const config: Config = {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
-          950: '#020617',
+          DEFAULT: '#64748b',
         }
       },
       fontFamily: {
@@ -62,7 +62,6 @@ const config: Config = {
               700: '#0369a1',
               800: '#075985',
               900: '#0c4a6e',
-              950: '#082f49',
               foreground: '#FFFFFF',
               DEFAULT: '#0ea5e9',
             },
@@ -84,7 +83,6 @@ const config: Config = {
               700: '#0369a1',
               800: '#075985',
               900: '#0c4a6e',
-              950: '#082f49',
               foreground: '#FFFFFF',
               DEFAULT: '#0ea5e9',
             },

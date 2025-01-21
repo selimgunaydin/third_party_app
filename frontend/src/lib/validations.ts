@@ -44,11 +44,11 @@ export const componentSchema = yup.object({
     .required('HTML kodu zorunludur'),
   css: yup
     .string()
-    .optional(),
+    .default(''),
   javascript: yup
     .string()
-    .optional(),
+    .default(''),
   isActive: yup
     .boolean()
-    .default(true),
+    .default(true)
 }); 

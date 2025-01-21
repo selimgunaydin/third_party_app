@@ -19,8 +19,8 @@ type ComponentFormData = {
   selector: string;
   position: 'before' | 'after';
   html: string;
-  css?: string;
-  javascript?: string;
+  css: string;
+  javascript: string;
   isActive: boolean;
 };
 
@@ -41,6 +41,11 @@ function NewComponentForm() {
     defaultValues: {
       position: 'after',
       isActive: true,
+      css: '',
+      javascript: '',
+      html: '',
+      name: '',
+      selector: ''
     },
   });
 
@@ -94,7 +99,11 @@ function NewComponentForm() {
         return;
       }
 
-      await components.create(data);
+      await components.create({
+        ...data,
+        css: data.css || '',
+        javascript: data.javascript || ''
+      });
       toast.success('Component başarıyla oluşturuldu!');
       router.push('/dashboard');
     } catch (err) {
