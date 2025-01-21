@@ -67,7 +67,7 @@ function NewComponentForm() {
   // Selector kontrolü
   const checkSelector = async (value: string): Promise<boolean> => {
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return false;
@@ -83,7 +83,7 @@ function NewComponentForm() {
       
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return false;
         }
@@ -112,7 +112,7 @@ function NewComponentForm() {
         return;
       }
 
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return;
@@ -141,7 +141,7 @@ function NewComponentForm() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }

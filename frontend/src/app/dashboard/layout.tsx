@@ -25,7 +25,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const handleLogout = () => {
-    Cookies.remove('token');
+    Cookies.remove('access_token');
     router.push('/login');
   };
 

@@ -33,7 +33,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchComponent = async () => {
       try {
-        const token = Cookies.get('token');
+        const token = Cookies.get('access_token');
         if (!token) {
           router.push('/login');
           return;
@@ -49,7 +49,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
 
         if (!res.ok) {
           if (res.status === 401) {
-            Cookies.remove('token');
+            Cookies.remove('access_token');
             router.push('/login');
             return;
           }
@@ -78,7 +78,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
     setIsLoading(true);
 
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return;
@@ -104,7 +104,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
 
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }

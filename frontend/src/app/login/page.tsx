@@ -4,6 +4,8 @@ import { Button, Card, CardBody, CardHeader, Input } from '@nextui-org/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { auth } from '@/lib/api';
+import { AxiosError } from 'axios';
 
 export default function Login() {
   const router = useRouter();
@@ -16,32 +18,21 @@ export default function Login() {
     setError('');
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-        mode: 'cors'
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
+      const response = await auth.login({ email, password });
+      
       // Save token to cookie
-      Cookies.set('token', data.token, { expires: 7 }); // Expires in 7 days
+      Cookies.set('access_token', response.access_token, { expires: 7 }); // Expires in 7 days
+      
+      // Wait a bit before redirect
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || 'Login failed');
       } else {
-        setError('An error occurred');
+        setError('An unexpected error occurred');
       }
     }
   };

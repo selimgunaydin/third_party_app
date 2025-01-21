@@ -19,32 +19,21 @@ interface Component {
   isActive: boolean;
 }
 
-interface PaginatedResponse {
-  components: Component[];
-  pagination: {
-    total: number;
-    page: number;
-    pages: number;
-  };
-}
-
 export default function Dashboard() {
   const router = useRouter();
   const [components, setComponents] = useState<Component[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchComponents = async (page: number = 1) => {
+  const fetchComponents = async () => {
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components?page=${page}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/components`, {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -54,17 +43,16 @@ export default function Dashboard() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }
         throw new Error('Failed to fetch components');
       }
 
-      const data: PaginatedResponse = await res.json();
-      setComponents(data.components);
-      setCurrentPage(data.pagination.page);
-      setTotalPages(data.pagination.pages);
+      const data = await res.json();
+      console.log(data)
+      setComponents(data);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -74,7 +62,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('access_token');
     if (!token) {
       router.push('/login');
       return;
@@ -91,7 +79,7 @@ export default function Dashboard() {
     .then(res => {
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }
@@ -114,7 +102,7 @@ export default function Dashboard() {
 
   const handleDelete = async (id: string) => {
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return;
@@ -131,7 +119,7 @@ export default function Dashboard() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }
@@ -149,7 +137,7 @@ export default function Dashboard() {
 
   const handleStatusChange = async (component: Component) => {
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       if (!token) {
         router.push('/login');
         return;
@@ -170,14 +158,14 @@ export default function Dashboard() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          Cookies.remove('token');
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }
         throw new Error('Status could not be updated');
       }
 
-      const updatedComponents = components.map(c =>
+      const updatedComponents = components?.map(c =>
         c._id === component._id ? { ...c, isActive: !c.isActive } : c
       );
       setComponents(updatedComponents);
@@ -242,7 +230,7 @@ export default function Dashboard() {
               </CardBody>
             </Card>
           ) : (
-            components.map((component) => (
+            components?.map((component) => (
               <Card key={component._id} className="hover:shadow-md transition-shadow">
                 <CardBody>
                   <div className="flex justify-between items-center mb-4">
@@ -276,7 +264,7 @@ export default function Dashboard() {
             ))
           )}
           
-          {components.length === 0 && !loading && (
+          {components?.length === 0 && !loading && (
             <Card>
               <CardBody>
                 <p className="text-center text-gray-500">
@@ -286,23 +274,6 @@ export default function Dashboard() {
             </Card>
           )}
         </div>
-
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-4">
-            <div className="flex gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  size="sm"
-                  variant={page === currentPage ? "solid" : "light"}
-                  onPress={() => fetchComponents(page)}
-                >
-                  {page}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

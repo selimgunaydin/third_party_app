@@ -6,10 +6,10 @@ import { Card, CardBody, Button } from '@nextui-org/react';
 import { HiPlus, HiTrash } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
+import { auth } from '@/lib/api';
+import { User as ApiUser } from '@/types';
 
-interface User {
-  name: string;
-  email: string;
+interface User extends ApiUser {
   apiKeys: string[];
 }
 
@@ -19,74 +19,43 @@ export default function AccountPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('access_token');
     if (!token) {
       router.push('/login');
       return;
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      credentials: 'include',
-      mode: 'cors'
-    })
-    .then(res => {
-      if (!res.ok) {
-        if (res.status === 401) {
-          Cookies.remove('token');
+    auth.getProfile()
+      .then(data => {
+        setUser(data as User);
+      })
+      .catch((err: any) => {
+        console.error(err);
+        if (err.response?.status === 401) {
+          Cookies.remove('access_token');
           router.push('/login');
           return;
         }
-        throw new Error('Failed to get user information');
-      }
-      return res.json();
-    })
-    .then(data => {
-      setUser(data);
-    })
-    .catch(err => {
-      console.error(err);
-      toast.error('Kullanıcı bilgileri alınamadı!');
-    });
+        toast.error('Kullanıcı bilgileri alınamadı!');
+      });
   }, [router]);
 
   const handleCreateApiKey = async () => {
     setIsLoading(true);
     try {
-      const token = Cookies.get('token');
-      if (!token) {
+      const response = await auth.generateApiKey();
+      setUser(prev => prev ? {
+        ...prev,
+        apiKeys: [...prev.apiKeys, response.apiKey]
+      } : null);
+      toast.success('API key başarıyla oluşturuldu!');
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.status === 401) {
+        Cookies.remove('access_token');
         router.push('/login');
         return;
       }
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/api-key`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          Cookies.remove('token');
-          router.push('/login');
-          return;
-        }
-        throw new Error('API key oluşturulamadı');
-      }
-
-      const data = await res.json();
-      setUser(prev => prev ? {
-        ...prev,
-        apiKeys: [...prev.apiKeys, data.apiKey]
-      } : null);
-      toast.success('API key başarıyla oluşturuldu!');
-    } catch (err) {
-      console.error(err);
       toast.error('API key oluşturulurken hata oluştu!');
     } finally {
       setIsLoading(false);
@@ -101,37 +70,19 @@ export default function AccountPage() {
 
     setIsLoading(true);
     try {
-      const token = Cookies.get('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/api-key/${apiKey}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          Cookies.remove('token');
-          router.push('/login');
-          return;
-        }
-        throw new Error('API key silinemedi');
-      }
-
+      await auth.deleteApiKey(apiKey);
       setUser(prev => prev ? {
         ...prev,
         apiKeys: prev.apiKeys.filter(key => key !== apiKey)
       } : null);
       toast.success('API key başarıyla silindi!');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      if (err.response?.status === 401) {
+        Cookies.remove('access_token');
+        router.push('/login');
+        return;
+      }
       toast.error('API key silinirken hata oluştu!');
     } finally {
       setIsLoading(false);
