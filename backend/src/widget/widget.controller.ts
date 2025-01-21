@@ -13,61 +13,54 @@ export class WidgetController {
     @Res() res: Response,
   ): Promise<void> {
     try {
-      // API key'i doğrula ve component'leri al
+      // Validate API key and get components
       const components = await this.widgetService.getComponentsByApiKey(apiKey);
       
-      // CORS header'larını ekle
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET');
-      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      // Add CORS headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Content-Type', 'application/javascript');
       
-      // Widget script'ini oluştur
-      const script = `
+      // Create widget script
+      let script = `
 (function() {
-  // Component verilerini global değişkene kaydet
-  window.thirdPartyComponents = ${JSON.stringify(components)};
+  // Store component data in global variable
+  window.__thirdPartyComponents = ${JSON.stringify(components)};
 
-  // Component'leri render et
-  function renderComponents() {
-    const components = window.thirdPartyComponents;
+  function initializeComponents() {
+    const components = window.__thirdPartyComponents;
+    if (!components || !Array.isArray(components)) return;
 
-    if (!Array.isArray(components) || components.length === 0) {
-      console.warn('No components found');
-      return;
-    }
-
-    // Her component için
+    // For each component
     components.forEach(component => {
-      // Component'in ekleneceği elementi bul
+      // Find target element for component
       const targetElements = document.querySelectorAll(component.selector);
-      if (!targetElements || targetElements.length === 0) {
-        console.warn(\`Target element not found for selector: \${component.selector}\`);
-        return;
+      if (!targetElements.length) return;
+
+      // Create component element
+      const componentElement = document.createElement('div');
+      componentElement.innerHTML = component.html;
+
+      // Add component styles
+      if (component.css) {
+        const style = document.createElement('style');
+        style.textContent = component.css;
+        document.head.appendChild(style);
       }
 
-      // Her hedef element için component'i render et
+      // Render component for each target element
       targetElements.forEach(targetElement => {
-        // Style ekle
-        if (component.css) {
-          const style = document.createElement('style');
-          style.textContent = component.css;
-          document.head.appendChild(style);
-        }
+        const clonedElement = componentElement.cloneNode(true);
 
-        // HTML içeriğini ekle
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = component.html;
-        
-        // Position'a göre ekle
+        // Add HTML content
         if (component.position === 'before') {
-          targetElement.insertBefore(tempContainer.firstElementChild, targetElement.firstChild);
-        } else if (component.position === 'after') {
-          targetElement.appendChild(tempContainer.firstElementChild);
-        } else if (component.position === 'replace') {
-          targetElement.innerHTML = component.html;
+          targetElement.parentNode.insertBefore(clonedElement, targetElement);
+        } else {
+          // Add based on position
+          targetElement.parentNode.insertBefore(clonedElement, targetElement.nextSibling);
         }
 
-        // JavaScript'i çalıştır
+        // Execute JavaScript
         if (component.javascript) {
           const script = document.createElement('script');
           script.textContent = component.javascript;
@@ -77,15 +70,15 @@ export class WidgetController {
     });
   }
 
-  // Sayfa yüklendiğinde component'leri göster
-  if (document.readyState === 'complete') {
-    renderComponents();
+  // Show components when page loads
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeComponents);
   } else {
-    window.addEventListener('load', renderComponents);
+    initializeComponents();
   }
 })();`;
       
-      // Script'i gönder
+      // Send script
       res.send(script);
     } catch (error) {
       console.error('Widget serve error:', error);

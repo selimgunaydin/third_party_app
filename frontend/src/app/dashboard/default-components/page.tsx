@@ -5,24 +5,27 @@ import { defaultComponents, DefaultComponent } from '@/data/defaultComponents';
 import { useRouter } from 'next/navigation';
 import Preview from '@/components/Preview';
 import { Button } from '@nextui-org/react';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export default function DefaultComponentsPage() {
   const router = useRouter();
   const [selectedComponent, setSelectedComponent] = useState<DefaultComponent | null>(null);
+  const [components, setComponents] = useState<DefaultComponent[]>(defaultComponents);
 
   const handleSelectComponent = () => {
     if (!selectedComponent) return;
-    
-    // Template ID'sini URL parametresi olarak gönder
+
     router.push(`/dashboard/new?template=${selectedComponent.id}`);
   };
 
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Default Componentler</h1>
+      <h1 className="text-2xl font-bold mb-6">Default Components</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {defaultComponents.map((component) => (
+        {components.map((component) => (
           <div
             key={component.id}
             className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
@@ -53,7 +56,7 @@ export default function DefaultComponentsPage() {
             onClick={handleSelectComponent}
             className="shadow-lg"
           >
-            Bu Componenti Kullan
+            Use This Component
           </Button>
         </div>
       )}

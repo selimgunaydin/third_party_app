@@ -46,10 +46,10 @@ export default function EditComponent({ params }: { params: { id: string } }) {
             router.push('/login');
             return;
           }
-          toast.error(err.response?.data?.message || 'Component yüklenemedi');
+          toast.error(err.response?.data?.message || 'Failed to load component');
         } else {
           console.error(err);
-          toast.error('Component yüklenirken hata oluştu!');
+          toast.error('An error occurred while loading the component!');
         }
       }
     };
@@ -77,7 +77,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         javascript
       });
 
-      toast.success('Component başarıyla güncellendi!');
+      toast.success('Component updated successfully!');
       router.push('/dashboard');
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -86,10 +86,10 @@ export default function EditComponent({ params }: { params: { id: string } }) {
           router.push('/login');
           return;
         }
-        toast.error(err.response?.data?.message || 'Component güncellenemedi');
+        toast.error(err.response?.data?.message || 'Failed to update component');
       } else {
         console.error(err);
-        toast.error('Component güncellenirken hata oluştu!');
+        toast.error('An error occurred while updating the component!');
       }
     } finally {
       setIsLoading(false);
@@ -101,7 +101,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
       <div className="p-6">
         <Card>
           <CardBody>
-            <p className="text-center">Yükleniyor...</p>
+            <p className="text-center">Loading...</p>
           </CardBody>
         </Card>
       </div>
@@ -111,7 +111,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Component Düzenle</h1>
+        <h1 className="text-2xl font-bold">Edit Component</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -119,34 +119,34 @@ export default function EditComponent({ params }: { params: { id: string } }) {
           <CardBody>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <h3 className="text-sm font-medium mb-2">Component Adı</h3>
+                <h3 className="text-sm font-medium mb-2">Component Name</h3>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Component adını girin"
+                  placeholder="Enter component name"
                   required
                 />
               </div>
 
               <div>
-                <h3 className="text-sm font-medium mb-2">CSS Seçici</h3>
+                <h3 className="text-sm font-medium mb-2">CSS Selector</h3>
                 <Input
                   value={selector}
                   onChange={(e) => setSelector(e.target.value)}
-                  placeholder="CSS seçicisini girin (örn: #header)"
+                  placeholder="Enter CSS selector (e.g. #header)"
                   required
                 />
               </div>
 
               <div>
-                <h3 className="text-sm font-medium mb-2">Pozisyon</h3>
+                <h3 className="text-sm font-medium mb-2">Position</h3>
                 <Select
                   value={position}
                   onChange={(e) => setPosition(e.target.value as 'before' | 'after')}
                   required
                 >
-                  <SelectItem key="before" value="before">Önce</SelectItem>
-                  <SelectItem key="after" value="after">Sonra</SelectItem>
+                  <SelectItem key="before" value="before">Before</SelectItem>
+                  <SelectItem key="after" value="after">After</SelectItem>
                 </Select>
               </div>
 
@@ -182,10 +182,10 @@ export default function EditComponent({ params }: { params: { id: string } }) {
 
               <div className="flex gap-4">
                 <Button type="submit" color="primary" isLoading={isLoading}>
-                  Kaydet
+                  Save
                 </Button>
                 <Button variant="bordered" onPress={() => router.push('/dashboard')}>
-                  İptal
+                  Cancel
                 </Button>
               </div>
             </form>
@@ -195,7 +195,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         <div className="space-y-4">
           <Card>
             <CardBody>
-              <h2 className="text-xl font-semibold mb-4">Önizleme</h2>
+              <h2 className="text-xl font-semibold mb-4">Preview</h2>
               <Preview
                 html={html}
                 css={css}

@@ -16,9 +16,9 @@ export const defaultComponents: DefaultComponent[] = [
     selector: 'body',
     position: 'after',
     html: `<div class="cookie-banner">
-      <p>Bu site çerezleri kullanmaktadır.</p>
-      <button class="accept-btn">Kabul Et</button>
-      <button class="reject-btn">Reddet</button>
+      <p>This site uses cookies.</p>
+      <button class="accept-btn">Accept</button>
+      <button class="reject-btn">Reject</button>
     </div>`,
     css: `.cookie-banner {
       position: fixed;
@@ -84,26 +84,26 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'feedback-form',
-    name: 'Geri Bildirim Formu',
+    name: 'Feedback Form',
     selector: 'body',
     position: 'after',
     html: `<div class="feedback-widget">
-      <button class="feedback-toggle">Geri Bildirim</button>
+      <button class="feedback-toggle">Feedback</button>
       <div class="feedback-form">
         <div class="feedback-header">
-          <h3>Geri Bildirim</h3>
+          <h3>Feedback</h3>
           <button class="close-feedback">&times;</button>
         </div>
         <div class="feedback-content">
           <select class="feedback-type">
-            <option value="">Konu Seçin</option>
-            <option value="bug">Hata Bildirimi</option>
-            <option value="feature">Özellik Önerisi</option>
-            <option value="other">Diğer</option>
+            <option value="">Select Topic</option>
+            <option value="bug">Bug Report</option>
+            <option value="feature">Feature Request</option>
+            <option value="other">Other</option>
           </select>
-          <textarea placeholder="Düşüncelerinizi yazın..." class="feedback-text"></textarea>
+          <textarea placeholder="Write your thoughts..." class="feedback-text"></textarea>
           <div class="feedback-rating">
-            <span>Memnuniyet:</span>
+            <span>Satisfaction:</span>
             <div class="stars">
               <span class="star" data-rating="1">★</span>
               <span class="star" data-rating="2">★</span>
@@ -112,7 +112,7 @@ export const defaultComponents: DefaultComponent[] = [
               <span class="star" data-rating="5">★</span>
             </div>
           </div>
-          <button class="submit-btn">Gönder</button>
+          <button class="submit-btn">Submit</button>
         </div>
       </div>
     </div>`,
@@ -271,7 +271,7 @@ export const defaultComponents: DefaultComponent[] = [
         const text = this.widget.querySelector('.feedback-text').value;
         
         if (!type || !text || this.rating === 0) {
-          alert('Lütfen tüm alanları doldurun!');
+          alert('Please fill in all fields!');
           return;
         }
         
@@ -295,7 +295,7 @@ export const defaultComponents: DefaultComponent[] = [
         this.form.classList.remove('show');
         
         // Show success message
-        alert('Geri bildiriminiz için teşekkürler!');
+        alert('Thank you for your feedback!');
       }
     }
     
@@ -304,11 +304,11 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'social-share',
-    name: 'Sosyal Medya Paylaşım',
+    name: 'Social Media Share',
     selector: 'body',
     position: 'after',
     html: `<div class="social-share">
-      <button class="share-toggle">Paylaş</button>
+      <button class="share-toggle">Share</button>
       <div class="share-buttons">
         <button class="share-btn twitter" data-platform="twitter">
           <i class="icon">𝕏</i>
@@ -328,7 +328,7 @@ export const defaultComponents: DefaultComponent[] = [
         </button>
         <button class="share-btn copy" data-platform="copy">
           <i class="icon">📋</i>
-          <span>Linki Kopyala</span>
+          <span>Copy Link</span>
         </button>
       </div>
     </div>`,
@@ -454,7 +454,7 @@ export const defaultComponents: DefaultComponent[] = [
       copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
           const originalText = this.container.querySelector('.copy span').textContent;
-          this.container.querySelector('.copy span').textContent = 'Kopyalandı!';
+          this.container.querySelector('.copy span').textContent = 'Copied!';
           
           setTimeout(() => {
             this.container.querySelector('.copy span').textContent = originalText;
@@ -468,17 +468,17 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'live-chat',
-    name: 'Canlı Destek',
+    name: 'Live Support',
     selector: 'body',
     position: 'after',
     html: `<div class="chat-widget">
       <div class="chat-header">
-        <h4>Canlı Destek</h4>
+        <h4>Live Support</h4>
         <span class="minimize">_</span>
       </div>
       <div class="chat-body">
         <div class="messages"></div>
-        <input type="text" placeholder="Mesajınızı yazın...">
+        <input type="text" placeholder="Type your message...">
       </div>
     </div>`,
     css: `.chat-widget {
@@ -516,25 +516,25 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'countdown-timer',
-    name: 'Geri Sayım Sayacı',
+    name: 'Countdown Timer',
     selector: 'body',
     position: 'after',
     html: `<div class="countdown">
       <div class="time-block">
         <span class="days">00</span>
-        <span>Gün</span>
+        <span>Days</span>
       </div>
       <div class="time-block">
         <span class="hours">00</span>
-        <span>Saat</span>
+        <span>Hours</span>
       </div>
       <div class="time-block">
         <span class="minutes">00</span>
-        <span>Dakika</span>
+        <span>Minutes</span>
       </div>
       <div class="time-block">
         <span class="seconds">00</span>
-        <span>Saniye</span>
+        <span>Seconds</span>
       </div>
     </div>`,
     css: `.countdown {
@@ -567,15 +567,15 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'newsletter-popup',
-    name: 'Bülten Kayıt Popup',
+    name: 'Newsletter Signup Popup',
     selector: 'body',
     position: 'after',
     html: `<div class="newsletter-popup">
       <span class="close">&times;</span>
-      <h3>Bültenimize Katılın</h3>
-      <p>En son haberler ve güncellemeler için kaydolun.</p>
-      <input type="email" placeholder="E-posta adresiniz">
-      <button>Kaydol</button>
+      <h3>Join Our Newsletter</h3>
+      <p>Sign up for latest news and updates.</p>
+      <input type="email" placeholder="Your email address">
+      <button>Subscribe</button>
     </div>`,
     css: `.newsletter-popup {
       position: fixed;
@@ -617,7 +617,7 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'floating-cart',
-    name: 'Yüzen Sepet',
+    name: 'Floating Cart',
     selector: 'body',
     position: 'after',
     html: `<div class="floating-cart">
@@ -655,12 +655,12 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'search-overlay',
-    name: 'Arama Overlay',
+    name: 'Search Overlay',
     selector: 'body',
     position: 'after',
     html: `<div class="search-overlay">
       <div class="search-container">
-        <input type="text" placeholder="Ara...">
+        <input type="text" placeholder="Search...">
         <button class="close-search">&times;</button>
       </div>
     </div>`,
@@ -705,15 +705,15 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'language-switcher',
-    name: 'Dil Değiştirici',
+    name: 'Language Switcher',
     selector: 'body',
     position: 'after',
     html: `<div class="language-switcher">
-      <button class="current-lang">TR</button>
+      <button class="current-lang">EN</button>
       <div class="lang-dropdown">
-        <a href="#" data-lang="tr">Türkçe</a>
+        <a href="#" data-lang="tr">Turkish</a>
         <a href="#" data-lang="en">English</a>
-        <a href="#" data-lang="de">Deutsch</a>
+        <a href="#" data-lang="de">German</a>
       </div>
     </div>`,
     css: `.language-switcher {
@@ -754,7 +754,7 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'dark-mode-toggle',
-    name: 'Karanlık Mod Düğmesi',
+    name: 'Dark Mode Toggle',
     selector: 'body',
     position: 'after',
     html: `<button class="dark-mode-toggle">🌓</button>`,
@@ -782,17 +782,17 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'accordion',
-    name: 'Akordeon Menü',
+    name: 'Accordion Menu',
     selector: '.accordion',
     position: 'after',
     html: `<div class="accordion">
       <div class="accordion-item">
-        <div class="accordion-header">Başlık 1</div>
-        <div class="accordion-content">İçerik 1</div>
+        <div class="accordion-header">Title 1</div>
+        <div class="accordion-content">Content 1</div>
       </div>
       <div class="accordion-item">
-        <div class="accordion-header">Başlık 2</div>
-        <div class="accordion-content">İçerik 2</div>
+        <div class="accordion-header">Title 2</div>
+        <div class="accordion-content">Content 2</div>
       </div>
     </div>`,
     css: `.accordion-item {
@@ -828,19 +828,19 @@ export const defaultComponents: DefaultComponent[] = [
   },
   {
     id: 'tabs',
-    name: 'Sekmeler',
+    name: 'Tabs',
     selector: '.tabs',
     position: 'after',
     html: `<div class="tabs">
       <div class="tab-headers">
-        <button class="tab-header active">Sekme 1</button>
-        <button class="tab-header">Sekme 2</button>
-        <button class="tab-header">Sekme 3</button>
+        <button class="tab-header active">Tab 1</button>
+        <button class="tab-header">Tab 2</button>
+        <button class="tab-header">Tab 3</button>
       </div>
       <div class="tab-contents">
-        <div class="tab-content active">İçerik 1</div>
-        <div class="tab-content">İçerik 2</div>
-        <div class="tab-content">İçerik 3</div>
+        <div class="tab-content active">Content 1</div>
+        <div class="tab-content">Content 2</div>
+        <div class="tab-content">Content 3</div>
       </div>
     </div>`,
     css: `.tabs {

@@ -39,43 +39,45 @@ export default function Login() {
       router.push('/dashboard');
     } catch (err) {
       if (err instanceof AxiosError) {
-        toast.error(err.response?.data?.message || 'Giriş başarısız');
+        toast.error(err.response?.data?.message || 'Login failed');
       } else {
-        toast.error('Beklenmeyen bir hata oluştu');
+        console.error(err);
+        toast.error('An unexpected error occurred');
       }
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-24">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardBody className="flex flex-col gap-3">
-          <h1 className="text-2xl font-bold text-center">Giriş</h1>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <CardBody className="space-y-4">
+          <h1 className="text-2xl font-bold text-center">Login</h1>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               {...register('email')}
+              label="Email"
               type="email"
-              label="E-posta"
               isInvalid={!!errors.email}
               errorMessage={errors.email?.message}
             />
             <Input
               {...register('password')}
+              label="Password"
               type="password"
-              label="Şifre"
               isInvalid={!!errors.password}
               errorMessage={errors.password?.message}
             />
             <Button
               type="submit"
               color="primary"
+              className="w-full"
               isLoading={isSubmitting}
             >
-              Giriş Yap
+              Login
             </Button>
           </form>
         </CardBody>
       </Card>
-    </main>
+    </div>
   );
 } 

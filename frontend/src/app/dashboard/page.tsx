@@ -34,10 +34,10 @@ export default function Dashboard() {
           router.push('/login');
           return;
         }
-        toast.error(err.response?.data?.message || 'Componentler yüklenemedi');
+        toast.error(err.response?.data?.message || 'Failed to load components');
       } else {
         console.error(err);
-        toast.error('Componentler yüklenirken hata oluştu!');
+        toast.error('An error occurred while loading components!');
       }
       setLoading(false);
     }
@@ -64,10 +64,10 @@ export default function Dashboard() {
             router.push('/login');
             return;
           }
-          toast.error(err.response?.data?.message || 'Kullanıcı bilgileri alınamadı');
+          toast.error(err.response?.data?.message || 'Failed to load user information');
         } else {
           console.error(err);
-          toast.error('Kullanıcı bilgileri alınamadı!');
+          toast.error('Failed to load user information!');
         }
       });
 
@@ -85,7 +85,7 @@ export default function Dashboard() {
       await components.delete(id);
       const updatedComponents = componentList.filter(c => c._id !== id);
       setComponentList(updatedComponents);
-      toast.success('Component başarıyla silindi!');
+      toast.success('Component deleted successfully!');
     } catch (err) {
       if (err instanceof AxiosError) {
         if (err.response?.status === 401) {
@@ -93,10 +93,10 @@ export default function Dashboard() {
           router.push('/login');
           return;
         }
-        toast.error(err.response?.data?.message || 'Component silinemedi');
+        toast.error(err.response?.data?.message || 'An error occurred while deleting component!');
       } else {
         console.error('Error deleting component:', err);
-        toast.error('Component silinirken hata oluştu!');
+        toast.error('An error occurred while deleting component!');
       }
     }
   };
@@ -117,7 +117,7 @@ export default function Dashboard() {
         c._id === component._id ? { ...c, isActive: !c.isActive } : c
       );
       setComponentList(updatedComponents);
-      toast.success('Durum başarıyla güncellendi!');
+      toast.success('Status updated successfully!');
     } catch (err) {
       if (err instanceof AxiosError) {
         if (err.response?.status === 401) {
@@ -125,10 +125,10 @@ export default function Dashboard() {
           router.push('/login');
           return;
         }
-        toast.error(err.response?.data?.message || 'Durum güncellenemedi');
+        toast.error(err.response?.data?.message || 'Failed to update status');
       } else {
         console.error('Error updating status:', err);
-        toast.error('Durum güncellenirken hata oluştu!');
+        toast.error('An error occurred while updating status!');
       }
     }
   };

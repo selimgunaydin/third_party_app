@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { auth } from '@/lib/api';
 import { User as ApiUser } from '@/types';
+import { AxiosError } from 'axios';
 
 interface User extends ApiUser {
   apiKeys: string[];
@@ -29,14 +30,14 @@ export default function AccountPage() {
       .then(data => {
         setUser(data as User);
       })
-      .catch((err: any) => {
+      .catch((err: AxiosError) => {
         console.error(err);
         if (err.response?.status === 401) {
           Cookies.remove('access_token');
           router.push('/login');
           return;
         }
-        toast.error('Kullanıcı bilgileri alınamadı!');
+        toast.error('Failed to load user information!');
       });
   }, [router]);
 
@@ -48,15 +49,15 @@ export default function AccountPage() {
         ...prev,
         apiKeys: [...prev.apiKeys, response.apiKey]
       } : null);
-      toast.success('API key başarıyla oluşturuldu!');
-    } catch (err: any) {
+      toast.success('API key created successfully!');
+    } catch (err: unknown) {
       console.error(err);
-      if (err.response?.status === 401) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
         Cookies.remove('access_token');
         router.push('/login');
         return;
       }
-      toast.error('API key oluşturulurken hata oluştu!');
+      toast.error('Error creating API key!');
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +65,7 @@ export default function AccountPage() {
 
   const handleDeleteApiKey = async (apiKey: string) => {
     if (!user || user.apiKeys.length <= 1) {
-      toast.error('En az bir API key\'iniz olmak zorunda!');
+      toast.error('You must have at least one API key!');
       return;
     }
 
@@ -75,37 +76,37 @@ export default function AccountPage() {
         ...prev,
         apiKeys: prev.apiKeys.filter(key => key !== apiKey)
       } : null);
-      toast.success('API key başarıyla silindi!');
-    } catch (err: any) {
+      toast.success('API key deleted successfully!');
+    } catch (err: unknown) {
       console.error(err);
-      if (err.response?.status === 401) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
         Cookies.remove('access_token');
         router.push('/login');
         return;
       }
-      toast.error('API key silinirken hata oluştu!');
+      toast.error('Error deleting API key!');
     } finally {
       setIsLoading(false);
     }
   };
 
   if (!user) {
-    return <div className="flex justify-center items-center min-h-[200px]">Yükleniyor...</div>;
+    return <div className="flex justify-center items-center min-h-[200px]">Loading...</div>;
   }
 
   return (
     <div className="min-h-screen space-y-8">
-      <h1 className="text-2xl font-bold">Hesap Ayarları</h1>
+      <h1 className="text-2xl font-bold">Account Settings</h1>
       <div className="space-y-6">
         <Card>
           <CardBody>
-            <h2 className="text-xl font-semibold mb-4">Hesap Bilgileri</h2>
+            <h2 className="text-xl font-semibold mb-4">Account Information</h2>
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Ad Soyad:</span> {user.name}
+                <span className="font-medium">Full Name:</span> {user.name}
               </p>
               <p>
-                <span className="font-medium">E-posta:</span> {user.email}
+                <span className="font-medium">Email:</span> {user.email}
               </p>
             </div>
           </CardBody>
@@ -121,7 +122,7 @@ export default function AccountPage() {
                 onClick={handleCreateApiKey}
                 isLoading={isLoading}
               >
-                Yeni API Key
+                New API Key
               </Button>
             </div>
 
@@ -148,7 +149,7 @@ export default function AccountPage() {
             </div>
 
             <p className="text-xs text-gray-500 mt-4">
-              * En az bir API key'iniz olmak zorunda. API key'ler widget entegrasyonu için kullanılır.
+              * You must have at least one API key. API keys are used for widget integration.
             </p>
           </CardBody>
         </Card>

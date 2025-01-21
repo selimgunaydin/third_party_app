@@ -28,12 +28,12 @@ export class AuthService {
     const user = await this.userModel.findOne({ email });
     
     if (!user) {
-      throw new UnauthorizedException('Geçersiz kimlik bilgileri');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Geçersiz kimlik bilgileri');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return this.generateToken(user);
@@ -51,7 +51,7 @@ export class AuthService {
   async getProfile(userId: string) {
     const user = await this.userModel.findById(userId).select('-password');
     if (!user) {
-      throw new UnauthorizedException('Kullanıcı bulunamadı');
+      throw new UnauthorizedException('User not found');
     }
     return user;
   }
@@ -59,20 +59,20 @@ export class AuthService {
   async deleteApiKey(userId: string, apiKey: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new NotFoundException('Kullanıcı bulunamadı');
+      throw new NotFoundException('User not found');
     }
 
-    // En az bir API key olmalı
+    // Must have at least one API key
     if (user.apiKeys.length <= 1) {
-      throw new UnauthorizedException('En az bir API key\'iniz olmak zorunda');
+      throw new UnauthorizedException('You must have at least one API key');
     }
 
-    // API key'i sil
+    // Delete API key
     await this.userModel.findByIdAndUpdate(userId, {
       $pull: { apiKeys: apiKey }
     });
 
-    return { message: 'API key başarıyla silindi' };
+    return { message: 'API key deleted successfully' };
   }
 
   private generateToken(user: any) {

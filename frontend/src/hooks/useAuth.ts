@@ -16,7 +16,7 @@ export function useAuth() {
           setUser(updatedUser);
         }
       } catch (error) {
-        console.error('Kullanıcı yüklenirken hata oluştu:', error);
+        console.error('Error loading user:', error);
         auth.logout();
       } finally {
         setLoading(false);

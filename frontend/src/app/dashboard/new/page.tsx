@@ -13,16 +13,9 @@ import { AxiosError } from 'axios';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { componentSchema } from '@/lib/validations';
+import type { Component } from '@/types';
 
-type ComponentFormData = {
-  name: string;
-  selector: string;
-  position: 'before' | 'after';
-  html: string;
-  css: string;
-  javascript: string;
-  isActive: boolean;
-};
+type ComponentFormData = Omit<Component, '_id' | 'userId' | 'createdAt' | 'updatedAt'>;
 
 function NewComponentForm() {
   const router = useRouter();
@@ -50,10 +43,10 @@ function NewComponentForm() {
   });
 
   useEffect(() => {
-    // URL'den template parametresini al
+    // Get template parameter from URL
     const templateId = searchParams.get('template');
     if (templateId) {
-      // Default components içinden seçili olanı bul
+      // Find selected template from default components
       const template = defaultComponents.find(c => c.id === templateId);
       if (template) {
         setValue('name', template.name);
@@ -63,7 +56,7 @@ function NewComponentForm() {
         setValue('css', template.css);
         setValue('javascript', template.javascript);
         setSelectedTemplate(templateId);
-        toast.success('Template başarıyla yüklendi!');
+        toast.success('Template successfully loaded!');
       }
     }
   }, [searchParams, setValue]);
@@ -78,7 +71,7 @@ function NewComponentForm() {
         setValue('html', template.html);
         setValue('css', template.css);
         setValue('javascript', template.javascript);
-        toast.success('Template başarıyla yüklendi!');
+        toast.success('Template successfully loaded!');
       }
     } else {
       setValue('name', '');
@@ -104,7 +97,7 @@ function NewComponentForm() {
         css: data.css || '',
         javascript: data.javascript || ''
       });
-      toast.success('Component başarıyla oluşturuldu!');
+      toast.success('Component successfully created!');
       router.push('/dashboard');
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -114,7 +107,7 @@ function NewComponentForm() {
           return;
         }
 
-        // Selector duplicate hatası kontrolü
+        // Check for duplicate selector error
         if (err.response?.data?.code === 'DUPLICATE_SELECTOR') {
           setError('selector', {
             type: 'manual',
@@ -123,15 +116,15 @@ function NewComponentForm() {
           return;
         }
 
-        toast.error(err.response?.data?.message || 'Component oluşturma başarısız');
+        toast.error(err.response?.data?.message || 'Component creation failed');
       } else {
-        toast.error('Bir hata oluştu');
+        toast.error('An error occurred');
       }
     }
   };
 
   const templateOptions = [
-    { id: "", name: "Boş Template" },
+    { id: "", name: "Empty Template" },
     ...defaultComponents
   ];
 
@@ -142,10 +135,10 @@ function NewComponentForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card>
             <CardBody>
-              <h2 className="text-xl font-semibold mb-4">Yeni Component</h2>
+              <h2 className="text-xl font-semibold mb-4">New Component</h2>
               <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                 <Select
-                  label="Template Seç"
+                  label="Select Template"
                   selectedKeys={selectedTemplate ? [selectedTemplate] : []}
                   onChange={(e) => handleTemplateChange(e.target.value)}
                 >
@@ -157,7 +150,7 @@ function NewComponentForm() {
                 </Select>
                 <Input
                   {...register('name')}
-                  label="Component Adı"
+                  label="Component Name"
                   isInvalid={!!errors.name}
                   errorMessage={errors.name?.message}
                 />
@@ -169,22 +162,22 @@ function NewComponentForm() {
                     className="flex-1"
                     isInvalid={!!errors.selector}
                     errorMessage={errors.selector?.message}
-                    description="Benzersiz bir CSS seçici girin"
+                    description="Enter a unique CSS selector"
                   />
                   <Controller
                     name="position"
                     control={control}
                     render={({ field }) => (
                       <Select
-                        label="Pozisyon"
+                        label="Position"
                         selectedKeys={[field.value]}
-                        onChange={(e) => field.onChange(e.target.value)}
+                        onChange={(e) => field.onChange(e.target.value as 'before' | 'after')}
                         className="w-48"
                         isInvalid={!!errors.position}
                         errorMessage={errors.position?.message}
                       >
-                        <SelectItem key="before" value="before">Öncesine</SelectItem>
-                        <SelectItem key="after" value="after">Sonrasına</SelectItem>
+                        <SelectItem key="before" value="before">Before</SelectItem>
+                        <SelectItem key="after" value="after">After</SelectItem>
                       </Select>
                     )}
                   />
@@ -250,10 +243,10 @@ function NewComponentForm() {
                 </div>
                 <div className="flex gap-4">
                   <Button type="submit" color="primary" isLoading={isSubmitting}>
-                    Component Oluştur
+                    Create Component
                   </Button>
                   <Button color="default" onClick={() => router.push('/dashboard')}>
-                    İptal
+                    Cancel
                   </Button>
                 </div>
               </form>
@@ -263,7 +256,7 @@ function NewComponentForm() {
           <div className="space-y-4">
             <Card>
               <CardBody>
-                <h2 className="text-xl font-semibold mb-4">Önizleme</h2>
+                <h2 className="text-xl font-semibold mb-4">Preview</h2>
                 <Preview
                   html={control._formValues.html || ''}
                   css={control._formValues.css || ''}
@@ -281,7 +274,7 @@ function NewComponentForm() {
 
 export default function NewComponent() {
   return (
-    <Suspense fallback={<div>Yükleniyor...</div>}>
+    <Suspense fallback={<div>Loading...</div>}>
       <NewComponentForm />
     </Suspense>
   );

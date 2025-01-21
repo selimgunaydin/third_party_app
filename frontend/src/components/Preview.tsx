@@ -12,51 +12,38 @@ export default function Preview({ html, css, javascript, className = '', height 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (!iframeRef.current) return;
-
-    // iframe içeriğini güncelle
+    // Update iframe content
     const iframe = iframeRef.current;
-    const doc = iframe.contentDocument || iframe.contentWindow?.document;
-    
-    if (!doc) return;
+    if (!iframe) return;
 
-    // HTML template oluştur
-    const template = `
+    // Create HTML template
+    const htmlTemplate = `
       <!DOCTYPE html>
       <html>
         <head>
           <style>
-            /* Reset CSS */
-            *, *::before, *::after {
-              box-sizing: border-box;
-              margin: 0;
-              padding: 0;
-            }
             body {
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-              line-height: 1.5;
+              margin: 0;
+              padding: 1rem;
+              font-family: system-ui, -apple-system, sans-serif;
             }
-            /* Kullanıcının CSS'i */
+
+            /* User's CSS */
             ${css}
           </style>
         </head>
         <body>
           ${html}
-          <script>
-            try {
-              ${javascript}
-            } catch (error) {
-              console.error('Preview JavaScript Error:', error);
-            }
-          </script>
+          <script>${javascript}</script>
         </body>
       </html>
     `;
 
-    // iframe içeriğini güncelle
-    doc.open();
-    doc.write(template);
-    doc.close();
+    // Update iframe content
+    const doc = iframe.contentDocument;
+    doc?.open();
+    doc?.write(htmlTemplate);
+    doc?.close();
   }, [html, css, javascript]);
 
   return (

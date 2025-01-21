@@ -27,7 +27,7 @@ export default function RegisterPage() {
   });
 
   useEffect(() => {
-    // Production ortamında register sayfasına erişimi engelle
+    // Prevent access to register page in production
     if (process.env.NODE_ENV === 'production') {
       router.replace('/login');
     }
@@ -36,19 +36,19 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await auth.register(data);
-      toast.success('Kayıt başarılı! Giriş yapabilirsiniz.');
+      toast.success('Registration successful! You can now login.');
       router.push('/login');
     } catch (err) {
       if (err instanceof AxiosError) {
-        toast.error(err.response?.data?.message || 'Kayıt işlemi başarısız');
+        toast.error(err.response?.data?.message || 'Registration failed');
       } else {
         console.error(err);
-        toast.error('Kayıt sırasında bir hata oluştu!');
+        toast.error('An error occurred during registration!');
       }
     }
   };
 
-  // Production ortamında içerik gösterme
+  // Do not show content in production
   if (process.env.NODE_ENV === 'production') {
     return null;
   }
@@ -57,24 +57,24 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardBody className="space-y-4">
-          <h1 className="text-2xl font-bold text-center mb-6">Kayıt Ol</h1>
+          <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               {...register('name')}
-              label="Ad Soyad"
+              label="Full Name"
               isInvalid={!!errors.name}
               errorMessage={errors.name?.message}
             />
             <Input
               {...register('email')}
-              label="E-posta"
+              label="Email"
               type="email"
               isInvalid={!!errors.email}
               errorMessage={errors.email?.message}
             />
             <Input
               {...register('password')}
-              label="Şifre"
+              label="Password"
               type="password"
               isInvalid={!!errors.password}
               errorMessage={errors.password?.message}
@@ -85,7 +85,7 @@ export default function RegisterPage() {
               className="w-full"
               isLoading={isSubmitting}
             >
-              Kayıt Ol
+              Register
             </Button>
           </form>
         </CardBody>

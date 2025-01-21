@@ -33,7 +33,7 @@ export class ComponentsService {
 
     if (existingComponent) {
       throw new ConflictException({
-        message: 'Bu selector zaten kullanımda',
+        message: 'This selector is already in use',
         code: 'DUPLICATE_SELECTOR',
         field: 'selector'
       });
@@ -53,7 +53,7 @@ export class ComponentsService {
   async findOne(id: string, userId: string) {
     const component = await this.componentModel.findOne({ _id: id, userId });
     if (!component) {
-      throw new NotFoundException('Component bulunamadı');
+      throw new NotFoundException('Component not found');
     }
     return component;
   }
@@ -68,7 +68,7 @@ export class ComponentsService {
 
       if (existingComponent) {
         throw new ConflictException({
-          message: 'Bu selector zaten kullanımda',
+          message: 'This selector is already in use',
           code: 'DUPLICATE_SELECTOR',
           field: 'selector',
         });
@@ -81,7 +81,7 @@ export class ComponentsService {
       { new: true },
     );
     if (!component) {
-      throw new NotFoundException('Component bulunamadı');
+      throw new NotFoundException('Component not found');
     }
     return component;
   }
@@ -89,7 +89,7 @@ export class ComponentsService {
   async remove(id: string, userId: string) {
     const component = await this.componentModel.findOneAndDelete({ _id: id, userId });
     if (!component) {
-      throw new NotFoundException('Component bulunamadı');
+      throw new NotFoundException('Component not found');
     }
     return component;
   }
