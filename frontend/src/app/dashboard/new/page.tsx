@@ -14,6 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { componentSchema } from '@/lib/validations';
 import type { Component } from '@/types';
+import { generateTailwindCSS } from '@/utils/convert-tailwind';
 
 type ComponentFormData = Omit<Component, '_id' | 'userId' | 'createdAt' | 'updatedAt'>;
 
@@ -21,12 +22,19 @@ function NewComponentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [previewContent, setPreviewContent] = useState({
+    html: '',
+    css: '',
+    javascript: ''
+  });
+  const [useTailwind, setUseTailwind] = useState(false);
 
   const {
     register,
     handleSubmit,
     control,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
     setError,
   } = useForm<ComponentFormData>({
@@ -61,6 +69,18 @@ function NewComponentForm() {
     }
   }, [searchParams, setValue]);
 
+  // Preview içeriğini güncellemek için watch kullanımı
+  useEffect(() => {
+    const subscription = watch((value) => {
+      setPreviewContent({
+        html: value.html || '',
+        css: value.css || '',
+        javascript: value.javascript || ''
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
   const handleTemplateChange = (templateId: string) => {
     if (templateId) {
       const template = defaultComponents.find(c => c.id === templateId);
@@ -83,6 +103,22 @@ function NewComponentForm() {
     }
     setSelectedTemplate(templateId);
   };
+
+
+  const onHtmlChange = async (value: string | undefined, field: { onChange: (value: string) => void }) => {
+    field.onChange(value || '');
+    if (value && useTailwind) {
+      const generatedCSS = generateTailwindCSS(value);
+      setValue('css', generatedCSS);
+    }
+  };
+
+  useEffect(() => {
+    if (useTailwind) {
+      const generatedCSS = generateTailwindCSS(previewContent.html);
+      setValue('css', generatedCSS);
+    }
+  }, [useTailwind, previewContent.html, setValue]);
 
   const onSubmit = async (data: ComponentFormData) => {
     try {
@@ -184,6 +220,17 @@ function NewComponentForm() {
                 </div>
                 <div>
                   <label className="block text-sm mb-2">HTML</label>
+                  <div className="mb-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={useTailwind}
+                        onChange={(e) => setUseTailwind(e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <span className="text-sm">Use TailwindCSS</span>
+                    </label>
+                  </div>
                   <Controller
                     name="html"
                     control={control}
@@ -193,7 +240,7 @@ function NewComponentForm() {
                           height="200px"
                           defaultLanguage="html"
                           value={field.value}
-                          onChange={(value) => field.onChange(value || '')}
+                          onChange={(value) => onHtmlChange(value, field)}
                           options={{
                             minimap: { enabled: false },
                           }}
@@ -258,9 +305,9 @@ function NewComponentForm() {
               <CardBody>
                 <h2 className="text-xl font-semibold mb-4">Preview</h2>
                 <Preview
-                  html={control._formValues.html || ''}
-                  css={control._formValues.css || ''}
-                  javascript={control._formValues.javascript || ''}
+                  html={previewContent.html}
+                  css={previewContent.css}
+                  javascript={previewContent.javascript}
                   className="bg-gray-50"
                 />
               </CardBody>

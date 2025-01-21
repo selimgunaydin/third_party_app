@@ -10,6 +10,7 @@ import Cookies from 'js-cookie';
 import { components } from '@/lib/api';
 import { AxiosError } from 'axios';
 import { Component } from '@/types';
+import { generateTailwindCSS } from '@/utils/convert-tailwind';
 
 export default function EditComponent({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -21,6 +22,12 @@ export default function EditComponent({ params }: { params: { id: string } }) {
   const [css, setCss] = useState('');
   const [javascript, setJavascript] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [useTailwind, setUseTailwind] = useState(false);
+  const [previewContent, setPreviewContent] = useState({
+    html: '',
+    css: '',
+    javascript: ''
+  });
 
   useEffect(() => {
     const fetchComponent = async () => {
@@ -39,6 +46,11 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         setHtml(data.html);
         setCss(data.css);
         setJavascript(data.javascript);
+        setPreviewContent({
+          html: data.html,
+          css: data.css,
+          javascript: data.javascript
+        });
       } catch (err) {
         if (err instanceof AxiosError) {
           if (err.response?.status === 401) {
@@ -56,6 +68,32 @@ export default function EditComponent({ params }: { params: { id: string } }) {
 
     fetchComponent();
   }, [params.id, router]);
+
+  // Preview içeriğini güncellemek için useEffect
+  useEffect(() => {
+    setPreviewContent({
+      html: html,
+      css: css,
+      javascript: javascript
+    });
+  }, [html, css, javascript]);
+
+  // TailwindCSS dönüşümü için useEffect
+  useEffect(() => {
+    if (useTailwind) {
+      const generatedCSS = generateTailwindCSS(html);
+      setCss(generatedCSS);
+    }
+  }, [useTailwind, html]);
+
+  const handleHtmlChange = (value: string | undefined) => {
+    const newHtml = value || '';
+    setHtml(newHtml);
+    if (useTailwind) {
+      const generatedCSS = generateTailwindCSS(newHtml);
+      setCss(generatedCSS);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +181,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
                 <Select
                   value={position}
                   onChange={(e) => setPosition(e.target.value as 'before' | 'after')}
+                  selectedKeys={[position]}
                   required
                 >
                   <SelectItem key="before" value="before">Before</SelectItem>
@@ -152,11 +191,22 @@ export default function EditComponent({ params }: { params: { id: string } }) {
 
               <div>
                 <h3 className="text-sm font-medium mb-2">HTML</h3>
+                <div className="mb-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useTailwind}
+                      onChange={(e) => setUseTailwind(e.target.checked)}
+                      className="form-checkbox"
+                    />
+                    <span className="text-sm">Use TailwindCSS</span>
+                  </label>
+                </div>
                 <Editor
                   height="200px"
                   defaultLanguage="html"
                   value={html}
-                  onChange={(value) => setHtml(value || '')}
+                  onChange={handleHtmlChange}
                 />
               </div>
 
@@ -197,9 +247,9 @@ export default function EditComponent({ params }: { params: { id: string } }) {
             <CardBody>
               <h2 className="text-xl font-semibold mb-4">Preview</h2>
               <Preview
-                html={html}
-                css={css}
-                javascript={javascript}
+                html={previewContent.html}
+                css={previewContent.css}
+                javascript={previewContent.javascript}
                 className="bg-gray-50"
               />
             </CardBody>
