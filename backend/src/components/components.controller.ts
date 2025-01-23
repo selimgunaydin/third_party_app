@@ -12,18 +12,8 @@ import {
 } from '@nestjs/common';
 import { ComponentsService } from './components.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
-interface CreateComponentDto {
-  name: string;
-  selector: string;
-  position: 'before' | 'after';
-  html: string;
-  css?: string;
-  javascript?: string;
-  isActive: boolean;
-}
-
-type UpdateComponentDto = Partial<CreateComponentDto>;
+import { CreateComponentDto } from './dto/create-component.dto';
+import { UpdateComponentDto } from './dto/update-component.dto';
 
 interface RequestWithUser extends Request {
   user: {

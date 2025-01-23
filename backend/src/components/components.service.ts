@@ -6,18 +6,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Component } from '../schemas/component.schema';
-
-interface CreateComponentDto {
-  name: string;
-  selector: string;
-  position: 'before' | 'after';
-  html: string;
-  css?: string;
-  javascript?: string;
-  isActive: boolean;
-}
-
-type UpdateComponentDto = Partial<CreateComponentDto>;
+import { CreateComponentDto } from './dto/create-component.dto';
+import { UpdateComponentDto } from './dto/update-component.dto';
 
 @Injectable()
 export class ComponentsService {
