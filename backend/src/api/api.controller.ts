@@ -1,12 +1,12 @@
 import { Controller, Get, Query, Header, Res, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
-import { WidgetService } from './widget.service';
+import { ApiService } from './api.service';
 
 @Controller()
-export class WidgetController {
-  constructor(private readonly widgetService: WidgetService) {}
+export class ApiController {
+  constructor(private readonly ApiService: ApiService) {}
 
-  @Get('widget.js')
+  @Get('api/v1')
   @Header('Content-Type', 'application/javascript')
   async serveWidget(
     @Query('apiKey') apiKey: string,
@@ -14,7 +14,7 @@ export class WidgetController {
   ): Promise<void> {
     try {
       // Validate API key and get components
-      const components = await this.widgetService.getComponentsByApiKey(apiKey);
+      const components = await this.ApiService.getComponentsByApiKey(apiKey);
       
       // Add CORS headers
       res.setHeader('Access-Control-Allow-Origin', '*');

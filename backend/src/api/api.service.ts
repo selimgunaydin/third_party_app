@@ -5,7 +5,7 @@ import { User } from '../schemas/user.schema';
 import { Component } from '../schemas/component.schema';
 
 @Injectable()
-export class WidgetService {
+export class ApiService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Component.name) private componentModel: Model<Component>,
