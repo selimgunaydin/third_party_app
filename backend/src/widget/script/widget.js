@@ -1,31 +1,6 @@
-import { Controller, Get, Query, Header, Res, HttpException, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
-import { ApiService } from './api.service';
-
-@Controller()
-export class ApiController {
-  constructor(private readonly ApiService: ApiService) {}
-
-  @Get('api/v1')
-  @Header('Content-Type', 'application/javascript')
-  async serveWidget(
-    @Query('apiKey') apiKey: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    try {
-      // Validate API key and get components
-      const components = await this.ApiService.getComponentsByApiKey(apiKey);
-      
-      // Add CORS headers
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET');
-      res.setHeader('Content-Type', 'application/javascript');
-      
-      // Create widget script
-      let script = `
-(function() {
+(function(window) {
   // Store component data in global variable
-  window.__thirdPartyComponents = ${JSON.stringify(components)};
+  window.__thirdPartyComponents = __COMPONENTS_DATA__;
 
   function initializeComponents() {
     const components = window.__thirdPartyComponents;
@@ -76,18 +51,4 @@ export class ApiController {
   } else {
     initializeComponents();
   }
-})();`;
-      
-      // Send script
-      res.send(script);
-    } catch (error) {
-      console.error('Widget serve error:', error);
-      
-      if (error instanceof HttpException) {
-        res.status(error.getStatus()).send(`console.error("${error.message}")`);
-      } else {
-        res.status(HttpStatus.BAD_REQUEST).send(`console.error("Widget loading failed: ${error.message}")`);
-      }
-    }
-  }
-} 
+})(window);

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ApiController } from './api.controller';
-import { ApiService } from './api.service';
+import { WidgetController } from './widget.controller';
+import { WidgetService } from './widget.service';
 import { User, UserSchema } from '../schemas/user.schema';
 import { Component, ComponentSchema } from '../schemas/component.schema';
 
@@ -12,7 +12,7 @@ import { Component, ComponentSchema } from '../schemas/component.schema';
       { name: Component.name, schema: ComponentSchema },
     ]),
   ],
-  controllers: [ApiController],
-  providers: [ApiService],
+  controllers: [WidgetController],
+  providers: [WidgetService],
 })
-export class ApiModule {} 
+export class WidgetModule {} 

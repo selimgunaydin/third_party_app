@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsUrl, IsOptional } from 'class-validator';
 
-export class CreateApiDto {
+export class CreateWidgetDto {
   @IsString()
   @IsNotEmpty()
   name: string;
