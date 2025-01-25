@@ -8,6 +8,7 @@ import { ComponentsModule } from './components/components.module';
 import { WidgetModule } from './widget/widget.module';
 import { ConvertTailwindModule } from './utils/convert-tailwind.module';
 import { UserModule } from './user/user.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -23,11 +24,19 @@ import { UserModule } from './user/user.module';
         extensions: ['js'],
       },
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/public',
+      serveStaticOptions: {
+        index: false,
+      },
+    }),
     AuthModule,
     ComponentsModule,
     WidgetModule,
     ConvertTailwindModule,
     UserModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
