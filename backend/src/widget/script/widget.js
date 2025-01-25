@@ -42,7 +42,7 @@
           }
         };
 
-        const response = await fetch(`${this.apiUrl}/analytics/track`, {
+        const response = await fetch(`${this.apiUrl}/api/analytics/track`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

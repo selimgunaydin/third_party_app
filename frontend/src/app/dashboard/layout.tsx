@@ -14,7 +14,8 @@ import {
   HiOutlineCube,
   HiOutlineUser,
   HiOutlineChevronDown,
-  HiOutlineChevronRight
+  HiOutlineChevronRight,
+  HiOutlineChartBar
 } from 'react-icons/hi';
 import Cookies from 'js-cookie';
 import { useState } from 'react';
@@ -38,6 +39,11 @@ export default function DashboardLayout({
       name: 'Dashboard',
       href: '/dashboard',
       icon: HiOutlineViewGrid
+    },
+    {
+      name: 'Analytics',
+      href: '/dashboard/analytics',
+      icon: HiOutlineChartBar
     }
   ];
 

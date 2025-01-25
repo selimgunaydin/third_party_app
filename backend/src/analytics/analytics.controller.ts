@@ -27,8 +27,15 @@ import { Analytics, IAnalytics } from '../schemas/analytics.schema';
 import { EventValidationPipe } from './pipes/event-validation.pipe';
 import { ValidationPipe } from '@nestjs/common';
 
+interface RequestWithUser extends Request {
+  user: {
+    _id: string;
+    email: string;
+  };
+}
+
 @ApiTags('Analytics')
-@Controller('analytics')
+@Controller('api/analytics')
 export class AnalyticsController {
   constructor(
     private readonly analyticsService: AnalyticsService,
@@ -91,12 +98,12 @@ export class AnalyticsController {
   @UseGuards(JwtAuthGuard)
   @Get('events')
   async getEvents(
-    @Query('apiKey') apiKey: string,
+    @Req() req: RequestWithUser,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ): Promise<AnalyticsResponseDto[]> {
-    const events = await this.analyticsService.getEventsByApiKey(
-      apiKey,
+    const events = await this.analyticsService.getEventsByUserId(
+      req.user._id,
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
     );

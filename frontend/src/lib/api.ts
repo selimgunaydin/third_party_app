@@ -104,6 +104,35 @@ export const components = {
   }
 };
 
+export const analytics = {
+  getEvents: async (startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const response = await api.get(`/api/analytics/events?${params.toString()}`);
+    return response.data;
+  },
+
+  getAggregations: async (startDate: string, endDate: string) => {
+    const params = new URLSearchParams();
+    params.append('startDate', startDate);
+    params.append('endDate', endDate);
+    
+    const response = await api.get(`/api/analytics/aggregations?${params.toString()}`);
+    return response.data;
+  },
+
+  getSessions: async (startDate: string, endDate: string) => {
+    const params = new URLSearchParams();
+    params.append('startDate', startDate);
+    params.append('endDate', endDate);
+    
+    const response = await api.get(`/api/analytics/sessions?${params.toString()}`);
+    return response.data;
+  },
+};
+
 export const convertTailwind = {
   convert: async (html: string): Promise<string> => {
     if (!html) {

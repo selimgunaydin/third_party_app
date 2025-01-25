@@ -26,8 +26,8 @@ export class AnalyticsService {
     return await event.save();
   }
 
-  async getEventsByApiKey(apiKey: string, startDate?: Date, endDate?: Date) {
-    const query: any = { apiKey };
+  async getEventsByUserId(userId: string, startDate?: Date, endDate?: Date) {
+    const query: any = { userId };
     
     if (startDate || endDate) {
       query.createdAt = {};
@@ -42,20 +42,10 @@ export class AnalyticsService {
   }
 
   async getEventAggregations(userId: string, startDate: Date, endDate: Date) {
-    return await this.analyticsModel.aggregate([
-      {
-        $match: {
-          userId,
-          createdAt: { $gte: startDate, $lte: endDate },
-        },
-      },
-      {
-        $group: {
-          _id: '$eventName',
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    return await this.analyticsModel.find({
+      userId,
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
   }
 
   async getUserSessionsCount(userId: string, startDate: Date, endDate: Date) {
