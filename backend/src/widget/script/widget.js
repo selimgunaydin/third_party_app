@@ -8,9 +8,8 @@
     }
 
     this.apiKey = config.apiKey;
-    this.apiUrl = config.apiUrl || 'http://localhost:3000';
+    this.apiUrl = config.apiUrl;
     this.sessionId = this.generateSessionId();
-    this.userId = config.userId;
   };
 
   ThirdPartyAnalytics.prototype = {
