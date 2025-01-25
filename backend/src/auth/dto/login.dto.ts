@@ -1,11 +1,20 @@
-import { IsString, IsNotEmpty, IsEthereumAddress } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto {
-  @IsEthereumAddress()
+  @ApiProperty({
+    description: 'E-posta adresi',
+    example: 'test@test.com'
+  })
+  @IsEmail()
   @IsNotEmpty()
-  address: string;
+  email: string;
 
+  @ApiProperty({
+    description: 'Şifre',
+    example: '123456'
+  })
   @IsString()
   @IsNotEmpty()
-  signature: string;
+  password: string;
 } 
