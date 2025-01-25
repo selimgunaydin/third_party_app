@@ -12,9 +12,12 @@ import {
   HiOutlineViewGrid,
   HiOutlineLogout,
   HiOutlineCube,
-  HiOutlineUser
+  HiOutlineUser,
+  HiOutlineChevronDown,
+  HiOutlineChevronRight
 } from 'react-icons/hi';
 import Cookies from 'js-cookie';
+import { useState } from 'react';
 
 export default function DashboardLayout({
   children,
@@ -23,6 +26,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isComponentsOpen, setIsComponentsOpen] = useState(false);
 
   const handleLogout = () => {
     Cookies.remove('access_token');
@@ -34,21 +38,19 @@ export default function DashboardLayout({
       name: 'Dashboard',
       href: '/dashboard',
       icon: HiOutlineViewGrid
-    },
+    }
+  ];
+
+  const componentItems = [
     {
       name: 'Default Components',
-      href: '/dashboard/default-components',
+      href: '/dashboard/components/default-components',
       icon: HiOutlineTemplate
     },
     {
       name: 'New Component',
-      href: '/dashboard/new',
+      href: '/dashboard/components/new',
       icon: HiOutlinePlusCircle
-    },
-    {
-      name: 'Account Settings',
-      href: '/dashboard/account',
-      icon: HiOutlineUser
     }
   ];
 
@@ -83,6 +85,61 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+
+            {/* Components Dropdown */}
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsComponentsOpen(!isComponentsOpen)}
+                className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-100 hover:text-primary ${
+                  componentItems.some(item => pathname === item.href) ? 'bg-gray-100 text-primary' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <HiOutlineTemplate className="w-5 h-5" />
+                  <span>Components</span>
+                </div>
+                {isComponentsOpen ? (
+                  <HiOutlineChevronDown className="w-4 h-4" />
+                ) : (
+                  <HiOutlineChevronRight className="w-4 h-4" />
+                )}
+              </button>
+
+              {/* Dropdown Items */}
+              <div className={`pl-4 space-y-1 ${isComponentsOpen ? 'block' : 'hidden'}`}>
+                {componentItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-primary text-white font-medium'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Account Settings */}
+            <Link
+              href="/dashboard/account"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                pathname === '/dashboard/account'
+                  ? 'bg-primary text-white font-medium'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+              }`}
+            >
+              <HiOutlineUser className="w-5 h-5" />
+              <span>Account Settings</span>
+            </Link>
           </div>
 
           {/* Logout Button */}

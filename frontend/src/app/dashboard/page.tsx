@@ -141,22 +141,6 @@ export default function Dashboard() {
       <div className="max-w-6xl space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex gap-4">
-            <Button
-              as={Link}
-              href="/dashboard/default-components"
-              variant="light"
-            >
-              Default Components
-            </Button>
-            <Button
-              as={Link}
-              href="/dashboard/new"
-              color="primary"
-            >
-              New Component
-            </Button>
-          </div>
         </div>
 
         {apiKey ? (
@@ -202,7 +186,7 @@ export default function Dashboard() {
                       />
                       <Button
                         as={Link}
-                        href={`/dashboard/edit/${component._id}`}
+                        href={`/dashboard/components/edit/${component._id}`}
                         color="primary"
                         variant="light"
                       >

@@ -105,4 +105,17 @@ export const components = {
   }
 };
 
+export const convertTailwind = {
+  convert: async (html: string): Promise<string> => {
+    if (!html) {
+      return "";
+    }
+    const htmlString = typeof html === "string" ? html : String(html);
+    const response = await api.post<string>("/api/convert-tailwind", {
+      html: htmlString,
+    });
+    return response.data;
+  },
+};
+
 export default api; 

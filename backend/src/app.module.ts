@@ -6,6 +6,7 @@ import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
 import { ComponentsModule } from './components/components.module';
 import { WidgetModule } from './widget/widget.module';
+import { ConvertTailwindModule } from './utils/convert-tailwind.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WidgetModule } from './widget/widget.module';
     AuthModule,
     ComponentsModule,
     WidgetModule,
+    ConvertTailwindModule,
   ],
 })
 export class AppModule {}

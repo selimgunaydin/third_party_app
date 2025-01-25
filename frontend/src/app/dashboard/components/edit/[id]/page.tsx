@@ -1,40 +1,45 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button, Card, CardBody, Input, Select, SelectItem } from '@nextui-org/react';
-import Editor from '@monaco-editor/react';
-import toast from 'react-hot-toast';
-import Preview from '@/components/Preview';
-import Cookies from 'js-cookie';
-import { components } from '@/lib/api';
-import { AxiosError } from 'axios';
-import { Component } from '@/types';
-import { generateTailwindCSS } from '@/utils/convert-tailwind';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Button,
+  Card,
+  CardBody,
+  Input,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
+import Editor from "@monaco-editor/react";
+import toast from "react-hot-toast";
+import Preview from "@/components/Preview";
+import Cookies from "js-cookie";
+import { components, convertTailwind } from "@/lib/api";
+import { AxiosError } from "axios";
+import { Component } from "@/types";
 
 export default function EditComponent({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [component, setComponent] = useState<Component | null>(null);
-  const [name, setName] = useState('');
-  const [selector, setSelector] = useState('');
-  const [position, setPosition] = useState<'before' | 'after'>('after');
-  const [html, setHtml] = useState('');
-  const [css, setCss] = useState('');
-  const [javascript, setJavascript] = useState('');
+  const [name, setName] = useState("");
+  const [selector, setSelector] = useState("");
+  const [position, setPosition] = useState<"before" | "after">("after");
+  const [html, setHtml] = useState("");
+  const [css, setCss] = useState("");
+  const [javascript, setJavascript] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [useTailwind, setUseTailwind] = useState(false);
   const [previewContent, setPreviewContent] = useState({
-    html: '',
-    css: '',
-    javascript: ''
+    html: "",
+    css: "",
+    javascript: "",
   });
 
   useEffect(() => {
     const fetchComponent = async () => {
       try {
-        const token = Cookies.get('access_token');
+        const token = Cookies.get("access_token");
         if (!token) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
 
@@ -49,19 +54,21 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         setPreviewContent({
           html: data.html,
           css: data.css,
-          javascript: data.javascript
+          javascript: data.javascript,
         });
       } catch (err) {
         if (err instanceof AxiosError) {
           if (err.response?.status === 401) {
-            Cookies.remove('access_token');
-            router.push('/login');
+            Cookies.remove("access_token");
+            router.push("/login");
             return;
           }
-          toast.error(err.response?.data?.message || 'Failed to load component');
+          toast.error(
+            err.response?.data?.message || "Failed to load component"
+          );
         } else {
           console.error(err);
-          toast.error('An error occurred while loading the component!');
+          toast.error("An error occurred while loading the component!");
         }
       }
     };
@@ -74,25 +81,13 @@ export default function EditComponent({ params }: { params: { id: string } }) {
     setPreviewContent({
       html: html,
       css: css,
-      javascript: javascript
+      javascript: javascript,
     });
   }, [html, css, javascript]);
 
-  // TailwindCSS dönüşümü için useEffect
-  useEffect(() => {
-    if (useTailwind) {
-      const generatedCSS = generateTailwindCSS(html);
-      setCss(generatedCSS);
-    }
-  }, [useTailwind, html]);
-
-  const handleHtmlChange = (value: string | undefined) => {
-    const newHtml = value || '';
-    setHtml(newHtml);
-    if (useTailwind) {
-      const generatedCSS = generateTailwindCSS(newHtml);
-      setCss(generatedCSS);
-    }
+  const convertTailwindToCSS = async (html: string) => {
+    const css = await convertTailwind.convert(html);
+    setCss(css.css);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,9 +95,9 @@ export default function EditComponent({ params }: { params: { id: string } }) {
     setIsLoading(true);
 
     try {
-      const token = Cookies.get('access_token');
+      const token = Cookies.get("access_token");
       if (!token) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
 
@@ -112,22 +107,24 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         position,
         html,
         css,
-        javascript
+        javascript,
       });
 
-      toast.success('Component updated successfully!');
-      router.push('/dashboard');
+      toast.success("Component updated successfully!");
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof AxiosError) {
         if (err.response?.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
+          Cookies.remove("access_token");
+          router.push("/login");
           return;
         }
-        toast.error(err.response?.data?.message || 'Failed to update component');
+        toast.error(
+          err.response?.data?.message || "Failed to update component"
+        );
       } else {
         console.error(err);
-        toast.error('An error occurred while updating the component!');
+        toast.error("An error occurred while updating the component!");
       }
     } finally {
       setIsLoading(false);
@@ -180,33 +177,37 @@ export default function EditComponent({ params }: { params: { id: string } }) {
                 <h3 className="text-sm font-medium mb-2">Position</h3>
                 <Select
                   value={position}
-                  onChange={(e) => setPosition(e.target.value as 'before' | 'after')}
+                  onChange={(e) =>
+                    setPosition(e.target.value as "before" | "after")
+                  }
                   selectedKeys={[position]}
                   required
                 >
-                  <SelectItem key="before" value="before">Before</SelectItem>
-                  <SelectItem key="after" value="after">After</SelectItem>
+                  <SelectItem key="before" value="before">
+                    Before
+                  </SelectItem>
+                  <SelectItem key="after" value="after">
+                    After
+                  </SelectItem>
                 </Select>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium mb-2">HTML</h3>
                 <div className="mb-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={useTailwind}
-                      onChange={(e) => setUseTailwind(e.target.checked)}
-                      className="form-checkbox"
-                    />
-                    <span className="text-sm">Use TailwindCSS</span>
-                  </label>
+                  <Button
+                    type="button"
+                    onPress={() => convertTailwindToCSS(previewContent.html)}
+                    className="form-checkbox"
+                  >
+                    Convert TailwindCSS
+                  </Button>
                 </div>
                 <Editor
                   height="200px"
                   defaultLanguage="html"
                   value={html}
-                  onChange={handleHtmlChange}
+                  onChange={(value) => setHtml(value || "")}
                 />
               </div>
 
@@ -216,7 +217,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
                   height="200px"
                   defaultLanguage="css"
                   value={css}
-                  onChange={(value) => setCss(value || '')}
+                  onChange={(value) => setCss(value || "")}
                 />
               </div>
 
@@ -226,7 +227,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
                   height="200px"
                   defaultLanguage="javascript"
                   value={javascript}
-                  onChange={(value) => setJavascript(value || '')}
+                  onChange={(value) => setJavascript(value || "")}
                 />
               </div>
 
@@ -234,7 +235,10 @@ export default function EditComponent({ params }: { params: { id: string } }) {
                 <Button type="submit" color="primary" isLoading={isLoading}>
                   Save
                 </Button>
-                <Button variant="bordered" onPress={() => router.push('/dashboard')}>
+                <Button
+                  variant="bordered"
+                  onPress={() => router.push("/dashboard")}
+                >
                   Cancel
                 </Button>
               </div>
@@ -258,4 +262,4 @@ export default function EditComponent({ params }: { params: { id: string } }) {
       </div>
     </div>
   );
-} 
+}
