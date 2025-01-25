@@ -1,6 +1,15 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import { TrackEventDto } from '../dto/track-event.dto';
-import { EventName, PageViewEventData, ElementClickEventData, ProductEventData, CheckoutEventData, FormSubmissionEventData } from '../dto/event-types';
+import { 
+  EventName, 
+  PageViewEventData, 
+  ElementClickEventData, 
+  ProductEventData, 
+  CheckoutEventData, 
+  FormSubmissionEventData,
+  AuthEventData,
+  WishlistEventData
+} from '../dto/event-types';
 
 @Injectable()
 export class EventValidationPipe implements PipeTransform {
@@ -22,9 +31,18 @@ export class EventValidationPipe implements PipeTransform {
       case EventName.PRODUCT_VIEWED:
         return this.validateProductData(eventData);
       case EventName.CHECKOUT_STARTED:
+      case EventName.CHECKOUT_COMPLETED:
+      case EventName.CHECKOUT_CANCELLED:
         return this.validateCheckoutData(eventData);
       case EventName.FORM_SUBMISSION:
         return this.validateFormSubmissionData(eventData);
+      case EventName.LOGIN:
+      case EventName.REGISTER:
+      case EventName.FORGOT_PASSWORD:
+        return this.validateAuthData(eventData);
+      case EventName.ADD_WISHLIST:
+      case EventName.REMOVE_WISHLIST:
+        return this.validateWishlistData(eventData);
       case EventName.IDENTIFY:
         return typeof eventData === 'object' && eventData !== null;
       default:
@@ -84,6 +102,28 @@ export class EventValidationPipe implements PipeTransform {
       typeof data.formAction === 'string' &&
       typeof data.formMethod === 'string' &&
       typeof data.data === 'object'
+    );
+  }
+
+  private validateAuthData(data: any): data is AuthEventData {
+    return (
+      typeof data === 'object' &&
+      typeof data.userId === 'string' &&
+      (data.email === undefined || typeof data.email === 'string') &&
+      (data.method === undefined || typeof data.method === 'string') &&
+      (data.status === undefined || typeof data.status === 'string') &&
+      (data.errorMessage === undefined || typeof data.errorMessage === 'string')
+    );
+  }
+
+  private validateWishlistData(data: any): data is WishlistEventData {
+    return (
+      typeof data === 'object' &&
+      typeof data.productId === 'string' &&
+      typeof data.userId === 'string' &&
+      (data.productName === undefined || typeof data.productName === 'string') &&
+      (data.category === undefined || typeof data.category === 'string') &&
+      (data.price === undefined || typeof data.price === 'number')
     );
   }
 } 

@@ -6,9 +6,16 @@ export enum EventName {
   ELEMENT_CLICK = 'element_click',
   ADD_TO_CART = 'add_to_cart',
   CHECKOUT_STARTED = 'checkout_started',
+  CHECKOUT_COMPLETED = 'checkout_completed',
+  CHECKOUT_CANCELLED = 'checkout_cancelled',
   REMOVE_FROM_CART = 'remove_from_cart',
   PRODUCT_VIEWED = 'product_viewed',
   FORM_SUBMISSION = 'form_submission',
+  LOGIN = 'login',
+  REGISTER = 'register',
+  ADD_WISHLIST = 'add_wishlist',
+  REMOVE_WISHLIST = 'remove_wishlist',
+  FORGOT_PASSWORD = 'forgot_password',
 }
 
 // Page View Event Data
@@ -81,6 +88,15 @@ export class CheckoutEventData {
 
   @ApiProperty({ type: [ProductEventData], required: false })
   products?: ProductEventData[];
+
+  @ApiProperty({ required: false })
+  paymentMethod?: string;
+
+  @ApiProperty({ required: false })
+  status?: string;
+
+  @ApiProperty({ required: false })
+  errorMessage?: string;
 }
 
 // Form Submission Event Data
@@ -101,6 +117,42 @@ export class FormSubmissionEventData {
   data: Record<string, any>;
 }
 
+// Auth Event Data
+export class AuthEventData {
+  @ApiProperty()
+  userId: string;
+
+  @ApiProperty({ required: false })
+  email?: string;
+
+  @ApiProperty({ required: false })
+  method?: string;
+
+  @ApiProperty({ required: false })
+  status?: string;
+
+  @ApiProperty({ required: false })
+  errorMessage?: string;
+}
+
+// Wishlist Event Data
+export class WishlistEventData {
+  @ApiProperty()
+  productId: string;
+
+  @ApiProperty()
+  userId: string;
+
+  @ApiProperty({ required: false })
+  productName?: string;
+
+  @ApiProperty({ required: false })
+  category?: string;
+
+  @ApiProperty({ required: false })
+  price?: number;
+}
+
 // Event Data Type Union
 export type EventData =
   | PageViewEventData
@@ -108,4 +160,6 @@ export type EventData =
   | ElementClickEventData
   | ProductEventData
   | CheckoutEventData
-  | FormSubmissionEventData; 
+  | FormSubmissionEventData
+  | AuthEventData
+  | WishlistEventData; 

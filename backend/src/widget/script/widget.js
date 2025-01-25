@@ -173,6 +173,62 @@
       return () => form.removeEventListener('submit', handler);
     },
 
+    checkoutCompleted: function(checkoutData, metadata = {}) {
+      if (!checkoutData || !checkoutData.checkoutId) {
+        console.error('Checkout data with checkoutId is required');
+        return;
+      }
+      return this.track('checkout_completed', checkoutData, metadata);
+    },
+
+    checkoutCancelled: function(checkoutData, metadata = {}) {
+      if (!checkoutData || !checkoutData.checkoutId) {
+        console.error('Checkout data with checkoutId is required');
+        return;
+      }
+      return this.track('checkout_cancelled', checkoutData, metadata);
+    },
+
+    login: function(authData, metadata = {}) {
+      if (!authData || !authData.userId) {
+        console.error('Auth data with userId is required');
+        return;
+      }
+      return this.track('login', authData, metadata);
+    },
+
+    register: function(authData, metadata = {}) {
+      if (!authData || !authData.userId) {
+        console.error('Auth data with userId is required');
+        return;
+      }
+      return this.track('register', authData, metadata);
+    },
+
+    addWishlist: function(wishlistData, metadata = {}) {
+      if (!wishlistData || !wishlistData.productId || !wishlistData.userId) {
+        console.error('Wishlist data with productId and userId is required');
+        return;
+      }
+      return this.track('add_wishlist', wishlistData, metadata);
+    },
+
+    removeWishlist: function(wishlistData, metadata = {}) {
+      if (!wishlistData || !wishlistData.productId || !wishlistData.userId) {
+        console.error('Wishlist data with productId and userId is required');
+        return;
+      }
+      return this.track('remove_wishlist', wishlistData, metadata);
+    },
+
+    forgotPassword: function(authData, metadata = {}) {
+      if (!authData || !authData.userId) {
+        console.error('Auth data with userId is required');
+        return;
+      }
+      return this.track('forgot_password', authData, metadata);
+    },
+
     // Utility function to get element's DOM path
     getElementPath: function(element) {
       const path = [];
