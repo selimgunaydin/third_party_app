@@ -1,92 +1,112 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardBody, Input } from '@nextui-org/react';
-import toast from 'react-hot-toast';
+import Link from 'next/link';
+import { Card, CardBody, CardHeader } from '@nextui-org/card';
+import { Input } from '@nextui-org/input';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
 import { auth } from '@/lib/api';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { registerSchema } from '@/lib/validations';
-import { AxiosError } from 'axios';
-
-type RegisterFormData = {
-  name: string;
-  email: string;
-  password: string;
-};
+import { toast } from 'react-hot-toast';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
-  });
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Prevent access to register page in production
-    if (process.env.NODE_ENV === 'production') {
-      router.replace('/login');
-    }
-  }, [router]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const onSubmit = async (data: RegisterFormData) => {
     try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      const data = Object.fromEntries(formData.entries());
+
       await auth.register(data);
-      toast.success('Registration successful! You can now login.');
-      router.push('/login');
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        toast.error(err.response?.data?.message || 'Registration failed');
-      } else {
-        console.error(err);
-        toast.error('An error occurred during registration!');
-      }
+      toast.success('Kayıt başarılı! Yönlendiriliyorsunuz...');
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Kayıt sırasında bir hata oluştu');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Do not show content in production
-  if (process.env.NODE_ENV === 'production') {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
-        <CardBody className="space-y-4">
-          <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input
-              {...register('name')}
-              label="Full Name"
-              isInvalid={!!errors.name}
-              errorMessage={errors.name?.message}
-            />
-            <Input
-              {...register('email')}
-              label="Email"
-              type="email"
-              isInvalid={!!errors.email}
-              errorMessage={errors.email?.message}
-            />
-            <Input
-              {...register('password')}
-              label="Password"
-              type="password"
-              isInvalid={!!errors.password}
-              errorMessage={errors.password?.message}
-            />
+        <CardHeader className="flex flex-col gap-2 p-6">
+          <h1 className="text-2xl font-bold">Kayıt Ol</h1>
+          <p className="text-gray-500">Widget Builder'a hoş geldiniz</p>
+        </CardHeader>
+
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-4">
+              <Input
+                name="name"
+                label="Ad Soyad"
+                placeholder="John Doe"
+                isRequired
+              />
+              <Input
+                name="email"
+                type="email"
+                label="E-posta"
+                placeholder="ornek@email.com"
+                isRequired
+              />
+              <Input
+                name="password"
+                type="password"
+                label="Şifre"
+                placeholder="********"
+                isRequired
+              />
+              <Input
+                name="phone"
+                label="Telefon"
+                placeholder="+90 555 555 55 55"
+              />
+              <Input
+                name="company"
+                label="Şirket"
+                placeholder="Şirket Adı"
+              />
+              <Input
+                name="title"
+                label="Ünvan"
+                placeholder="Yazılım Geliştirici"
+              />
+              <Input
+                name="address"
+                label="Adres"
+                placeholder="İstanbul, Türkiye"
+              />
+              <Input
+                name="bio"
+                label="Hakkında"
+                placeholder="Kendinizden kısaca bahsedin..."
+              />
+            </div>
+
             <Button
               type="submit"
               color="primary"
               className="w-full"
-              isLoading={isSubmitting}
+              isLoading={loading}
             >
-              Register
+              Kayıt Ol
             </Button>
+
+            <Divider className="my-4" />
+
+            <p className="text-center text-sm text-gray-500">
+              Zaten hesabınız var mı?{' '}
+              <Link href="/login" className="text-primary hover:underline">
+                Giriş Yap
+              </Link>
+            </p>
           </form>
         </CardBody>
       </Card>

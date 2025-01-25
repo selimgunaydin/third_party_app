@@ -1,15 +1,36 @@
-import { IsString, IsNotEmpty, IsEthereumAddress, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, MinLength, IsOptional } from 'class-validator';
 
 export class RegisterDto {
-  @IsEthereumAddress()
+  @IsString()
   @IsNotEmpty()
-  address: string;
+  name: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  @IsNotEmpty()
+  password: string;
 
   @IsString()
   @IsOptional()
-  username?: string;
+  phone?: string;
 
   @IsString()
-  @IsNotEmpty()
-  signature: string;
+  @IsOptional()
+  address?: string;
+
+  @IsString()
+  @IsOptional()
+  company?: string;
+
+  @IsString()
+  @IsOptional()
+  title?: string;
+
+  @IsString()
+  @IsOptional()
+  bio?: string;
 } 

@@ -64,7 +64,7 @@ export const defaultComponents: DefaultComponent[] = [
       }
       
       acceptBtn.addEventListener('click', () => {
-        localStorage.setItem('cookiePreference', 'accepted');
+        Cookies.set('cookiePreference', 'accepted');
         banner.classList.remove('show');
         // Trigger custom event
         window.dispatchEvent(new CustomEvent('cookiePreferenceSet', {
@@ -73,7 +73,7 @@ export const defaultComponents: DefaultComponent[] = [
       });
       
       rejectBtn.addEventListener('click', () => {
-        localStorage.setItem('cookiePreference', 'rejected');
+        Cookies.set('cookiePreference', 'rejected');
         banner.classList.remove('show');
         // Trigger custom event
         window.dispatchEvent(new CustomEvent('cookiePreferenceSet', {

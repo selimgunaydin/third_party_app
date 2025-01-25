@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User } from '@/types';
 import { auth } from '@/lib/api';
-
+import Cookies from 'js-cookie';
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -9,7 +9,7 @@ export function useAuth() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = Cookies.get('user');
         if (storedUser) {
           setUser(JSON.parse(storedUser));
           const updatedUser = await auth.getProfile();

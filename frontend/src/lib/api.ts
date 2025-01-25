@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, Component, LoginData, RegisterData, ApiKeyResponse, User } from '@/types';
+import { AuthResponse, Component, LoginData, RegisterData, ApiKeyResponse, User, UserPreferences } from '@/types';
 import Cookies from 'js-cookie';
 
 const api = axios.create({
@@ -9,7 +9,7 @@ const api = axios.create({
 
 // Request interceptor
 api.interceptors.request.use((config) => {
-  const token = Cookies.get('access_token') || localStorage.getItem('access_token');
+  const token = Cookies.get('access_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -23,9 +23,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid
       Cookies.remove('access_token');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      
+      Cookies.remove('user');
+
       // Only redirect if not already on login page
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';
@@ -38,21 +37,21 @@ api.interceptors.response.use(
 export const auth = {
   login: async (data: LoginData): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/api/auth/login', data);
-    localStorage.setItem('access_token', response.data.access_token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
+    Cookies.set('access_token', response.data.access_token);
+    Cookies.set('user', JSON.stringify(response.data.user));
     return response.data;
   },
 
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/api/auth/register', data);
-    localStorage.setItem('access_token', response.data.access_token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
+    Cookies.set('access_token', response.data.access_token);
+    Cookies.set('user', JSON.stringify(response.data.user));
     return response.data;
   },
 
   logout: () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
+    Cookies.remove('access_token');
+    Cookies.remove('user');
     window.location.href = '/login';
   },
 
@@ -114,6 +113,28 @@ export const convertTailwind = {
     const response = await api.post<string>("/api/convert-tailwind", {
       html: htmlString,
     });
+    return response.data;
+  },
+};
+
+export const userApi = {
+  getProfile: async (): Promise<User> => {
+    const response = await api.get<User>('/api/users/profile');
+    return response.data;
+  },
+
+  updateProfile: async (data: Partial<User>): Promise<User> => {
+    const response = await api.patch<User>('/api/users/profile', data);
+    return response.data;
+  },
+
+  updatePreferences: async (preferences: Partial<UserPreferences>): Promise<User> => {
+    const response = await api.patch<User>('/api/users/preferences', preferences);
+    return response.data;
+  },
+
+  updateStatus: async (status: string): Promise<User> => {
+    const response = await api.patch<User>('/api/users/status', { status });
     return response.data;
   },
 };

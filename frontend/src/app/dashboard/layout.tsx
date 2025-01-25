@@ -130,15 +130,15 @@ export default function DashboardLayout({
 
             {/* Account Settings */}
             <Link
-              href="/dashboard/account"
+              href="/dashboard/profile"
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                pathname === '/dashboard/account'
+                pathname === '/dashboard/profile'
                   ? 'bg-primary text-white font-medium'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
               }`}
             >
               <HiOutlineUser className="w-5 h-5" />
-              <span>Account Settings</span>
+              <span>Account</span>
             </Link>
           </div>
 

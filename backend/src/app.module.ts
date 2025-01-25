@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ComponentsModule } from './components/components.module';
 import { WidgetModule } from './widget/widget.module';
 import { ConvertTailwindModule } from './utils/convert-tailwind.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ConvertTailwindModule } from './utils/convert-tailwind.module';
     ComponentsModule,
     WidgetModule,
     ConvertTailwindModule,
+    UserModule,
   ],
 })
 export class AppModule {}
