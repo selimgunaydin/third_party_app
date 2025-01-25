@@ -3,7 +3,10 @@ export interface User {
   name: string;
   email: string;
   isAdmin: boolean;
-  apiKeys: string[];
+  apiKeys: Array<{
+    key: string;
+    isActive: boolean;
+  }>;
 }
 
 export interface Component {

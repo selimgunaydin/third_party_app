@@ -54,7 +54,10 @@ export default function Dashboard() {
     auth.getProfile()
       .then(data => {
         if (data.apiKeys && data.apiKeys.length > 0) {
-          setApiKey(data.apiKeys[0]);
+          const activeKey = data.apiKeys.find(k => k.isActive);
+          if (activeKey) {
+            setApiKey(activeKey.key);
+          }
         }
       })
       .catch(err => {

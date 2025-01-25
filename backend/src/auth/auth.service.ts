@@ -40,12 +40,12 @@ export class AuthService {
   }
 
   async generateApiKey(userId: string) {
-    const apiKey = uuidv4();
+    const key = uuidv4();
     await this.userModel.findByIdAndUpdate(
       userId,
-      { $push: { apiKeys: apiKey } },
+      { $push: { apiKeys: { key, isActive: true } } },
     );
-    return { apiKey };
+    return { apiKey: key };
   }
 
   async getProfile(userId: string) {
@@ -56,23 +56,32 @@ export class AuthService {
     return user;
   }
 
-  async deleteApiKey(userId: string, apiKey: string) {
+  async deleteApiKey(userId: string, keyToDelete: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Must have at least one API key
-    if (user.apiKeys.length <= 1) {
-      throw new UnauthorizedException('You must have at least one API key');
+    // Check if this is the last active key
+    const activeKeys = user.apiKeys.filter(k => k.isActive);
+    const targetKey = user.apiKeys.find(k => k.key === keyToDelete);
+
+    if (!targetKey) {
+      throw new NotFoundException('API key not found');
     }
 
-    // Delete API key
-    await this.userModel.findByIdAndUpdate(userId, {
-      $pull: { apiKeys: apiKey }
-    });
+    // If this is the last active key and we're trying to deactivate it
+    if (activeKeys.length <= 1 && targetKey.isActive) {
+      throw new UnauthorizedException('You must have at least one active API key');
+    }
 
-    return { message: 'API key deleted successfully' };
+    // Toggle the key status
+    await this.userModel.updateOne(
+      { _id: userId, 'apiKeys.key': keyToDelete },
+      { $set: { 'apiKeys.$.isActive': false } }
+    );
+
+    return { message: 'API key status updated successfully' };
   }
 
   private generateToken(user: any) {

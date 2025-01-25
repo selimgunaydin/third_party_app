@@ -16,10 +16,18 @@ export class WidgetService {
       throw new UnauthorizedException('API key is required');
     }
 
-    // Search for API key in apiKeys array
-    const user = await this.userModel.findOne({ apiKeys: apiKey });
+    // Search for active API key
+    const user = await this.userModel.findOne({
+      apiKeys: {
+        $elemMatch: {
+          key: apiKey,
+          isActive: true
+        }
+      }
+    });
+    
     if (!user) {
-      throw new UnauthorizedException('Invalid API key');
+      throw new UnauthorizedException('Invalid or inactive API key');
     }
 
     // Get user's active components

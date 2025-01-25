@@ -67,7 +67,7 @@ export const auth = {
   },
 
   deleteApiKey: async (apiKey: string): Promise<{ message: string }> => {
-    const response = await api.delete<{ message: string }>(`/api/auth/api-key/${apiKey}`);
+    const response = await api.patch<{ message: string }>(`/api/auth/api-key/${apiKey}/delete`);
     return response.data;
   },
 };

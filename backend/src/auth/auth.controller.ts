@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Request, Get, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Get, Patch, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
@@ -31,7 +31,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete('api-key/:apiKey')
+  @Patch('api-key/:apiKey/delete')
   async deleteApiKey(@Request() req, @Param('apiKey') apiKey: string) {
     return this.authService.deleteApiKey(req.user._id, apiKey);
   }

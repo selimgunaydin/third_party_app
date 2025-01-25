@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardBody, Button } from '@nextui-org/react';
+import { Card, CardBody, Button, Switch } from '@nextui-org/react';
 import { HiPlus, HiTrash } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
@@ -10,9 +10,7 @@ import { auth } from '@/lib/api';
 import { User as ApiUser } from '@/types';
 import { AxiosError } from 'axios';
 
-interface User extends ApiUser {
-  apiKeys: string[];
-}
+interface User extends ApiUser {}
 
 export default function AccountPage() {
   const router = useRouter();
@@ -47,7 +45,7 @@ export default function AccountPage() {
       const response = await auth.generateApiKey();
       setUser(prev => prev ? {
         ...prev,
-        apiKeys: [...prev.apiKeys, response.apiKey]
+        apiKeys: [...prev.apiKeys, { key: response.apiKey, isActive: true }]
       } : null);
       toast.success('API key created successfully!');
     } catch (err: unknown) {
@@ -63,9 +61,10 @@ export default function AccountPage() {
     }
   };
 
-  const handleDeleteApiKey = async (apiKey: string) => {
-    if (!user || user.apiKeys.length <= 1) {
-      toast.error('You must have at least one API key!');
+  const handleDeleteApiKey = async (apiKey: string, currentStatus: boolean) => {
+    const activeKeys = user?.apiKeys.filter(k => k.isActive) || [];
+    if (!user || (activeKeys.length <= 1 && currentStatus)) {
+      toast.error('You must have at least one active API key!');
       return;
     }
 
@@ -74,9 +73,11 @@ export default function AccountPage() {
       await auth.deleteApiKey(apiKey);
       setUser(prev => prev ? {
         ...prev,
-        apiKeys: prev.apiKeys.filter(key => key !== apiKey)
+        apiKeys: prev.apiKeys.map(k => 
+          k.key === apiKey ? { ...k, isActive: !k.isActive } : k
+        )
       } : null);
-      toast.success('API key deleted successfully!');
+      toast.success('API key status updated successfully!');
     } catch (err: unknown) {
       console.error(err);
       if (err instanceof AxiosError && err.response?.status === 401) {
@@ -84,7 +85,7 @@ export default function AccountPage() {
         router.push('/login');
         return;
       }
-      toast.error('Error deleting API key!');
+      toast.error('Error updating API key status!');
     } finally {
       setIsLoading(false);
     }
@@ -127,19 +128,21 @@ export default function AccountPage() {
             </div>
 
             <div className="space-y-3">
-              {user.apiKeys?.map((apiKey) => (
+              {user.apiKeys.filter(key => key.isActive).map((apiKey) => (
                 <div
-                  key={apiKey}
+                  key={apiKey.key}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
-                  <code className="text-sm bg-white px-3 py-1 rounded border">
-                    {apiKey}
-                  </code>
+                  <div className="flex items-center gap-4">
+                    <code className="text-sm bg-white px-3 py-1 rounded border">
+                      {apiKey.key}
+                    </code>
+                  </div>
                   <Button
                     isIconOnly
                     color="danger"
                     variant="light"
-                    onClick={() => handleDeleteApiKey(apiKey)}
+                    onPress={() => handleDeleteApiKey(apiKey.key, apiKey.isActive)}
                     isDisabled={isLoading || user.apiKeys.length === 1}
                   >
                     <HiTrash className="w-4 h-4" />
@@ -149,7 +152,7 @@ export default function AccountPage() {
             </div>
 
             <p className="text-xs text-gray-500 mt-4">
-              * You must have at least one API key. API keys are used for widget integration.
+              * You must have at least one active API key. API keys are used for widget integration.
             </p>
           </CardBody>
         </Card>
