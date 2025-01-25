@@ -1,21 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum EventName {
-  PAGE_VIEW = 'page_view',
-  IDENTIFY = 'identify',
-  ELEMENT_CLICK = 'element_click',
-  ADD_TO_CART = 'add_to_cart',
-  CHECKOUT_STARTED = 'checkout_started',
-  CHECKOUT_COMPLETED = 'checkout_completed',
-  CHECKOUT_CANCELLED = 'checkout_cancelled',
-  REMOVE_FROM_CART = 'remove_from_cart',
-  PRODUCT_VIEWED = 'product_viewed',
-  FORM_SUBMISSION = 'form_submission',
-  LOGIN = 'login',
-  REGISTER = 'register',
-  ADD_WISHLIST = 'add_wishlist',
-  REMOVE_WISHLIST = 'remove_wishlist',
-  FORGOT_PASSWORD = 'forgot_password',
+  PAGE_VIEW = 'PAGE_VIEW',
+  IDENTIFY = 'IDENTIFY',
+  ELEMENT_CLICK = 'ELEMENT_CLICK',
+  ADD_TO_CART = 'ADD_TO_CART',
+  CHECKOUT_STARTED = 'CHECKOUT_STARTED',
+  CHECKOUT_COMPLETED = 'CHECKOUT_COMPLETED',
+  CHECKOUT_CANCELLED = 'CHECKOUT_CANCELLED',
+  REMOVE_FROM_CART = 'REMOVE_FROM_CART',
+  PRODUCT_VIEWED = 'PRODUCT_VIEWED',
+  FORM_SUBMISSION = 'FORM_SUBMISSION',
+  LOGIN = 'LOGIN',
+  REGISTER = 'REGISTER',
+  ADD_WISHLIST = 'ADD_WISHLIST',
+  REMOVE_WISHLIST = 'REMOVE_WISHLIST',
+  FORGOT_PASSWORD = 'FORGOT_PASSWORD',
 }
 
 // Page View Event Data

@@ -62,7 +62,7 @@
     },
 
     pageView: function(metadata = {}) {
-      return this.track('page_view', {
+      return this.track('PAGE_VIEW', {
         title: document.title,
         url: window.location.href,
         path: window.location.pathname,
@@ -76,10 +76,10 @@
         return;
       }
       this.userId = userId;
-      return this.track('identify', traits);
+      return this.track('IDENTIFY', traits);
     },
 
-    trackClick: function(element, eventName = 'element_click', metadata = {}) {
+    trackClick: function(element, eventName = 'ELEMENT_CLICK', metadata = {}) {
       if (!element) return;
       
       const handler = () => {
@@ -111,7 +111,7 @@
         console.error('Product data with productId is required');
         return;
       }
-      return this.track('add_to_cart', productData, metadata);
+      return this.track('ADD_TO_CART', productData, metadata);
     },
 
     checkoutStarted: function(checkoutData, metadata = {}) {
@@ -119,7 +119,7 @@
         console.error('Checkout data with checkoutId is required');
         return;
       }
-      return this.track('checkout_started', checkoutData, metadata);
+      return this.track('CHECKOUT_STARTED', checkoutData, metadata);
     },
 
     removeFromCart: function(productData, metadata = {}) {
@@ -127,7 +127,7 @@
         console.error('Product data with productId is required');
         return;
       }
-      return this.track('remove_from_cart', productData, metadata);
+      return this.track('REMOVE_FROM_CART', productData, metadata);
     },
 
     productViewed: function(productData, metadata = {}) {
@@ -135,10 +135,10 @@
         console.error('Product data with productId is required');
         return;
       }
-      return this.track('product_viewed', productData, metadata);
+      return this.track('PRODUCT_VIEWED', productData, metadata);
     },
 
-    trackFormSubmission: function(form, eventName = 'form_submission', metadata = {}) {
+    trackFormSubmission: function(form, eventName = 'FORM_SUBMISSION', metadata = {}) {
       if (!form || !(form instanceof HTMLFormElement)) {
         console.error('Valid form element is required');
         return;
@@ -178,7 +178,7 @@
         console.error('Checkout data with checkoutId is required');
         return;
       }
-      return this.track('checkout_completed', checkoutData, metadata);
+      return this.track('CHECKOUT_COMPLETED', checkoutData, metadata);
     },
 
     checkoutCancelled: function(checkoutData, metadata = {}) {
@@ -186,7 +186,7 @@
         console.error('Checkout data with checkoutId is required');
         return;
       }
-      return this.track('checkout_cancelled', checkoutData, metadata);
+      return this.track('CHECKOUT_CANCELLED', checkoutData, metadata);
     },
 
     login: function(authData, metadata = {}) {
@@ -194,7 +194,7 @@
         console.error('Auth data with userId is required');
         return;
       }
-      return this.track('login', authData, metadata);
+      return this.track('LOGIN', authData, metadata);
     },
 
     register: function(authData, metadata = {}) {
@@ -202,7 +202,7 @@
         console.error('Auth data with userId is required');
         return;
       }
-      return this.track('register', authData, metadata);
+      return this.track('REGISTER', authData, metadata);
     },
 
     addWishlist: function(wishlistData, metadata = {}) {
@@ -210,7 +210,7 @@
         console.error('Wishlist data with productId and userId is required');
         return;
       }
-      return this.track('add_wishlist', wishlistData, metadata);
+      return this.track('ADD_WISHLIST', wishlistData, metadata);
     },
 
     removeWishlist: function(wishlistData, metadata = {}) {
@@ -218,7 +218,7 @@
         console.error('Wishlist data with productId and userId is required');
         return;
       }
-      return this.track('remove_wishlist', wishlistData, metadata);
+      return this.track('REMOVE_WISHLIST', wishlistData, metadata);
     },
 
     forgotPassword: function(authData, metadata = {}) {
@@ -226,7 +226,7 @@
         console.error('Auth data with userId is required');
         return;
       }
-      return this.track('forgot_password', authData, metadata);
+      return this.track('FORGOT_PASSWORD', authData, metadata);
     },
 
     // Utility function to get element's DOM path

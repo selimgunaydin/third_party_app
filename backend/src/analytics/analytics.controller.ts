@@ -7,6 +7,9 @@ import {
   Req,
   UseGuards,
   UsePipes,
+  Param,
+  Logger,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { Request } from 'express';
@@ -18,6 +21,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiQuery,
+  ApiParam,
 } from '@nestjs/swagger';
 import { TrackEventDto } from './dto/track-event.dto';
 import { AnalyticsResponseDto } from './dto/analytics-response.dto';
@@ -37,6 +41,8 @@ interface RequestWithUser extends Request {
 @ApiTags('Analytics')
 @Controller('api/analytics')
 export class AnalyticsController {
+  private readonly logger = new Logger(AnalyticsController.name);
+
   constructor(
     private readonly analyticsService: AnalyticsService,
     private readonly userService: UserService,
@@ -111,100 +117,63 @@ export class AnalyticsController {
     return events.map((event) => this.mapToAnalyticsResponse(event));
   }
 
-  @ApiOperation({ summary: 'Olay agregasyonlarını getir' })
+  @Get('most-viewed-products')
+  @ApiOperation({ summary: 'En çok görüntülenen ürünleri getirir' })
   @ApiQuery({
-    name: 'apiKey',
-    required: true,
-    description: 'API anahtarı',
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Kaç ürün getirileceği',
   })
-  @ApiQuery({
-    name: 'startDate',
-    required: true,
-    description: 'Başlangıç tarihi (ISO formatında)',
-  })
-  @ApiQuery({
-    name: 'endDate',
-    required: true,
-    description: 'Bitiş tarihi (ISO formatında)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Agregasyonlar başarıyla getirildi',
-    type: AggregationResponseDto,
-  })
-  @UseGuards(JwtAuthGuard)
-  @Get('aggregations')
-  async getAggregations(
-    @Query('apiKey') apiKey: string,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ): Promise<AggregationResponseDto> {
-    const events = await this.analyticsService.getEventAggregations(
-      apiKey,
-      new Date(startDate),
-      new Date(endDate),
-    ) as IAnalytics[];
-
-    const eventTypes = events.reduce((acc, event) => {
-      acc[event.eventName] = (acc[event.eventName] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const dailyEvents = events.reduce((acc, event) => {
-      const date = event.createdAt.toISOString().split('T')[0];
-      const existingDay = acc.find((d) => d.date === date);
-      if (existingDay) {
-        existingDay.count++;
-      } else {
-        acc.push({ date, count: 1 });
-      }
-      return acc;
-    }, [] as Array<{ date: string; count: number }>);
-
-    const uniqueSessions = new Set(events.map((e) => e.sessionId)).size;
-
-    return {
-      totalEvents: events.length,
-      eventDistribution: eventTypes,
-      dailyDistribution: dailyEvents,
-      uniqueSessions,
-    };
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getMostViewedProducts(
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ) {
+    const limitValue = limit || 10;
+    this.logger.debug(`Getting most viewed products with limit: ${limitValue}`);
+    return this.analyticsService.getMostViewedProducts(limitValue);
   }
 
-  @ApiOperation({ summary: 'Oturum sayısını getir' })
+  @Get('most-added-to-cart')
+  @ApiOperation({ summary: 'En çok sepete eklenen ürünleri getirir' })
   @ApiQuery({
-    name: 'apiKey',
-    required: true,
-    description: 'API anahtarı',
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Kaç ürün getirileceği',
   })
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getMostAddedToCartProducts(
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ) {
+    const limitValue = limit || 10;
+    this.logger.debug(`Getting most added to cart products with limit: ${limitValue}`);
+    return this.analyticsService.getMostAddedToCartProducts(limitValue);
+  }
+
+  @Get('order-statistics')
+  @ApiOperation({ summary: 'Sipariş istatistiklerini getirir' })
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getOrderStatistics() {
+    this.logger.debug('Getting order statistics');
+    return this.analyticsService.getOrderStatistics();
+  }
+
+  @Get('time-based')
+  @ApiOperation({ summary: 'Zamana dayalı analitik verileri getirir' })
   @ApiQuery({
-    name: 'startDate',
-    required: true,
-    description: 'Başlangıç tarihi (ISO formatında)',
+    name: 'days',
+    required: false,
+    type: Number,
+    description: 'Kaç günlük veri getirileceği',
   })
-  @ApiQuery({
-    name: 'endDate',
-    required: true,
-    description: 'Bitiş tarihi (ISO formatında)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Oturum sayısı başarıyla getirildi',
-    type: SessionsResponseDto,
-  })
-  @UseGuards(JwtAuthGuard)
-  @Get('sessions')
-  async getSessionsCount(
-    @Query('apiKey') apiKey: string,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ): Promise<SessionsResponseDto> {
-    const sessions = await this.analyticsService.getUserSessionsCount(
-      apiKey,
-      new Date(startDate),
-      new Date(endDate),
-    );
-    return { count: sessions.length };
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getTimeBasedAnalytics(
+    @Query('days', new ParseIntPipe({ optional: true })) days?: number,
+  ) {
+    const daysValue = days || 30;
+    this.logger.debug(`Getting time-based analytics for last ${daysValue} days`);
+    return this.analyticsService.getTimeBasedAnalytics(daysValue);
   }
 
   private mapToAnalyticsResponse(analytics: Analytics): AnalyticsResponseDto {

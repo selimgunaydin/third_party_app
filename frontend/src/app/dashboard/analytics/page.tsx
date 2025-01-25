@@ -24,20 +24,20 @@ const DATE_RANGES = [
 // Olay türleri
 const EVENT_TYPES = [
   { value: "all", label: "Tüm Olaylar" },
-  { value: "page_view", label: "Sayfa Görüntüleme" },
-  { value: "element_click", label: "Tıklama" },
-  { value: "product_viewed", label: "Ürün Görüntüleme" },
-  { value: "add_to_cart", label: "Sepete Ekleme" },
-  { value: "remove_from_cart", label: "Sepetten Çıkarma" },
-  { value: "checkout_started", label: "Ödeme Başlatma" },
-  { value: "checkout_completed", label: "Ödeme Tamamlama" },
-  { value: "checkout_cancelled", label: "Ödeme İptal" },
-  { value: "form_submission", label: "Form Gönderimi" },
-  { value: "login", label: "Giriş" },
-  { value: "register", label: "Kayıt" },
-  { value: "add_wishlist", label: "Favorilere Ekleme" },
-  { value: "remove_wishlist", label: "Favorilerden Çıkarma" },
-  { value: "forgot_password", label: "Şifremi Unuttum" }
+  { value: "PAGE_VIEW", label: "Sayfa Görüntüleme" },
+  { value: "ELEMENT_CLICK", label: "Tıklama" },
+  { value: "PRODUCT_VIEWED", label: "Ürün Görüntüleme" },
+  { value: "ADD_TO_CART", label: "Sepete Ekleme" },
+  { value: "REMOVE_FROM_CART", label: "Sepetten Çıkarma" },
+  { value: "CHECKOUT_STARTED", label: "Ödeme Başlatma" },
+  { value: "CHECKOUT_COMPLETED", label: "Ödeme Tamamlama" },
+  { value: "CHECKOUT_CANCELLED", label: "Ödeme İptal" },
+  { value: "FORM_SUBMISSION", label: "Form Gönderimi" },
+  { value: "LOGIN", label: "Giriş" },
+  { value: "REGISTER", label: "Kayıt" },
+  { value: "ADD_WISHLIST", label: "Favorilere Ekleme" },
+  { value: "REMOVE_WISHLIST", label: "Favorilerden Çıkarma" },
+  { value: "FORGOT_PASSWORD", label: "Şifremi Unuttum" }
 ] as const;
 
 const getDateRange = (range: string): { startDate: string; endDate: string } => {
