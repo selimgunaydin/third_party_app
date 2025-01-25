@@ -7,8 +7,8 @@
       return new ThirdPartyAnalytics(config);
     }
 
-    this.apiKey = config.apiKey;
-    this.apiUrl = config.apiUrl;
+    this.apiKey = __API_KEY__;
+    this.apiUrl = __API_URL__;
     this.sessionId = this.generateSessionId();
   };
 
