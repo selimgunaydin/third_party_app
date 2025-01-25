@@ -8,24 +8,8 @@ import { Spinner } from "@nextui-org/spinner";
 import { Pagination } from "@nextui-org/pagination";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { analytics } from "@/lib/api";
+import { useEvents } from "@/hooks/queries";
 
-interface Event {
-  eventName: string;
-  eventData: {
-    email?: string;
-    status?: string;
-    products?: Array<{ name: string }>;
-    name?: string;
-    total?: number;
-    currency?: string;
-  };
-  sessionId: string;
-  userId: string;
-  metadata: {
-    timestamp: string;
-  };
-}
 
 // Tarih aralığı seçenekleri
 const DATE_RANGES = [
@@ -120,17 +104,7 @@ const AnalyticsDashboard = () => {
     setPage(1);
   }, []);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["analytics", startDate, endDate],
-    queryFn: () => analytics.getEvents(startDate, endDate),
-    staleTime: Infinity, // Veriyi sonsuza kadar taze tut
-    cacheTime: 1000 * 60 * 5, // 5 dakika cache'te tut
-    refetchOnMount: false, // Component mount olduğunda yenileme yapma
-    refetchOnWindowFocus: false, // Pencere odağı değiştiğinde yenileme yapma
-    refetchOnReconnect: false, // İnternet bağlantısı yenilendiğinde yenileme yapma
-    retry: false, // Hata durumunda tekrar deneme
-    enabled: Boolean(startDate && endDate) // Sadece tarihler hazır olduğunda çalıştır
-  });
+  const { data, isLoading, error } = useEvents({ startDate, endDate });
 
   // Filtrelenmiş verileri useMemo ile hesapla
   const filteredEvents = useMemo(() => {

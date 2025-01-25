@@ -13,21 +13,21 @@ import {
 import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
 import Preview from "@/components/Preview";
-import Cookies from "js-cookie";
-import { components, convertTailwind } from "@/lib/api";
-import { AxiosError } from "axios";
+import { useComponent, useUpdateComponent, useConvertTailwind } from "@/hooks/queries";
 import { Component } from "@/types";
 
 export default function EditComponent({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [component, setComponent] = useState<Component | null>(null);
+  const { data: component, isLoading: isLoadingComponent } = useComponent(params.id);
+  const updateComponent = useUpdateComponent();
+  const convertTailwindMutation = useConvertTailwind();
+
   const [name, setName] = useState("");
   const [selector, setSelector] = useState("");
   const [position, setPosition] = useState<"before" | "after">("after");
   const [html, setHtml] = useState("");
   const [css, setCss] = useState("");
   const [javascript, setJavascript] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [previewContent, setPreviewContent] = useState({
     html: "",
     css: "",
@@ -35,46 +35,20 @@ export default function EditComponent({ params }: { params: { id: string } }) {
   });
 
   useEffect(() => {
-    const fetchComponent = async () => {
-      try {
-        const token = Cookies.get("access_token");
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        const data = await components.getOne(params.id);
-        setComponent(data);
-        setName(data.name);
-        setSelector(data.selector);
-        setPosition(data.position);
-        setHtml(data.html);
-        setCss(data.css);
-        setJavascript(data.javascript);
-        setPreviewContent({
-          html: data.html,
-          css: data.css,
-          javascript: data.javascript,
-        });
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          if (err.response?.status === 401) {
-            Cookies.remove("access_token");
-            router.push("/login");
-            return;
-          }
-          toast.error(
-            err.response?.data?.message || "Failed to load component"
-          );
-        } else {
-          console.error(err);
-          toast.error("An error occurred while loading the component!");
-        }
-      }
-    };
-
-    fetchComponent();
-  }, [params.id, router]);
+    if (component) {
+      setName(component.name);
+      setSelector(component.selector);
+      setPosition(component.position);
+      setHtml(component.html);
+      setCss(component.css);
+      setJavascript(component.javascript);
+      setPreviewContent({
+        html: component.html,
+        css: component.css,
+        javascript: component.javascript,
+      });
+    }
+  }, [component]);
 
   // Preview içeriğini güncellemek için useEffect
   useEffect(() => {
@@ -86,52 +60,38 @@ export default function EditComponent({ params }: { params: { id: string } }) {
   }, [html, css, javascript]);
 
   const convertTailwindToCSS = async (html: string) => {
-    const css = await convertTailwind.convert(html);
-    setCss(css.css);
+    try {
+      const result = await convertTailwindMutation.mutateAsync(html);
+      setCss(result);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to convert TailwindCSS");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
     try {
-      const token = Cookies.get("access_token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      await components.update(params.id, {
-        name,
-        selector,
-        position,
-        html,
-        css,
-        javascript,
+      await updateComponent.mutateAsync({
+        id: params.id,
+        data: {
+          name,
+          selector,
+          position,
+          html,
+          css,
+          javascript,
+        }
       });
 
       toast.success("Component updated successfully!");
       router.push("/dashboard");
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 401) {
-          Cookies.remove("access_token");
-          router.push("/login");
-          return;
-        }
-        toast.error(
-          err.response?.data?.message || "Failed to update component"
-        );
-      } else {
-        console.error(err);
-        toast.error("An error occurred while updating the component!");
-      }
-    } finally {
-      setIsLoading(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update component");
     }
   };
 
-  if (!component) {
+  if (isLoadingComponent || !component) {
     return (
       <div className="p-6">
         <Card>
@@ -198,6 +158,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
                   <Button
                     type="button"
                     onPress={() => convertTailwindToCSS(previewContent.html)}
+                    isLoading={convertTailwindMutation.isPending}
                     className="form-checkbox"
                   >
                     Convert TailwindCSS
@@ -232,7 +193,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
               </div>
 
               <div className="flex gap-4">
-                <Button type="submit" color="primary" isLoading={isLoading}>
+                <Button type="submit" color="primary" isLoading={updateComponent.isPending}>
                   Save
                 </Button>
                 <Button
@@ -249,13 +210,8 @@ export default function EditComponent({ params }: { params: { id: string } }) {
         <div className="space-y-4">
           <Card>
             <CardBody>
-              <h2 className="text-xl font-semibold mb-4">Preview</h2>
-              <Preview
-                html={previewContent.html}
-                css={previewContent.css}
-                javascript={previewContent.javascript}
-                className="bg-gray-50"
-              />
+              <h2 className="text-lg font-semibold mb-4">Preview</h2>
+              <Preview content={previewContent} />
             </CardBody>
           </Card>
         </div>

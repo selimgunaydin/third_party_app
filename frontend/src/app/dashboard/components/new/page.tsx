@@ -14,9 +14,7 @@ import Editor from "@monaco-editor/react";
 import { defaultComponents } from "@/data/defaultComponents";
 import toast from "react-hot-toast";
 import Preview from "@/components/Preview";
-import Cookies from "js-cookie";
-import { components, convertTailwind } from "@/lib/api";
-import { AxiosError } from "axios";
+import { useCreateComponent, useConvertTailwind } from "@/hooks/queries";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { componentSchema } from "@/lib/validations";
@@ -30,6 +28,8 @@ type ComponentFormData = Omit<
 function NewComponentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const createComponent = useCreateComponent();
+  const convertTailwindMutation = useConvertTailwind();
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [previewContent, setPreviewContent] = useState({
     html: "",
@@ -43,7 +43,7 @@ function NewComponentForm() {
     control,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     setError,
   } = useForm<ComponentFormData>({
     resolver: yupResolver(componentSchema),
@@ -113,46 +113,34 @@ function NewComponentForm() {
   };
 
   const convertTailwindToCSS = async (html: string) => {
-    const css = await convertTailwind.convert(html);
-    setValue("css", css.css);
+    try {
+      const result = await convertTailwindMutation.mutateAsync(html);
+      setValue("css", result);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to convert TailwindCSS");
+    }
   };
 
   const onSubmit = async (data: ComponentFormData) => {
     try {
-      const token = Cookies.get("access_token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      await components.create({
+      await createComponent.mutateAsync({
         ...data,
         css: data.css || "",
         javascript: data.javascript || "",
       });
       toast.success("Component successfully created!");
       router.push("/dashboard");
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 401) {
-          Cookies.remove("access_token");
-          router.push("/login");
-          return;
-        }
-
-        // Check for duplicate selector error
-        if (err.response?.data?.code === "DUPLICATE_SELECTOR") {
-          setError("selector", {
-            type: "manual",
-            message: err.response.data.message,
-          });
-          return;
-        }
-
-        toast.error(err.response?.data?.message || "Component creation failed");
-      } else {
-        toast.error("An error occurred");
+    } catch (err: any) {
+      // Check for duplicate selector error
+      if (err.response?.data?.code === "DUPLICATE_SELECTOR") {
+        setError("selector", {
+          type: "manual",
+          message: err.response.data.message,
+        });
+        return;
       }
+
+      toast.error(err.response?.data?.message || "Component creation failed");
     }
   };
 
@@ -230,6 +218,7 @@ function NewComponentForm() {
                     <Button
                       type="button"
                       onPress={() => convertTailwindToCSS(previewContent.html)}
+                      isLoading={convertTailwindMutation.isPending}
                       className="form-checkbox"
                     >
                       Convert TailwindCSS
@@ -249,11 +238,6 @@ function NewComponentForm() {
                             minimap: { enabled: false },
                           }}
                         />
-                        {errors.html && (
-                          <p className="text-danger text-sm mt-1">
-                            {errors.html.message}
-                          </p>
-                        )}
                       </div>
                     )}
                   />
@@ -298,13 +282,13 @@ function NewComponentForm() {
                   <Button
                     type="submit"
                     color="primary"
-                    isLoading={isSubmitting}
+                    isLoading={createComponent.isPending}
                   >
                     Create Component
                   </Button>
                   <Button
-                    color="default"
-                    onClick={() => router.push("/dashboard")}
+                    variant="bordered"
+                    onPress={() => router.push("/dashboard")}
                   >
                     Cancel
                   </Button>
@@ -316,13 +300,8 @@ function NewComponentForm() {
           <div className="space-y-4">
             <Card>
               <CardBody>
-                <h2 className="text-xl font-semibold mb-4">Preview</h2>
-                <Preview
-                  html={previewContent.html}
-                  css={previewContent.css}
-                  javascript={previewContent.javascript}
-                  className="bg-gray-50"
-                />
+                <h2 className="text-lg font-semibold mb-4">Preview</h2>
+                <Preview content={previewContent} />
               </CardBody>
             </Card>
           </div>
@@ -334,7 +313,15 @@ function NewComponentForm() {
 
 export default function NewComponent() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <Card>
+          <CardBody>
+            <p className="text-center">Loading...</p>
+          </CardBody>
+        </Card>
+      }
+    >
       <NewComponentForm />
     </Suspense>
   );

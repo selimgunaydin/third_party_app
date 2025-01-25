@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { auth } from '@/lib/api';
 import { Card, CardBody, CardHeader, CardFooter } from '@nextui-org/card';
 import { Avatar } from '@nextui-org/avatar';
 import { Chip } from '@nextui-org/chip';
@@ -23,26 +22,11 @@ import {
   HiOutlineClipboardCopy,
   HiOutlineCheck
 } from 'react-icons/hi';
+import { useProfile } from '@/hooks/queries';
 
 export default function ProfilePage() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      const data = await auth.getProfile();
-      setUser(data);
-    } catch (error) {
-      toast.error('Profil yüklenirken bir hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: user, isLoading } = useProfile();
 
   const handleCopyApiKey = (key: string) => {
     navigator.clipboard.writeText(key);
@@ -51,7 +35,7 @@ export default function ProfilePage() {
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

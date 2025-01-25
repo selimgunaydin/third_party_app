@@ -1,138 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardBody, Button, Switch } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import Cookies from 'js-cookie';
-import { auth, components } from '@/lib/api';
-import { AxiosError } from 'axios';
 import { Component } from '@/types';
+import { useComponents, useProfile, useDeleteComponent, useUpdateComponent } from '@/hooks/queries';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [componentList, setComponentList] = useState<Component[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [apiKey, setApiKey] = useState('');
+  const { data: user } = useProfile();
+  const { data: componentList, isLoading } = useComponents();
+  const deleteComponent = useDeleteComponent();
+  const updateComponent = useUpdateComponent();
 
-  const fetchComponents = async () => {
-    try {
-      const token = Cookies.get('access_token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      const data = await components.getAll();
-      setComponentList(data);
-      setLoading(false);
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
-          return;
-        }
-        toast.error(err.response?.data?.message || 'Failed to load components');
-      } else {
-        console.error(err);
-        toast.error('An error occurred while loading components!');
-      }
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const token = Cookies.get('access_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    // Get user information and API key
-    auth.getProfile()
-      .then(data => {
-        if (data.apiKeys && data.apiKeys.length > 0) {
-          const activeKey = data.apiKeys.find(k => k.isActive);
-          if (activeKey) {
-            setApiKey(activeKey.key);
-          }
-        }
-      })
-      .catch(err => {
-        if (err instanceof AxiosError) {
-          if (err.response?.status === 401) {
-            Cookies.remove('access_token');
-            router.push('/login');
-            return;
-          }
-          toast.error(err.response?.data?.message || 'Failed to load user information');
-        } else {
-          console.error(err);
-          toast.error('Failed to load user information!');
-        }
-      });
-
-    fetchComponents();
-  }, [router]);
+  const apiKey = user?.apiKeys?.find(k => k.isActive)?.key || '';
 
   const handleDelete = async (id: string) => {
     try {
-      const token = Cookies.get('access_token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      await components.delete(id);
-      const updatedComponents = componentList.filter(c => c._id !== id);
-      setComponentList(updatedComponents);
+      await deleteComponent.mutateAsync(id);
       toast.success('Component deleted successfully!');
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
-          return;
-        }
-        toast.error(err.response?.data?.message || 'An error occurred while deleting component!');
-      } else {
-        console.error('Error deleting component:', err);
-        toast.error('An error occurred while deleting component!');
-      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'An error occurred while deleting component!');
     }
   };
 
   const handleStatusChange = async (component: Component) => {
     try {
-      const token = Cookies.get('access_token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      await components.update(component._id, {
-        isActive: !component.isActive
+      await updateComponent.mutateAsync({
+        id: component._id,
+        data: { isActive: !component.isActive }
       });
-
-      const updatedComponents = componentList?.map(c =>
-        c._id === component._id ? { ...c, isActive: !c.isActive } : c
-      );
-      setComponentList(updatedComponents);
       toast.success('Status updated successfully!');
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 401) {
-          Cookies.remove('access_token');
-          router.push('/login');
-          return;
-        }
-        toast.error(err.response?.data?.message || 'Failed to update status');
-      } else {
-        console.error('Error updating status:', err);
-        toast.error('An error occurred while updating status!');
-      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update status');
     }
   };
 
@@ -167,7 +68,7 @@ export default function Dashboard() {
         )}
 
         <div className="grid gap-4">
-          {loading ? (
+          {isLoading ? (
             <Card>
               <CardBody>
                 <p className="text-center">Loading...</p>
@@ -183,6 +84,7 @@ export default function Dashboard() {
                       <Switch
                         defaultSelected={component.isActive}
                         onChange={() => handleStatusChange(component)}
+                        isDisabled={updateComponent.isPending}
                       />
                       <Button
                         as={Link}
@@ -196,6 +98,7 @@ export default function Dashboard() {
                         color="danger"
                         variant="light"
                         onClick={() => handleDelete(component._id)}
+                        isLoading={deleteComponent.isPending}
                       >
                         Delete
                       </Button>
@@ -210,7 +113,7 @@ export default function Dashboard() {
             ))
           )}
           
-          {componentList?.length === 0 && !loading && (
+          {componentList?.length === 0 && !isLoading && (
             <Card>
               <CardBody>
                 <p className="text-center text-gray-500">

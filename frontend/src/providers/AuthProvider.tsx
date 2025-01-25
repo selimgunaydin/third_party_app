@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/queries';
 import { User } from '@/types';
 
 interface AuthContextType {
@@ -15,11 +15,11 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const auth = useAuth();
+  const { data: user, isLoading } = useProfile();
 
   return (
-    <AuthContext.Provider value={auth}>
-      {!auth.loading ? children : null}
+    <AuthContext.Provider value={{ user: user || null, loading: isLoading }}>
+      {!isLoading ? children : null}
     </AuthContext.Provider>
   );
 }

@@ -2,13 +2,11 @@
 
 import { Button, Card, CardBody, Input } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
-import { auth } from '@/lib/api';
-import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema } from '@/lib/validations';
 import toast from 'react-hot-toast';
+import { useLogin } from '@/hooks/queries';
 
 type LoginFormData = {
   email: string;
@@ -17,20 +15,19 @@ type LoginFormData = {
 
 export default function Login() {
   const router = useRouter();
+  const login = useLogin();
+  
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await auth.login(data);
-      
-      // Save token to cookie
-      Cookies.set('access_token', response.access_token, { expires: 7 }); // Expires in 7 days
+      await login.mutateAsync(data);
       
       // Wait a bit before redirect
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -38,12 +35,7 @@ export default function Login() {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
-      if (err instanceof AxiosError) {
-        toast.error(err.response?.data?.message || 'Login failed');
-      } else {
-        console.error(err);
-        toast.error('An unexpected error occurred');
-      }
+      toast.error(err.response?.data?.message || 'Login failed');
     }
   };
 
@@ -71,7 +63,7 @@ export default function Login() {
               type="submit"
               color="primary"
               className="w-full"
-              isLoading={isSubmitting}
+              isLoading={login.isPending}
             >
               Login
             </Button>

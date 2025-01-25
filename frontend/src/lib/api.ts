@@ -7,8 +7,16 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Public endpoints that don't require authentication
+const publicEndpoints = ['/api/auth/login', '/api/auth/register'];
+
 // Request interceptor
 api.interceptors.request.use((config) => {
+  // Don't add token for public endpoints
+  if (publicEndpoints.includes(config.url || '')) {
+    return config;
+  }
+
   const token = Cookies.get('access_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -20,13 +28,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !publicEndpoints.includes(error.config?.url)) {
       // Token expired or invalid
       Cookies.remove('access_token');
       Cookies.remove('user');
 
-      // Only redirect if not already on login page
-      if (!window.location.pathname.includes('/login')) {
+      // Only redirect if not already on login or register page
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
         window.location.href = '/login';
       }
     }

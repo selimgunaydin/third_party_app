@@ -1,34 +1,41 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { Input } from '@nextui-org/input';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
-import { auth } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import { useRegister } from '@/hooks/queries';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { registerSchema } from '@/lib/validations';
+import type { RegisterData } from '@/types';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const register = useRegister();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<RegisterData>({
+    resolver: yupResolver(registerSchema)
+  });
 
+  const onSubmit = async (data: RegisterData) => {
     try {
-      const formData = new FormData(e.target as HTMLFormElement);
-      const data = Object.fromEntries(formData.entries());
-
-      await auth.register(data);
+      await register.mutateAsync(data);
       toast.success('Kayıt başarılı! Yönlendiriliyorsunuz...');
       router.push('/dashboard');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Kayıt sırasında bir hata oluştu');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'Kayıt sırasında bir hata oluştu');
+      } else {
+        toast.error('Kayıt sırasında bir hata oluştu');
+      }
     }
   };
 
@@ -37,56 +44,72 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col gap-2 p-6">
           <h1 className="text-2xl font-bold">Kayıt Ol</h1>
-          <p className="text-gray-500">Widget Builder'a hoş geldiniz</p>
+          <p className="text-gray-500">Widget Builder&apos;a hoş geldiniz</p>
         </CardHeader>
 
         <CardBody>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-4">
               <Input
-                name="name"
+                {...registerField('name')}
                 label="Ad Soyad"
                 placeholder="John Doe"
+                isInvalid={!!errors.name}
+                errorMessage={errors.name?.message}
                 isRequired
               />
               <Input
-                name="email"
+                {...registerField('email')}
                 type="email"
                 label="E-posta"
                 placeholder="ornek@email.com"
+                isInvalid={!!errors.email}
+                errorMessage={errors.email?.message}
                 isRequired
               />
               <Input
-                name="password"
+                {...registerField('password')}
                 type="password"
                 label="Şifre"
                 placeholder="********"
+                isInvalid={!!errors.password}
+                errorMessage={errors.password?.message}
                 isRequired
               />
               <Input
-                name="phone"
+                {...registerField('phone')}
                 label="Telefon"
                 placeholder="+90 555 555 55 55"
+                isInvalid={!!errors.phone}
+                errorMessage={errors.phone?.message}
               />
               <Input
-                name="company"
+                {...registerField('company')}
                 label="Şirket"
                 placeholder="Şirket Adı"
+                isInvalid={!!errors.company}
+                errorMessage={errors.company?.message}
               />
               <Input
-                name="title"
+                {...registerField('title')}
                 label="Ünvan"
                 placeholder="Yazılım Geliştirici"
+                isInvalid={!!errors.title}
+                errorMessage={errors.title?.message}
               />
               <Input
-                name="address"
+                {...registerField('address')}
                 label="Adres"
                 placeholder="İstanbul, Türkiye"
+                isInvalid={!!errors.address}
+                errorMessage={errors.address?.message}
               />
               <Input
-                name="bio"
+                {...registerField('bio')}
                 label="Hakkında"
                 placeholder="Kendinizden kısaca bahsedin..."
+                isInvalid={!!errors.bio}
+                errorMessage={errors.bio?.message}
               />
             </div>
 
@@ -94,7 +117,7 @@ export default function RegisterPage() {
               type="submit"
               color="primary"
               className="w-full"
-              isLoading={loading}
+              isLoading={register.isPending}
             >
               Kayıt Ol
             </Button>
