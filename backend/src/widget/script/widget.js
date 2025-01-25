@@ -84,13 +84,21 @@
       
       const handler = () => {
         const elementData = {
-          element: element.tagName,
-          id: element.id,
-          class: element.className,
-          text: element.innerText,
-          href: element.href || null,
+          element: element.tagName.toLowerCase(),
+          id: element.id || undefined,
+          class: element.className || undefined,
+          text: element.innerText || undefined,
+          href: element.href || undefined,
           path: this.getElementPath(element)
         };
+
+        // Boş değerleri temizle
+        Object.keys(elementData).forEach(key => {
+          if (elementData[key] === undefined) {
+            delete elementData[key];
+          }
+        });
+
         this.track(eventName, elementData, metadata);
       };
 
