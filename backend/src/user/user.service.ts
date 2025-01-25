@@ -17,6 +17,26 @@ export class UserService {
     return user;
   }
 
+  async findByApiKey(apiKey: string) {
+    const user = await this.userModel.findOne({
+      apiKeys: {
+        $elemMatch: {
+          key: apiKey,
+          isActive: true
+        }
+      }
+    }).lean();
+    
+    if (!user) {
+      throw new NotFoundException('API Key için kullanıcı bulunamadı');
+    }
+
+    return {
+      ...user,
+      _id: user._id.toString()
+    };
+  }
+
   async update(id: string, updateData: Partial<User>) {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateData, { new: true })

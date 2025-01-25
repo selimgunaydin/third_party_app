@@ -11,23 +11,23 @@ export class AnalyticsService {
   ) {}
 
   async trackEvent(eventData: {
-    websiteId: string;
+    apiKey: string;
     eventName: string;
     eventData: Record<string, any>;
-    userId?: string;
     sessionId: string;
     userAgent: string;
     ipAddress: string;
     referrer: string;
     path: string;
     metadata?: Record<string, any>;
+    userId: string;
   }) {
     const event = new this.analyticsModel(eventData);
     return await event.save();
   }
 
-  async getEventsByWebsiteId(websiteId: string, startDate?: Date, endDate?: Date) {
-    const query: any = { websiteId };
+  async getEventsByApiKey(apiKey: string, startDate?: Date, endDate?: Date) {
+    const query: any = { apiKey };
     
     if (startDate || endDate) {
       query.createdAt = {};
@@ -41,18 +41,11 @@ export class AnalyticsService {
       .exec();
   }
 
-  async getEventsByUserId(websiteId: string, userId: string) {
-    return await this.analyticsModel
-      .find({ websiteId, userId })
-      .sort({ createdAt: -1 })
-      .exec();
-  }
-
-  async getEventAggregations(websiteId: string, startDate: Date, endDate: Date) {
+  async getEventAggregations(userId: string, startDate: Date, endDate: Date) {
     return await this.analyticsModel.aggregate([
       {
         $match: {
-          websiteId,
+          userId,
           createdAt: { $gte: startDate, $lte: endDate },
         },
       },
@@ -65,9 +58,9 @@ export class AnalyticsService {
     ]);
   }
 
-  async getUserSessionsCount(websiteId: string, startDate: Date, endDate: Date) {
+  async getUserSessionsCount(userId: string, startDate: Date, endDate: Date) {
     return await this.analyticsModel.distinct('sessionId', {
-      websiteId,
+      userId,
       createdAt: { $gte: startDate, $lte: endDate },
     });
   }

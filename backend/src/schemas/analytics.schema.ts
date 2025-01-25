@@ -6,16 +6,13 @@ export type AnalyticsDocument = Analytics & Document;
 @Schema({ timestamps: true })
 export class Analytics {
   @Prop({ required: true })
-  websiteId: string;
+  apiKey: string;
 
   @Prop({ required: true })
   eventName: string;
 
   @Prop({ type: Object })
   eventData: Record<string, any>;
-
-  @Prop()
-  userId?: string;
 
   @Prop()
   sessionId: string;
@@ -34,6 +31,9 @@ export class Analytics {
 
   @Prop({ type: Object })
   metadata?: Record<string, any>;
+
+  @Prop({ required: true })
+  userId: string;
 }
 
 export const AnalyticsSchema = SchemaFactory.createForClass(Analytics); 

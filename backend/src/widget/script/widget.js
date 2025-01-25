@@ -7,7 +7,7 @@
       return new ThirdPartyAnalytics(config);
     }
 
-    this.websiteId = config.websiteId;
+    this.apiKey = config.apiKey;
     this.apiUrl = config.apiUrl || 'http://localhost:3000';
     this.sessionId = this.generateSessionId();
     this.userId = config.userId;
@@ -30,7 +30,7 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            websiteId: this.websiteId,
+            apiKey: this.apiKey,
             eventName,
             eventData,
             userId: this.userId,

@@ -2,24 +2,27 @@ import { Controller, Post, Get, Body, Query, Req, UseGuards } from '@nestjs/comm
 import { AnalyticsService } from './analytics.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-
+import { UserService } from 'src/user/user.service';
 
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    private readonly analyticsService: AnalyticsService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post('track')
   async trackEvent(
     @Body() eventData: {
-      websiteId: string;
+      apiKey: string;
       eventName: string;
       eventData: Record<string, any>;
-      userId?: string;
       sessionId: string;
       metadata?: Record<string, any>;
     },
     @Req() request: Request,
   ) {
+    const user = await this.userService.findByApiKey(eventData.apiKey);
     const userAgent = request.headers['user-agent'];
     const ipAddress = request.ip;
     const referrer = request.headers.referer || '';
@@ -31,41 +34,33 @@ export class AnalyticsController {
       ipAddress,
       referrer,
       path,
+      userId: user._id.toString(),
     });
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('events')
   async getEvents(
-    @Query('websiteId') websiteId: string,
+    @Query('apiKey') apiKey: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    return await this.analyticsService.getEventsByWebsiteId(
-      websiteId,
+    return await this.analyticsService.getEventsByApiKey(
+      apiKey,
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
     );
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('user-events')
-  async getUserEvents(
-    @Query('websiteId') websiteId: string,
-    @Query('userId') userId: string,
-  ) {
-    return await this.analyticsService.getEventsByUserId(websiteId, userId);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get('aggregations')
   async getAggregations(
-    @Query('websiteId') websiteId: string,
+    @Query('apiKey') apiKey: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
     return await this.analyticsService.getEventAggregations(
-      websiteId,
+      apiKey,
       new Date(startDate),
       new Date(endDate),
     );
@@ -74,12 +69,12 @@ export class AnalyticsController {
   @UseGuards(JwtAuthGuard)
   @Get('sessions')
   async getSessionsCount(
-    @Query('websiteId') websiteId: string,
+    @Query('apiKey') apiKey: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
     const sessions = await this.analyticsService.getUserSessionsCount(
-      websiteId,
+      apiKey,
       new Date(startDate),
       new Date(endDate),
     );
