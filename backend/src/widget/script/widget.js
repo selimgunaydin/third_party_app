@@ -22,29 +22,42 @@
     },
 
     track: async function(eventName, eventData = {}, metadata = {}) {
+      if (!eventName) {
+        console.error('Event name is required');
+        return;
+      }
+
       try {
+        const payload = {
+          apiKey: this.apiKey,
+          eventName,
+          eventData,
+          userId: this.userId,
+          sessionId: this.sessionId,
+          metadata: {
+            ...metadata,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            language: navigator.language
+          }
+        };
+
         const response = await fetch(`${this.apiUrl}/analytics/track`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            apiKey: this.apiKey,
-            eventName,
-            eventData,
-            userId: this.userId,
-            sessionId: this.sessionId,
-            metadata
-          }),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to track event');
+          throw new Error(`Failed to track event: ${response.statusText}`);
         }
 
         return await response.json();
       } catch (error) {
         console.error('Analytics tracking error:', error);
+        return { error: error.message };
       }
     },
 
@@ -52,32 +65,87 @@
       return this.track('page_view', {
         title: document.title,
         url: window.location.href,
-        path: window.location.pathname
+        path: window.location.pathname,
+        referrer: document.referrer
       }, metadata);
     },
 
     identify: function(userId, traits = {}) {
+      if (!userId) {
+        console.error('UserId is required for identify');
+        return;
+      }
       this.userId = userId;
       return this.track('identify', traits);
     },
 
     trackClick: function(element, eventName = 'element_click', metadata = {}) {
-      element.addEventListener('click', () => {
-        this.track(eventName, {
+      if (!element) return;
+      
+      const handler = () => {
+        const elementData = {
           element: element.tagName,
           id: element.id,
           class: element.className,
-          text: element.innerText
-        }, metadata);
-      });
+          text: element.innerText,
+          href: element.href || null,
+          path: this.getElementPath(element)
+        };
+        this.track(eventName, elementData, metadata);
+      };
+
+      element.addEventListener('click', handler);
+      return () => element.removeEventListener('click', handler); // cleanup function
+    },
+
+    addToCart: function(productData, metadata = {}) {
+      if (!productData || !productData.productId) {
+        console.error('Product data with productId is required');
+        return;
+      }
+      return this.track('add_to_cart', productData, metadata);
+    },
+
+    checkoutStarted: function(checkoutData, metadata = {}) {
+      if (!checkoutData || !checkoutData.checkoutId) {
+        console.error('Checkout data with checkoutId is required');
+        return;
+      }
+      return this.track('checkout_started', checkoutData, metadata);
+    },
+
+    removeFromCart: function(productData, metadata = {}) {
+      if (!productData || !productData.productId) {
+        console.error('Product data with productId is required');
+        return;
+      }
+      return this.track('remove_from_cart', productData, metadata);
+    },
+
+    productViewed: function(productData, metadata = {}) {
+      if (!productData || !productData.productId) {
+        console.error('Product data with productId is required');
+        return;
+      }
+      return this.track('product_viewed', productData, metadata);
     },
 
     trackFormSubmission: function(form, eventName = 'form_submission', metadata = {}) {
-      form.addEventListener('submit', (e) => {
+      if (!form || !(form instanceof HTMLFormElement)) {
+        console.error('Valid form element is required');
+        return;
+      }
+
+      const handler = (e) => {
+        e.preventDefault();
+        
         const formData = new FormData(form);
         const data = {};
+        
         for (let [key, value] of formData.entries()) {
-          if (!key.toLowerCase().includes('password')) {
+          if (!key.toLowerCase().includes('password') && 
+              !key.toLowerCase().includes('token') && 
+              !key.toLowerCase().includes('secret')) {
             data[key] = value;
           }
         }
@@ -85,9 +153,32 @@
         this.track(eventName, {
           formId: form.id,
           formName: form.name,
+          formAction: form.action,
+          formMethod: form.method,
           data
         }, metadata);
-      });
+
+        form.submit();
+      };
+
+      form.addEventListener('submit', handler);
+      return () => form.removeEventListener('submit', handler);
+    },
+
+    // Utility function to get element's DOM path
+    getElementPath: function(element) {
+      const path = [];
+      while (element && element.nodeType === Node.ELEMENT_NODE) {
+        let selector = element.nodeName.toLowerCase();
+        if (element.id) {
+          selector += `#${element.id}`;
+        } else if (element.className) {
+          selector += `.${element.className.replace(/\s+/g, '.')}`;
+        }
+        path.unshift(selector);
+        element = element.parentNode;
+      }
+      return path.join(' > ');
     }
   };
 
