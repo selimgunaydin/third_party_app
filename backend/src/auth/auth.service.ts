@@ -16,11 +16,20 @@ export class AuthService {
   async register(createUserDto: any) {
     const { email, password } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // API anahtarı oluştur
+    const apiKey = uuidv4();
+    
     const user = await this.userModel.create({
       ...createUserDto,
       password: hashedPassword,
+      apiKeys: [{ key: apiKey, isActive: true }]
     });
-    return this.generateToken(user);
+    
+    return {
+      ...(await this.generateToken(user)),
+      apiKey
+    };
   }
 
   async login(loginDto: any) {
