@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Widget Test Sayfası</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .product img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .checkout {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analytics Widget Test Sayfası</h1>
+    
+    <div class="container">
+        <!-- Kullanıcı Tanımlama -->
+        <div class="card">
+            <h2>Kullanıcı İşlemleri</h2>
+            <button onclick="identifyUser()">Kullanıcıyı Tanımla</button>
+            <button onclick="handleLogin()">Giriş Yap</button>
+            <button onclick="handleRegister()">Kayıt Ol</button>
+            <button onclick="handleForgotPassword()">Şifremi Unuttum</button>
+        </div>
+
+        <!-- Ürün Kartları -->
+        <div class="card product">
+            <img src="https://picsum.photos/200" alt="Ürün 1">
+            <h3>Test Ürünü 1</h3>
+            <p>149.99 TL</p>
+            <button onclick="viewProduct('PROD1')">İncele</button>
+            <button onclick="addToCart('PROD1')">Sepete Ekle</button>
+            <button onclick="removeFromCart('PROD1')">Sepetten Çıkar</button>
+        </div>
+
+        <div class="card product">
+            <img src="https://picsum.photos/201" alt="Ürün 2">
+            <h3>Test Ürünü 2</h3>
+            <p>299.99 TL</p>
+            <button onclick="viewProduct('PROD2')">İncele</button>
+            <button onclick="addToCart('PROD2')">Sepete Ekle</button>
+            <button onclick="removeFromCart('PROD2')">Sepetten Çıkar</button>
+        </div>
+
+        <!-- İstek Listesi -->
+        <div class="card">
+            <h2>İstek Listesi</h2>
+            <button onclick="addToWishlist('PROD1')">Ürün 1'i İstek Listesine Ekle</button>
+            <button onclick="addToWishlist('PROD2')">Ürün 2'yi İstek Listesine Ekle</button>
+            <button onclick="removeFromWishlist('PROD1')">Ürün 1'i İstek Listesinden Çıkar</button>
+            <button onclick="removeFromWishlist('PROD2')">Ürün 2'yi İstek Listesinden Çıkar</button>
+        </div>
+
+        <!-- İletişim Formu -->
+        <div class="card">
+            <h2>İletişim Formu</h2>
+            <form id="contactForm" onsubmit="return false;">
+                <input type="text" name="name" placeholder="Adınız" required>
+                <input type="email" name="email" placeholder="E-posta" required>
+                <textarea name="message" placeholder="Mesajınız" required></textarea>
+                <button type="submit">Gönder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sepet ve Ödeme -->
+    <div class="checkout">
+        <h2>Sepet</h2>
+        <div id="cartItems"></div>
+        <button onclick="startCheckout()">Ödemeye Geç</button>
+        <button onclick="completeCheckout('CHK' + Date.now())">Ödemeyi Tamamla</button>
+        <button onclick="cancelCheckout('CHK' + Date.now())">Ödemeyi İptal Et</button>
+    </div>
+    <script src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=9947f3c7-d9a9-4175-9286-7866008cf51a"></script>
+
+    <script>
+        // Fake GTM Data Layer
+        window.dataLayer = window.dataLayer || [];
+        
+        // Fake GTM User Data
+        window.dataLayer.push({
+            'user': {
+                'id': 'GTM_USER_123',
+                'email': 'gtm_user@example.com',
+                'name': 'GTM Test User',
+                'isAuthenticated': true,
+                'groups': ['customer'],
+                'createdAt': '2024-01-01T00:00:00.000Z'
+            }
+        });
+
+        // GTM'den kullanıcı bilgilerini al
+        function getGTMUser() {
+            const dataLayer = window.dataLayer || [];
+            const gtmData = dataLayer.find(data => data.user);
+            return gtmData ? gtmData.user : null;
+        }
+
+        // Analytics widget'ını yükle
+        const analytics = new ThirdPartyAnalytics();
+        
+        // Sayfa görüntüleme olayını otomatik kaydet
+        analytics.pageView();
+
+        // GTM kullanıcısını tanımla
+        const gtmUser = getGTMUser();
+        if (gtmUser && gtmUser.isAuthenticated) {
+            analytics.identify(gtmUser.id, {
+                email: gtmUser.email,
+                name: gtmUser.name,
+                registeredAt: gtmUser.createdAt
+            });
+        }
+
+        // Tüm butonları izle
+        document.querySelectorAll('button').forEach(button => {
+            analytics.trackClick(button);
+        });
+
+        // İletişim formunu izle
+        const form = document.getElementById('contactForm');
+        analytics.trackFormSubmission(form);
+
+        // Auth kontrolü
+        function requireAuth(callback) {
+            const user = getGTMUser();
+            if (!user || !user.isAuthenticated) {
+                alert('Bu işlem için giriş yapmanız gerekmektedir.');
+                return false;
+            }
+            return callback(user);
+        }
+
+        // Kullanıcı tanımlama
+        function identifyUser() {
+            const user = getGTMUser();
+            if (user) {
+                analytics.identify(user.id, {
+                    name: user.name,
+                    email: user.email,
+                    registeredAt: user.createdAt
+                });
+            }
+        }
+
+        // Ürün görüntüleme
+        function viewProduct(productId) {
+            analytics.productViewed({
+                productId,
+                name: document.querySelector(`button[onclick="viewProduct('${productId}')"]`).previousElementSibling.previousElementSibling.textContent,
+                price: parseFloat(document.querySelector(`button[onclick="viewProduct('${productId}')"]`).previousElementSibling.textContent),
+                category: 'Test Ürünleri'
+            });
+        }
+
+        // Sepete ekleme
+        function addToCart(productId) {
+            requireAuth((user) => {
+                analytics.addToCart({
+                    productId,
+                    name: document.querySelector(`button[onclick="addToCart('${productId}')"]`).previousElementSibling.previousElementSibling.previousElementSibling.textContent,
+                    price: parseFloat(document.querySelector(`button[onclick="addToCart('${productId}')"]`).previousElementSibling.previousElementSibling.textContent),
+                    quantity: 1,
+                    userId: user.id
+                });
+                updateCart();
+            });
+        }
+
+        // Sepetten çıkarma
+        function removeFromCart(productId) {
+            requireAuth((user) => {
+                analytics.removeFromCart({
+                    productId,
+                    name: document.querySelector(`button[onclick="removeFromCart('${productId}')"]`).previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent,
+                    userId: user.id
+                });
+                updateCart();
+            });
+        }
+
+        // Ödeme başlatma
+        function startCheckout() {
+            requireAuth((user) => {
+                analytics.checkoutStarted({
+                    checkoutId: 'CHK' + Date.now(),
+                    total: 449.98,
+                    currency: 'TRY',
+                    userId: user.id,
+                    products: [
+                        {
+                            productId: 'PROD1',
+                            name: 'Test Ürünü 1',
+                            price: 149.99,
+                            quantity: 1
+                        },
+                        {
+                            productId: 'PROD2',
+                            name: 'Test Ürünü 2',
+                            price: 299.99,
+                            quantity: 1
+                        }
+                    ]
+                });
+            });
+        }
+
+        // Kullanıcı girişi
+        function handleLogin() {
+            const user = getGTMUser();
+            analytics.login({
+                userId: user.id,
+                email: user.email,
+                method: 'email',
+                status: 'success'
+            });
+        }
+
+        // Kullanıcı kaydı
+        function handleRegister() {
+            const user = getGTMUser();
+            analytics.register({
+                userId: user.id,
+                email: user.email,
+                method: 'email',
+                status: 'success'
+            });
+        }
+
+        // Şifremi unuttum
+        function handleForgotPassword() {
+            const user = getGTMUser();
+            analytics.forgotPassword({
+                userId: user.id,
+                email: user.email,
+                status: 'sent'
+            });
+        }
+
+        // İstek listesine ekleme
+        function addToWishlist(productId) {
+            requireAuth((user) => {
+                analytics.addWishlist({
+                    productId,
+                    userId: user.id,
+                    productName: document.querySelector(`button[onclick="addToWishlist('${productId}')"]`).closest('.product').querySelector('h3').textContent,
+                    price: parseFloat(document.querySelector(`button[onclick="addToWishlist('${productId}')"]`).closest('.product').querySelector('p').textContent),
+                    category: 'Test Ürünleri'
+                });
+            });
+        }
+
+        // İstek listesinden çıkarma
+        function removeFromWishlist(productId) {
+            requireAuth((user) => {
+                analytics.removeWishlist({
+                    productId,
+                    userId: user.id,
+                    productName: document.querySelector(`button[onclick="removeFromWishlist('${productId}')"]`).closest('.product').querySelector('h3').textContent,
+                    category: 'Test Ürünleri'
+                });
+            });
+        }
+
+        // Ödeme tamamlandı
+        function completeCheckout(checkoutId) {
+            requireAuth((user) => {
+                analytics.checkoutCompleted({
+                    checkoutId,
+                    total: 449.98,
+                    currency: 'TRY',
+                    paymentMethod: 'credit_card',
+                    status: 'success',
+                    userId: user.id,
+                    products: [
+                        {
+                            productId: 'PROD1',
+                            name: 'Test Ürünü 1',
+                            price: 149.99,
+                            quantity: 1
+                        },
+                        {
+                            productId: 'PROD2',
+                            name: 'Test Ürünü 2',
+                            price: 299.99,
+                            quantity: 1
+                        }
+                    ]
+                });
+            });
+        }
+
+        // Ödeme iptal edildi
+        function cancelCheckout(checkoutId) {
+            requireAuth((user) => {
+                analytics.checkoutCancelled({
+                    checkoutId,
+                    total: 449.98,
+                    currency: 'TRY',
+                    status: 'cancelled',
+                    userId: user.id,
+                    errorMessage: 'Kullanıcı tarafından iptal edildi'
+                });
+            });
+        }
+
+        // Sepeti güncelle (görsel amaçlı)
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = `
+                <p>Test Ürünü 1 - 149.99 TL</p>
+                <p>Test Ürünü 2 - 299.99 TL</p>
+                <p><strong>Toplam: 449.98 TL</strong></p>
+            `;
+        }
+
+        // İlk yüklemede sepeti güncelle
+        updateCart();
+    </script>
+</body>
+</html>

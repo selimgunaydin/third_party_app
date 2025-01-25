@@ -4,7 +4,6 @@ node_modules/
 /frontend/.next/
 /frontend/certificates/
 /backend/node_modules/
-/backend/public/
 
 # Environment files
 .env
