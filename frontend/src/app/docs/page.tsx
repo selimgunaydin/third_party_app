@@ -13,7 +13,7 @@ const SIDEBAR_ITEMS = [
     items: [
       { id: "overview", label: "Genel Bakış" },
       { id: "integration", label: "Entegrasyon" },
-    ]
+    ],
   },
   {
     title: "Kullanım Örnekleri",
@@ -23,27 +23,25 @@ const SIDEBAR_ITEMS = [
       { id: "ecommerce", label: "E-ticaret İşlemleri" },
       { id: "wishlist", label: "İstek Listesi İşlemleri" },
       { id: "gtm", label: "GTM Entegrasyonu" },
-    ]
+    ],
   },
   {
     title: "Güvenlik",
-    items: [
-      { id: "security", label: "Güvenlik ve En İyi Uygulamalar" },
-    ]
-  }
+    items: [{ id: "security", label: "Güvenlik ve En İyi Uygulamalar" }],
+  },
 ];
 
 const CodeBlock = ({ children }: { children: string }) => {
   return (
-    <Code 
+    <Code
       className="p-4 rounded-lg w-full"
       style={{
-        whiteSpace: 'pre',
-        display: 'block',
-        overflowX: 'auto',
-        fontSize: '0.9rem',
-        lineHeight: '1.5',
-        tabSize: 2
+        whiteSpace: "pre",
+        display: "block",
+        overflowX: "auto",
+        fontSize: "0.9rem",
+        lineHeight: "1.5",
+        tabSize: 2,
       }}
     >
       {children}
@@ -51,12 +49,12 @@ const CodeBlock = ({ children }: { children: string }) => {
   );
 };
 
-const Sidebar = ({ 
-  activeSection, 
-  onSectionChange 
-}: { 
-  activeSection: string, 
-  onSectionChange: (id: string) => void 
+const Sidebar = ({
+  activeSection,
+  onSectionChange,
+}: {
+  activeSection: string;
+  onSectionChange: (id: string) => void;
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -70,17 +68,32 @@ const Sidebar = ({
           onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="bg-background/60 backdrop-blur-lg"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
           </svg>
         </Button>
       </div>
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed top-0 left-0 h-full bg-background z-40 w-64 border-r border-divider transform transition-transform duration-300
-        lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+        lg:translate-x-0 ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }
+      `}
+      >
         <ScrollShadow className="h-full py-8 px-4">
           <div className="mb-8">
             <h1 className="text-xl font-bold">Analytics API</h1>
@@ -102,9 +115,10 @@ const Sidebar = ({
                           setIsMobileMenuOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors
-                          ${activeSection === item.id 
-                            ? 'bg-primary text-primary-foreground font-medium' 
-                            : 'text-foreground/70 hover:bg-default-100'
+                          ${
+                            activeSection === item.id
+                              ? "bg-primary text-primary-foreground font-medium"
+                              : "text-foreground/70 hover:bg-default-100"
                           }`}
                       >
                         {item.label}
@@ -126,48 +140,65 @@ const DocsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      
+      <Sidebar
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+      />
+
       <main className="lg:pl-64 pt-16 lg:pt-0">
         <div className="container mx-auto py-8 px-4 max-w-4xl">
           <div className="space-y-8">
             {/* İçerik bölümleri */}
-            <div id="overview" className={activeSection === "overview" ? "block" : "hidden"}>
+            <div
+              id="overview"
+              className={activeSection === "overview" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
                   <h2 className="text-2xl font-semibold">Genel Bakış</h2>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <p className="text-gray-600">
-                    Analytics API, web uygulamanızda kullanıcı davranışlarını ve olayları izlemek için kullanılan bir API&apos;dir.
-                    Bu API sayesinde sayfa görüntülemeleri, tıklamalar, form gönderimler ve özel olayları takip edebilirsiniz.
+                    Analytics API, web uygulamanızda kullanıcı davranışlarını ve
+                    olayları izlemek için kullanılan bir API&apos;dir. Bu API
+                    sayesinde sayfa görüntülemeleri, tıklamalar, form
+                    gönderimler ve özel olayları takip edebilirsiniz.
                   </p>
                 </CardBody>
               </Card>
             </div>
 
-            <div id="integration" className={activeSection === "integration" ? "block" : "hidden"}>
+            <div
+              id="integration"
+              className={activeSection === "integration" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
                   <h2 className="text-2xl font-semibold">Entegrasyon</h2>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">1. Script Yükleme</h3>
+                    <h3 className="text-xl font-semibold mb-4">
+                      1. Script Yükleme
+                    </h3>
                     <p className="text-gray-600 mb-4">
-                      Analytics script&apos;ini sayfanıza ekleyin. Script&apos;i body tag&apos;inin sonuna eklemek en iyi performansı sağlayacaktır.
+                      Analytics script&apos;ini sayfanıza ekleyin. Script&apos;i
+                      body tag&apos;inin sonuna eklemek en iyi performansı
+                      sağlayacaktır.
                     </p>
                     <CodeBlock>
-{`<script 
+                      {`<script 
   src="https://api.example.com/api/scripts/widget/script/widget.js?apiKey=YOUR_API_KEY">
 </script>`}
                     </CodeBlock>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">2. Analytics Nesnesini Başlatma</h3>
+                    <h3 className="text-xl font-semibold mb-4">
+                      2. Analytics Nesnesini Başlatma
+                    </h3>
                     <CodeBlock>
-{`// Analytics widget'ını yükle
+                      {`// Analytics widget'ını yükle
 const analytics = new ThirdPartyAnalytics();
 
 // Sayfa görüntüleme olayını otomatik kaydet
@@ -176,30 +207,46 @@ analytics.pageView();`}
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">3. Otomatik Olay Takibi</h3>
+                    <h3 className="text-xl font-semibold mb-4">
+                      3. Otomatik Olay Takibi
+                    </h3>
                     <p className="text-gray-600 mb-4">
-                      Script yüklendikten sonra bazı olaylar otomatik olarak takip edilir:
+                      Script yüklendikten sonra bazı olaylar otomatik olarak
+                      takip edilir:
                     </p>
                     <ul className="list-disc list-inside space-y-2 text-gray-600">
                       <li>Sayfa görüntülemeleri</li>
-                      <li>Tıklama olayları (data-track özelliği olan elementler için)</li>
-                      <li>Form gönderim olayları (data-track-form özelliği olan formlar için)</li>
+                      <li>
+                        Tıklama olayları (data-track özelliği olan elementler
+                        için)
+                      </li>
+                      <li>
+                        Form gönderim olayları (data-track-form özelliği olan
+                        formlar için)
+                      </li>
                     </ul>
                   </div>
                 </CardBody>
               </Card>
             </div>
 
-            <div id="user-operations" className={activeSection === "user-operations" ? "block" : "hidden"}>
+            <div
+              id="user-operations"
+              className={
+                activeSection === "user-operations" ? "block" : "hidden"
+              }
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
-                  <h2 className="text-2xl font-semibold">Kullanıcı İşlemleri</h2>
+                  <h2 className="text-2xl font-semibold">
+                    Kullanıcı İşlemleri
+                  </h2>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <div>
                     <h4 className="font-semibold mb-2">Kullanıcı Tanımlama</h4>
                     <CodeBlock>
-{`// Kullanıcıyı tanımla
+                      {`// Kullanıcıyı tanımla
 analytics.identify('user123', {
   name: 'John Doe',
   email: 'john@example.com',
@@ -211,7 +258,7 @@ analytics.identify('user123', {
                   <div>
                     <h4 className="font-semibold mb-2">Giriş İşlemi</h4>
                     <CodeBlock>
-{`analytics.login({
+                      {`analytics.login({
   userId: 'user123',
   email: 'john@example.com',
   method: 'email',
@@ -223,7 +270,7 @@ analytics.identify('user123', {
                   <div>
                     <h4 className="font-semibold mb-2">Kayıt İşlemi</h4>
                     <CodeBlock>
-{`analytics.register({
+                      {`analytics.register({
   userId: 'user123',
   email: 'john@example.com',
   method: 'email',
@@ -235,16 +282,21 @@ analytics.identify('user123', {
               </Card>
             </div>
 
-            <div id="page-tracking" className={activeSection === "page-tracking" ? "block" : "hidden"}>
+            <div
+              id="page-tracking"
+              className={activeSection === "page-tracking" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
-                  <h2 className="text-2xl font-semibold">Sayfa ve Element İzleme</h2>
+                  <h2 className="text-2xl font-semibold">
+                    Sayfa ve Element İzleme
+                  </h2>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <div>
                     <h4 className="font-semibold mb-2">Sayfa Görüntüleme</h4>
                     <CodeBlock>
-{`// Otomatik sayfa görüntüleme
+                      {`// Otomatik sayfa görüntüleme
 analytics.pageView();
 
 // Özel veri ile sayfa görüntüleme
@@ -260,7 +312,7 @@ analytics.pageView({
                   <div>
                     <h4 className="font-semibold mb-2">Element Tıklama</h4>
                     <CodeBlock>
-{`// Tek bir elementi izleme
+                      {`// Tek bir elementi izleme
 const button = document.querySelector('#myButton');
 analytics.trackClick(button);
 
@@ -274,7 +326,7 @@ document.querySelectorAll('button').forEach(button => {
                   <div>
                     <h4 className="font-semibold mb-2">Form İzleme</h4>
                     <CodeBlock>
-{`const form = document.getElementById('contactForm');
+                      {`const form = document.getElementById('contactForm');
 analytics.trackFormSubmission(form);`}
                     </CodeBlock>
                   </div>
@@ -282,16 +334,21 @@ analytics.trackFormSubmission(form);`}
               </Card>
             </div>
 
-            <div id="ecommerce" className={activeSection === "ecommerce" ? "block" : "hidden"}>
+            <div
+              id="ecommerce"
+              className={activeSection === "ecommerce" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
-                  <h2 className="text-2xl font-semibold">E-ticaret İşlemleri</h2>
+                  <h2 className="text-2xl font-semibold">
+                    E-ticaret İşlemleri
+                  </h2>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <div>
                     <h4 className="font-semibold mb-2">Ürün Görüntüleme</h4>
                     <CodeBlock>
-{`analytics.productViewed({
+                      {`analytics.productViewed({
   productId: 'PROD123',
   name: 'Örnek Ürün',
   price: 149.99,
@@ -303,7 +360,7 @@ analytics.trackFormSubmission(form);`}
                   <div>
                     <h4 className="font-semibold mb-2">Sepet İşlemleri</h4>
                     <CodeBlock>
-{`// Sepete Ekleme
+                      {`// Sepete Ekleme
 analytics.addToCart({
   productId: 'PROD123',
   name: 'Örnek Ürün',
@@ -324,7 +381,7 @@ analytics.removeFromCart({
                   <div>
                     <h4 className="font-semibold mb-2">Ödeme İşlemleri</h4>
                     <CodeBlock>
-{`// Ödeme Başlatma
+                      {`// Ödeme Başlatma
 analytics.checkoutStarted({
   checkoutId: 'CHK123',
   total: 449.98,
@@ -372,16 +429,23 @@ analytics.checkoutCancelled({
               </Card>
             </div>
 
-            <div id="wishlist" className={activeSection === "wishlist" ? "block" : "hidden"}>
+            <div
+              id="wishlist"
+              className={activeSection === "wishlist" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
-                  <h2 className="text-2xl font-semibold">İstek Listesi İşlemleri</h2>
+                  <h2 className="text-2xl font-semibold">
+                    İstek Listesi İşlemleri
+                  </h2>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <div>
-                    <h4 className="font-semibold mb-2">İstek Listesi Yönetimi</h4>
+                    <h4 className="font-semibold mb-2">
+                      İstek Listesi Yönetimi
+                    </h4>
                     <CodeBlock>
-{`// İstek Listesine Ekleme
+                      {`// İstek Listesine Ekleme
 analytics.addWishlist({
   productId: 'PROD123',
   userId: 'user123',
@@ -403,16 +467,21 @@ analytics.removeWishlist({
               </Card>
             </div>
 
-            <div id="gtm" className={activeSection === "gtm" ? "block" : "hidden"}>
+            <div
+              id="gtm"
+              className={activeSection === "gtm" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
                   <h2 className="text-2xl font-semibold">GTM Entegrasyonu</h2>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <div>
-                    <h4 className="font-semibold mb-2">GTM&apos;den Veri Alma</h4>
+                    <h4 className="font-semibold mb-2">
+                      GTM&apos;den Veri Alma
+                    </h4>
                     <CodeBlock>
-{`// GTM'den kullanıcı bilgilerini al
+                      {`// GTM'den kullanıcı bilgilerini al
 function getGTMUser() {
   const dataLayer = window.dataLayer || [];
   const gtmData = dataLayer.find(data => data.user);
@@ -434,16 +503,23 @@ if (gtmUser && gtmUser.isAuthenticated) {
               </Card>
             </div>
 
-            <div id="security" className={activeSection === "security" ? "block" : "hidden"}>
+            <div
+              id="security"
+              className={activeSection === "security" ? "block" : "hidden"}
+            >
               <Card className="shadow-lg">
                 <CardHeader className="border-b border-divider">
-                  <h2 className="text-2xl font-semibold">Güvenlik ve En İyi Uygulamalar</h2>
+                  <h2 className="text-2xl font-semibold">
+                    Güvenlik ve En İyi Uygulamalar
+                  </h2>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">Kimlik Doğrulama Kontrolü</h3>
+                    <h3 className="text-xl font-semibold mb-4">
+                      Kimlik Doğrulama Kontrolü
+                    </h3>
                     <CodeBlock>
-{`// Kimlik doğrulama gerektiren işlemler için yardımcı fonksiyon
+                      {`// Kimlik doğrulama gerektiren işlemler için yardımcı fonksiyon
 function requireAuth(callback) {
   const user = getUser(); // Kendi auth sisteminizden kullanıcıyı alın
   if (!user || !user.isAuthenticated) {
@@ -486,4 +562,4 @@ function addToCart(productId) {
   );
 };
 
-export default DocsPage; 
+export default DocsPage;

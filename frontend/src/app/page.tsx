@@ -1,43 +1,21 @@
 'use client';
 
-import { Button } from '@nextui-org/react';
-import Link from 'next/link';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import Hero from '@/components/home/Hero';
+import Features from '@/components/home/Features';
+import Analytics from '@/components/home/Analytics';
 
 export default function Home() {
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="max-w-5xl w-full text-center">
-        <h1 className="text-4xl font-bold mb-8">
-          Widget Builder Platform
-        </h1>
-        <p className="text-xl mb-8">
-          Create and add your custom widgets to your website
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Button
-            as={Link}
-            href="/login"
-            color="primary"
-            variant="solid"
-            size="lg"
-          >
-            Login
-          </Button>
-          {isDevelopment && (
-            <Button
-              as={Link}
-              href="/register"
-              color="secondary"
-              variant="solid"
-              size="lg"
-            >
-              Register
-            </Button>
-          )}
-        </div>
-      </div>
-    </main>
+    <>
+      <Header />
+      <main className="min-h-screen bg-gradient-to-b from-background to-background/80 pt-16">
+        <Hero />
+        <Features />
+        <Analytics />
+      </main>
+      <Footer />
+    </>
   );
 }

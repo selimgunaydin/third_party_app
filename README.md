@@ -17,6 +17,8 @@ A full-stack web application for managing third-party applications with modern t
 - TypeScript
 - Tailwind CSS
 - Shadcn/ui
+- NextUI
+- React Query
 
 ## 📋 Prerequisites
 - Node.js (v18 or higher)
@@ -84,12 +86,69 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ## ✨ Features
+
+### Core Features
 - User registration and authentication
 - JWT-based secure authentication
 - Component management (CRUD operations)
 - Dashboard interface
 - Responsive design
 - Rate limiting and CORS protection
+
+### 📊 Analytics System
+- Real-time data collection
+- User session tracking
+- E-commerce activity monitoring
+- Browser and device tracking
+- Custom event tracking
+- Comprehensive analytics dashboard
+- Time-based analytics
+- Product performance metrics
+
+### 🔄 API Integration
+#### Analytics Endpoints
+- `POST /api/analytics/track` - Track new analytics event
+- `GET /api/analytics/events` - Get events by date range
+- `GET /api/analytics/most-viewed-products` - Get most viewed products
+- `GET /api/analytics/most-added-to-cart` - Get most added to cart products
+- `GET /api/analytics/order-statistics` - Get order statistics
+- `GET /api/analytics/time-based` - Get time-based analytics
+
+### 📱 Widget System
+- Easy-to-integrate JavaScript widget
+- Automatic session management
+- Event tracking and reporting
+- Cross-origin support
+- Customizable event tracking
+- Real-time data synchronization
+
+### 🎨 UI/UX Features
+- Modern dashboard interface
+- NextUI components integration
+- Responsive design
+- Dynamic data visualization
+- Advanced filtering and search
+- Pagination support
+- Lazy loading
+- Optimized performance
+
+### 🔒 Security Features
+- API key authentication
+- Rate limiting
+- CORS protection
+- Input validation
+- JWT-based authentication
+- Role-based access control
+- Session management
+
+### 📈 Reporting Features
+- User behavior analytics
+- E-commerce metrics
+- Time-based trends
+- Customizable reports
+- Data export (CSV/Excel)
+- API data access
+- Custom data filtering
 
 ## 🔌 API Endpoints
 
@@ -118,6 +177,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 │   ├── src/
 │   │   ├── auth/           # Authentication module
 │   │   ├── components/     # Components module
+│   │   ├── analytics/      # Analytics module
 │   │   ├── schemas/        # MongoDB schemas
 │   │   ├── widget/         # Widget module
 │   │   ├── app.module.ts   # Main application module
@@ -145,6 +205,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - CORS protection
 - Input validation
 - XSS protection
+- API key authentication
+- Role-based access control
 
 ## 🌐 Access Points
 - Frontend: `http://localhost:3000`

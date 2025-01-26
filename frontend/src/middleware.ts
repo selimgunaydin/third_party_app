@@ -4,8 +4,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('access_token')?.value || '';
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
-                    request.nextUrl.pathname.startsWith('/register') ||
-                    request.nextUrl.pathname === '/';
+                    request.nextUrl.pathname.startsWith('/register')
 
   // If trying to access auth pages while logged in
   if (isAuthPage && token) {
