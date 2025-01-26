@@ -14,7 +14,6 @@ import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
 import Preview from "@/components/Preview";
 import { useComponent, useUpdateComponent, useConvertTailwind } from "@/hooks/queries";
-import { Component } from "@/types";
 
 export default function EditComponent({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -211,7 +210,7 @@ export default function EditComponent({ params }: { params: { id: string } }) {
           <Card>
             <CardBody>
               <h2 className="text-lg font-semibold mb-4">Preview</h2>
-              <Preview content={previewContent} />
+              <Preview html={previewContent.html} css={previewContent.css} javascript={previewContent.javascript} />
             </CardBody>
           </Card>
         </div>

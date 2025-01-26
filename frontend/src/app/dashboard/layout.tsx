@@ -53,6 +53,11 @@ export default function DashboardLayout({
 
   const componentItems = [
     {
+      name: "Dashboard",
+      href: "/dashboard/components/components-dashboard",
+      icon: HiOutlineViewGrid,
+    },
+    {
       name: "Default Components",
       href: "/dashboard/components/default-components",
       icon: HiOutlineTemplate,

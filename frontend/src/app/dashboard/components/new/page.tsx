@@ -71,6 +71,11 @@ function NewComponentForm() {
         setValue("html", template.html);
         setValue("css", template.css);
         setValue("javascript", template.javascript);
+        setPreviewContent({
+          html: template.html,
+          css: template.css,
+          javascript: template.javascript,
+        });
         setSelectedTemplate(templateId);
         toast.success("Template successfully loaded!");
       }
@@ -301,7 +306,7 @@ function NewComponentForm() {
             <Card>
               <CardBody>
                 <h2 className="text-lg font-semibold mb-4">Preview</h2>
-                <Preview content={previewContent} />
+                <Preview html={previewContent.html} css={previewContent.css} javascript={previewContent.javascript} />
               </CardBody>
             </Card>
           </div>

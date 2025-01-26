@@ -16,7 +16,7 @@ export default function DefaultComponentsPage() {
   const handleSelectComponent = () => {
     if (!selectedComponent) return;
 
-    router.push(`/dashboard/new?template=${selectedComponent.id}`);
+    router.push(`/dashboard/components/new?template=${selectedComponent.id}`);
   };
 
 
