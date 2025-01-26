@@ -7,7 +7,6 @@ import { Chip } from "@nextui-org/chip";
 import { Spinner } from "@nextui-org/spinner";
 import { Pagination } from "@nextui-org/pagination";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/table";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEvents } from "@/hooks/queries";
 
 
@@ -81,7 +80,6 @@ const getDateRange = (range: string): { startDate: string; endDate: string } => 
 };
 
 const AnalyticsDashboard = () => {
-  const queryClient = useQueryClient();
   const [selectedDateRange, setSelectedDateRange] = useState<string>("today");
   const [selectedEventType, setSelectedEventType] = useState<string>("all");
   const [page, setPage] = useState(1);
@@ -116,7 +114,7 @@ const AnalyticsDashboard = () => {
   // Kullanıcı aktivitelerini useMemo ile hesapla
   const userActivities = useMemo(() => 
     filteredEvents.filter(event => 
-      ["login", "register", "identify", "forgot_password"].includes(event.eventName)
+      ["LOGIN", "REGISTER", "IDENTIFY", "FORGOT_PASSWORD"].includes(event.eventName)
     ), 
     [filteredEvents]
   );
@@ -124,7 +122,7 @@ const AnalyticsDashboard = () => {
   // E-ticaret aktivitelerini useMemo ile hesapla
   const ecommerceActivities = useMemo(() => 
     filteredEvents.filter(event => 
-      ["add_to_cart", "remove_from_cart", "checkout_started", "checkout_completed", "checkout_cancelled"].includes(event.eventName)
+      ["ADD_TO_CART", "REMOVE_FROM_CART", "CHECKOUT_STARTED", "CHECKOUT_COMPLETED", "CHECKOUT_CANCELLED"].includes(event.eventName)
     ),
     [filteredEvents]
   );
