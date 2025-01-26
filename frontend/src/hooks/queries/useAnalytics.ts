@@ -13,16 +13,30 @@ export const useEvents = (params?: AnalyticsParams) => {
   });
 };
 
-export const useAggregations = (params?: AnalyticsParams) => {
+export const useMostViewedProducts = () => {
   return useQuery({
-    queryKey: ['aggregations', params?.startDate, params?.endDate],
-    queryFn: () => analytics.getAggregations(params?.startDate, params?.endDate),
+    queryKey: ['most-viewed-products'],
+    queryFn: () => analytics.getMostViewedProducts(),
   });
 };
 
-export const useSessions = (params?: AnalyticsParams) => {
+export const useMostAddedProducts = () => {
   return useQuery({
-    queryKey: ['sessions', params?.startDate, params?.endDate],
-    queryFn: () => analytics.getSessions(params?.startDate, params?.endDate),
+    queryKey: ['most-added-products'],
+    queryFn: () => analytics.getMostAddedProducts(),
   });
-}; 
+};
+
+export const useOrderStatistics = () => {
+  return useQuery({
+    queryKey: ['order-statistics'],
+    queryFn: () => analytics.getOrderStatistics(),
+  });
+};
+
+export const useTimeBasedAnalytics = () => {
+  return useQuery({
+    queryKey: ['time-based-analytics'],
+    queryFn: () => analytics.getTimeBasedAnalytics(),
+  });
+};

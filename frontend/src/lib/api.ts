@@ -121,24 +121,25 @@ export const analytics = {
     const response = await api.get(`/api/analytics/events?${params.toString()}`);
     return response.data;
   },
-
-  getAggregations: async (startDate?: string, endDate?: string) => {
-    const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-    
-    const response = await api.get(`/api/analytics/aggregations?${params.toString()}`);
+  getMostViewedProducts: async () => {
+    const response = await api.get('/api/analytics/most-viewed-products');
     return response.data;
   },
 
-  getSessions: async (startDate?: string, endDate?: string) => {
-    const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-    
-    const response = await api.get(`/api/analytics/sessions?${params.toString()}`);
+  getMostAddedProducts: async () => {
+    const response = await api.get('/api/analytics/most-added-to-cart');
     return response.data;
   },
+
+  getOrderStatistics: async () => {
+    const response = await api.get('/api/analytics/order-statistics');
+    return response.data;
+  },
+
+  getTimeBasedAnalytics: async () => {
+    const response = await api.get('/api/analytics/time-based');
+    return response.data;
+  }
 };
 
 export const convertTailwind = {

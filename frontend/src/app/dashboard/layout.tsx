@@ -28,7 +28,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isComponentsOpen, setIsComponentsOpen] = useState(false);
-
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const handleLogout = () => {
     Cookies.remove('access_token');
     router.push('/login');
@@ -39,10 +39,18 @@ export default function DashboardLayout({
       name: 'Dashboard',
       href: '/dashboard',
       icon: HiOutlineViewGrid
+    }
+  ];
+
+  const analyticsItems = [
+    {
+      name: 'Analytics Dashboard',
+      href: '/dashboard/analytics',
+      icon: HiOutlineChartBar
     },
     {
-      name: 'Analytics',
-      href: '/dashboard/analytics',
+      name: 'Analytics Report',
+      href: '/dashboard/analytics/analytics-report',
       icon: HiOutlineChartBar
     }
   ];
@@ -91,7 +99,46 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
+                className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-100 hover:text-primary ${
+                  analyticsItems.some(item => pathname === item.href) ? 'bg-gray-100 text-primary' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <HiOutlineChartBar className="w-5 h-5" />
+                  <span>Analytics</span>
+                </div>
+                {isComponentsOpen ? (
+                  <HiOutlineChevronDown className="w-4 h-4" />
+                ) : (
+                  <HiOutlineChevronRight className="w-4 h-4" />
+                )}
+              </button>
 
+              {/* Dropdown Items */}
+              <div className={`pl-4 space-y-1 ${isAnalyticsOpen ? 'block' : 'hidden'}`}>
+                {analyticsItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-primary text-white font-medium'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
             {/* Components Dropdown */}
             <div className="space-y-1">
               <button

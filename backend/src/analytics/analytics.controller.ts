@@ -20,14 +20,11 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBody,
-  ApiQuery,
-  ApiParam,
+  ApiQuery
 } from '@nestjs/swagger';
 import { TrackEventDto } from './dto/track-event.dto';
 import { AnalyticsResponseDto } from './dto/analytics-response.dto';
-import { AggregationResponseDto } from './dto/aggregation-response.dto';
-import { SessionsResponseDto } from './dto/sessions-response.dto';
-import { Analytics, IAnalytics } from '../schemas/analytics.schema';
+import { Analytics } from '../schemas/analytics.schema';
 import { EventValidationPipe } from './pipes/event-validation.pipe';
 import { ValidationPipe } from '@nestjs/common';
 
@@ -130,7 +127,6 @@ export class AnalyticsController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
   ) {
     const limitValue = limit || 10;
-    this.logger.debug(`Getting most viewed products with limit: ${limitValue}`);
     return this.analyticsService.getMostViewedProducts(limitValue);
   }
 
@@ -147,7 +143,6 @@ export class AnalyticsController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
   ) {
     const limitValue = limit || 10;
-    this.logger.debug(`Getting most added to cart products with limit: ${limitValue}`);
     return this.analyticsService.getMostAddedToCartProducts(limitValue);
   }
 
@@ -155,7 +150,6 @@ export class AnalyticsController {
   @ApiOperation({ summary: 'Sipariş istatistiklerini getirir' })
   @ApiResponse({ status: 200, description: 'Başarılı' })
   async getOrderStatistics() {
-    this.logger.debug('Getting order statistics');
     return this.analyticsService.getOrderStatistics();
   }
 
@@ -172,7 +166,6 @@ export class AnalyticsController {
     @Query('days', new ParseIntPipe({ optional: true })) days?: number,
   ) {
     const daysValue = days || 30;
-    this.logger.debug(`Getting time-based analytics for last ${daysValue} days`);
     return this.analyticsService.getTimeBasedAnalytics(daysValue);
   }
 

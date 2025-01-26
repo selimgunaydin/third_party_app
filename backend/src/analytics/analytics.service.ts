@@ -12,56 +12,6 @@ export class AnalyticsService {
     private readonly analyticsModel: Model<AnalyticsDocument>,
   ) {}
 
-  async migrateEventNames(): Promise<{ updated: number, eventTypes: string[] }> {
-    try {
-      const currentEvents = await this.analyticsModel.distinct('eventName');
-      this.logger.debug('Mevcut event tipleri:', currentEvents);
-
-      const result = await this.analyticsModel.updateMany(
-        {},
-        [{ 
-          $set: { 
-            eventName: { $toUpper: "$eventName" } 
-          } 
-        }]
-      );
-
-      const updatedEvents = await this.analyticsModel.distinct('eventName');
-      this.logger.debug('Güncellenmiş event tipleri:', updatedEvents);
-
-      return {
-        updated: result.modifiedCount,
-        eventTypes: updatedEvents
-      };
-    } catch (error) {
-      this.logger.error('Event migration hatası:', error);
-      throw error;
-    }
-  }
-
-  async checkEventData(): Promise<any> {
-    try {
-      const eventCounts = await this.analyticsModel.aggregate([
-        {
-          $group: {
-            _id: '$eventName',
-            count: { $sum: 1 },
-            sampleData: { $first: '$$ROOT' }
-          }
-        },
-        {
-          $sort: { count: -1 }
-        }
-      ]);
-
-      this.logger.debug('Event istatistikleri:', eventCounts);
-      return eventCounts;
-    } catch (error) {
-      this.logger.error('Event kontrol hatası:', error);
-      throw error;
-    }
-  }
-
   async trackEvent(eventData: {
     apiKey: string;
     eventName: string;
@@ -119,7 +69,6 @@ export class AnalyticsService {
         },
       ]);
 
-      this.logger.debug(`Found ${result.length} most viewed products`);
       return result;
     } catch (error) {
       this.logger.error('Error in getMostViewedProducts:', error);
@@ -152,7 +101,6 @@ export class AnalyticsService {
         },
       ]);
 
-      this.logger.debug(`Found ${result.length} most added to cart products`);
       return result;
     } catch (error) {
       this.logger.error('Error in getMostAddedToCartProducts:', error);
@@ -180,7 +128,6 @@ export class AnalyticsService {
         },
       ]);
 
-      this.logger.debug('Order statistics:', result[0]);
       return result[0] || {
         totalOrders: 0,
         totalAmount: 0,
@@ -230,8 +177,6 @@ export class AnalyticsService {
           $sort: { '_id': 1 },
         },
       ]);
-
-      this.logger.debug(`Found time-based analytics for last ${days} days:`, result);
       return result;
     } catch (error) {
       this.logger.error('Error in getTimeBasedAnalytics:', error);
