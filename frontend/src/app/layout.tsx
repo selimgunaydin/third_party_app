@@ -8,8 +8,8 @@ import QueryProvider from '@/providers/QueryProvider';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Widget Builder",
-  description: "Build and manage custom widgets for your website",
+  title: "SelAI",
+  description: "SelAI",
 };
 
 export default function RootLayout({

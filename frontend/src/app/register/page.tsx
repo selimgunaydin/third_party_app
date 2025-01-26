@@ -44,7 +44,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col gap-2 p-6">
           <h1 className="text-2xl font-bold">Kayıt Ol</h1>
-          <p className="text-gray-500">Widget Builder&apos;a hoş geldiniz</p>
+          <p className="text-gray-500">SelAI&apos;a hoş geldiniz</p>
         </CardHeader>
 
         <CardBody>

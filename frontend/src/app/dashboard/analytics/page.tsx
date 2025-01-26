@@ -154,7 +154,8 @@ const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
+            <h1 className="text-2xl font-bold mb-6">Analytics Dashboard</h1>
       <Card className="mb-6">
         <CardHeader>
           <div className="flex flex-col gap-4 w-full">

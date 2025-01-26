@@ -12,8 +12,8 @@ export default function AnalyticsReport() {
   const { data: timeBasedAnalytics } = useTimeBasedAnalytics();
 
   return (
-    <div className="w-full space-y-4 p-4">
-      <h1 className="text-2xl font-bold mb-6">Analitik Raporu</h1>
+    <div className="w-full space-y-4">
+      <h1 className="text-2xl font-bold mb-6">Analytics Reports</h1>
       
       <Tabs aria-label="Analitik Sekmeler">
         <Tab key="most-viewed" title="En Çok Görüntülenen Ürünler">
