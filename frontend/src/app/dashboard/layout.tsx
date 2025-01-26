@@ -74,14 +74,14 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white shadow-lg transition-all duration-300 ease-in-out">
         {/* Logo Area */}
-        <div className="h-16 flex items-center gap-3 px-6 border-b border-gray-100 bg-gradient-to-r from-primary/5 to-transparent">
+        <Link href="/dashboard" className="h-16 flex items-center gap-3 px-6 border-b border-gray-100 bg-gradient-to-r from-primary/5 to-transparent">
           <div className="p-2 rounded-lg bg-primary/10">
             <HiOutlineCube className="w-6 h-6 text-primary" />
           </div>
           <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">
             SelAI
           </span>
-        </div>
+        </Link>
 
         {/* Menu Items */}
         <nav className="p-3 flex flex-col h-[calc(100vh-4rem)] justify-between">
@@ -95,8 +95,8 @@ export default function DashboardLayout({
                   href={item.href}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
                     isActive
-                      ? "bg-primary text-white font-medium shadow-md shadow-primary/20 scale-[0.98]"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-primary hover:scale-[0.98]"
+                      ? "bg-primary text-white font-medium shadow-md shadow-primary/20"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-primary"
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -213,7 +213,7 @@ export default function DashboardLayout({
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
                 pathname === "/dashboard/profile"
                   ? "bg-primary text-white font-medium shadow-md shadow-primary/20 scale-[0.98]"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-primary hover:scale-[0.98]"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-primary"
               }`}
             >
               <HiOutlineUser className="w-5 h-5" />
