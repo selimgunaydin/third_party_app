@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Analytics, AnalyticsDocument } from '../schemas/analytics.schema';
 
 @Injectable()
@@ -44,12 +44,13 @@ export class AnalyticsService {
       .exec();
   }
 
-  async getMostViewedProducts(limit = 10): Promise<any[]> {
+  async getMostViewedProducts(userId: string, limit = 10): Promise<any[]> {
     try {
       const result = await this.analyticsModel.aggregate([
         {
           $match: {
             eventName: 'PRODUCT_VIEWED',
+            userId: userId.toString(),
           },
         },
         {
@@ -76,12 +77,13 @@ export class AnalyticsService {
     }
   }
 
-  async getMostAddedToCartProducts(limit = 10): Promise<any[]> {
+  async getMostAddedToCartProducts(userId: string, limit = 10): Promise<any[]> {
     try {
       const result = await this.analyticsModel.aggregate([
         {
           $match: {
             eventName: 'ADD_TO_CART',
+            userId: userId.toString(),
           },
         },
         {
@@ -108,12 +110,13 @@ export class AnalyticsService {
     }
   }
 
-  async getOrderStatistics(): Promise<any> {
+  async getOrderStatistics(userId: string): Promise<any> {
     try {
       const result = await this.analyticsModel.aggregate([
         {
           $match: {
             eventName: 'CHECKOUT_COMPLETED',
+            userId: userId.toString(),
           },
         },
         {
@@ -141,7 +144,7 @@ export class AnalyticsService {
     }
   }
 
-  async getTimeBasedAnalytics(days = 30): Promise<any> {
+  async getTimeBasedAnalytics(userId: string, days = 30): Promise<any> {
     try {
       const date = new Date();
       date.setDate(date.getDate() - days);
@@ -150,6 +153,7 @@ export class AnalyticsService {
         {
           $match: {
             createdAt: { $gte: date },
+            userId: userId.toString(),
           },
         },
         {

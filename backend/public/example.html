@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,23 +12,27 @@
             margin: 0 auto;
             padding: 20px;
         }
+
         .container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
+
         .card {
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 20px;
             background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .product {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .product img {
             width: 200px;
             height: 200px;
@@ -35,6 +40,7 @@
             border-radius: 4px;
             margin-bottom: 10px;
         }
+
         button {
             background: #007bff;
             color: white;
@@ -45,19 +51,24 @@
             font-size: 14px;
             transition: background 0.2s;
         }
+
         button:hover {
             background: #0056b3;
         }
+
         form {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        input, textarea {
+
+        input,
+        textarea {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         .checkout {
             margin-top: 20px;
             padding: 20px;
@@ -66,6 +77,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Analytics Widget Test Sayfası</h1>
     <div class="about"></div>
@@ -101,10 +113,20 @@
         <!-- İstek Listesi -->
         <div class="card">
             <h2>İstek Listesi</h2>
-            <button onclick="addToWishlist('PROD1')">Ürün 1'i İstek Listesine Ekle</button>
-            <button onclick="addToWishlist('PROD2')">Ürün 2'yi İstek Listesine Ekle</button>
-            <button onclick="removeFromWishlist('PROD1')">Ürün 1'i İstek Listesinden Çıkar</button>
-            <button onclick="removeFromWishlist('PROD2')">Ürün 2'yi İstek Listesinden Çıkar</button>
+            <div class="product">
+                <h3>Ürün 1</h3>
+                <p>149.99 TL</p>
+                <button onclick="addToWishlist('PROD1')">Ürün 1'i İstek Listesine Ekle</button>
+                <button onclick="removeFromWishlist('PROD1')">Ürün 1'i İstek Listesinden Çıkar</button>
+            </div>
+
+            <div class="product">
+                <h3>Ürün 2</h3>
+                <p>299.99 TL</p>
+                <button onclick="addToWishlist('PROD2')">Ürün 2'yi İstek Listesine Ekle</button>
+                <button onclick="removeFromWishlist('PROD2')">Ürün 2'yi İstek Listesinden Çıkar</button>
+            </div>
+
         </div>
 
         <!-- İletişim Formu -->
@@ -127,12 +149,13 @@
         <button onclick="completeCheckout('CHK' + Date.now())">Ödemeyi Tamamla</button>
         <button onclick="cancelCheckout('CHK' + Date.now())">Ödemeyi İptal Et</button>
     </div>
-    <script src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=9947f3c7-d9a9-4175-9286-7866008cf51a"></script>
+    <script
+        src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=3dec1a83-9663-47dc-ae61-faf173ca8771"></script>
 
     <script>
         // Fake GTM Data Layer
         window.dataLayer = window.dataLayer || [];
-        
+
         // Fake GTM User Data
         window.dataLayer.push({
             'user': {
@@ -154,7 +177,7 @@
 
         // Analytics widget'ını yükle
         const analytics = new ThirdPartyAnalytics();
-        
+
         // Sayfa görüntüleme olayını otomatik kaydet
         analytics.pageView();
 
@@ -201,49 +224,49 @@
 
         // Ürün görüntüleme
         function viewProduct(productId) {
+            const user = getGTMUser();
             analytics.productViewed({
                 productId,
                 name: document.querySelector(`button[onclick="viewProduct('${productId}')"]`).previousElementSibling.previousElementSibling.textContent,
                 price: parseFloat(document.querySelector(`button[onclick="viewProduct('${productId}')"]`).previousElementSibling.textContent),
-                category: 'Test Ürünleri'
+                category: 'Test Ürünleri',
+                user: user.id
             });
         }
 
         // Sepete ekleme
         function addToCart(productId) {
-            requireAuth((user) => {
-                analytics.addToCart({
-                    productId,
+            const user = getGTMUser();
+            analytics.addToCart({
+                productId,
                     name: document.querySelector(`button[onclick="addToCart('${productId}')"]`).previousElementSibling.previousElementSibling.previousElementSibling.textContent,
                     price: parseFloat(document.querySelector(`button[onclick="addToCart('${productId}')"]`).previousElementSibling.previousElementSibling.textContent),
                     quantity: 1,
-                    userId: user.id
-                });
-                updateCart();
+                userId: user.id
             });
+            updateCart();
         }
 
         // Sepetten çıkarma
         function removeFromCart(productId) {
-            requireAuth((user) => {
-                analytics.removeFromCart({
-                    productId,
+            const user = getGTMUser();
+            analytics.removeFromCart({
+                productId,
                     name: document.querySelector(`button[onclick="removeFromCart('${productId}')"]`).previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent,
-                    userId: user.id
-                });
-                updateCart();
+                userId: user.id
             });
+            updateCart();
         }
 
         // Ödeme başlatma
         function startCheckout() {
-            requireAuth((user) => {
-                analytics.checkoutStarted({
-                    checkoutId: 'CHK' + Date.now(),
-                    total: 449.98,
-                    currency: 'TRY',
-                    userId: user.id,
-                    products: [
+            const user = getGTMUser();
+            analytics.checkoutStarted({
+                checkoutId: 'CHK' + Date.now(),
+                total: 449.98,
+                currency: 'TRY',
+                userId: user.id,
+                products: [
                         {
                             productId: 'PROD1',
                             name: 'Test Ürünü 1',
@@ -257,8 +280,8 @@
                             quantity: 1
                         }
                     ]
-                });
             });
+            updateCart();
         }
 
         // Kullanıcı girişi
@@ -374,4 +397,5 @@
         updateCart();
     </script>
 </body>
+
 </html>

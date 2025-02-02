@@ -115,6 +115,7 @@ export class AnalyticsController {
   }
 
   @Get('most-viewed-products')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'En çok görüntülenen ürünleri getirir' })
   @ApiQuery({
     name: 'limit',
@@ -123,14 +124,17 @@ export class AnalyticsController {
     description: 'Kaç ürün getirileceği',
   })
   @ApiResponse({ status: 200, description: 'Başarılı' })
+  @ApiResponse({ status: 401, description: 'Yetkisiz erişim' })
   async getMostViewedProducts(
+    @Req() req: RequestWithUser,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
   ) {
     const limitValue = limit || 10;
-    return this.analyticsService.getMostViewedProducts(limitValue);
+    return this.analyticsService.getMostViewedProducts(req.user._id, limitValue);
   }
 
   @Get('most-added-to-cart')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'En çok sepete eklenen ürünleri getirir' })
   @ApiQuery({
     name: 'limit',
@@ -140,20 +144,23 @@ export class AnalyticsController {
   })
   @ApiResponse({ status: 200, description: 'Başarılı' })
   async getMostAddedToCartProducts(
+    @Req() req: RequestWithUser,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
   ) {
     const limitValue = limit || 10;
-    return this.analyticsService.getMostAddedToCartProducts(limitValue);
+    return this.analyticsService.getMostAddedToCartProducts(req.user._id, limitValue);
   }
 
   @Get('order-statistics')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Sipariş istatistiklerini getirir' })
   @ApiResponse({ status: 200, description: 'Başarılı' })
-  async getOrderStatistics() {
-    return this.analyticsService.getOrderStatistics();
+  async getOrderStatistics(@Req() req: RequestWithUser) {
+    return this.analyticsService.getOrderStatistics(req.user._id);
   }
 
   @Get('time-based')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Zamana dayalı analitik verileri getirir' })
   @ApiQuery({
     name: 'days',
@@ -163,10 +170,11 @@ export class AnalyticsController {
   })
   @ApiResponse({ status: 200, description: 'Başarılı' })
   async getTimeBasedAnalytics(
+    @Req() req: RequestWithUser,
     @Query('days', new ParseIntPipe({ optional: true })) days?: number,
   ) {
     const daysValue = days || 30;
-    return this.analyticsService.getTimeBasedAnalytics(daysValue);
+    return this.analyticsService.getTimeBasedAnalytics(req.user._id, daysValue);
   }
 
   private mapToAnalyticsResponse(analytics: Analytics): AnalyticsResponseDto {
