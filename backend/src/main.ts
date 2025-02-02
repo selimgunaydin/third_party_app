@@ -30,12 +30,13 @@ async function bootstrap() {
       'Access-Control-Allow-Headers',
       'Access-Control-Allow-Methods',
       'Access-Control-Allow-Credentials',
-      'X-API-Key'
+      'X-API-Key',
     ],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: true,
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204,
+    maxAge: 3600,
   });
 
   const port = parseInt(process.env.PORT || '5000', 10);

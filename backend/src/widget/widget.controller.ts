@@ -68,12 +68,13 @@ export class WidgetController {
     }
   }
 
-  @Get('/api/widget/components')
+  @ApiOperation({ summary: 'Widget componentlerini getir' })
   @ApiHeader({
     name: 'X-API-Key',
     required: true,
     description: 'Widget için API anahtarı',
   })
+  @Get('/api/widget/components')
   async getComponents(@Req() req: Request, @Res() res: Response) {
     const apiKey = req.headers['x-api-key'] as string;
     const components = await this.widgetService.getComponentsByApiKey(apiKey);
