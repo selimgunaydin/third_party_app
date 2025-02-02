@@ -5,109 +5,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics Widget Test Sayfası</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .product img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input,
+        textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .checkout {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">Analytics Widget Test Sayfası</h1>
-        <div class="about"></div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Kullanıcı Tanımlama -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Kullanıcı İşlemleri</h2>
-                <div class="space-y-3">
-                    <button onclick="identifyUser()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Kullanıcıyı Tanımla</button>
-                    <button onclick="handleLogin()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Giriş Yap</button>
-                    <button onclick="handleRegister()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Kayıt Ol</button>
-                    <button onclick="handleForgotPassword()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Şifremi Unuttum</button>
-                </div>
-            </div>
-
-            <!-- Ürün Kartları -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <div class="flex flex-col items-center">
-                    <img src="https://picsum.photos/200" alt="Ürün 1" class="w-48 h-48 object-cover rounded-lg mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Test Ürünü 1</h3>
-                    <p class="text-2xl font-bold text-blue-600 my-2">149.99 TL</p>
-                    <div class="space-y-2 w-full">
-                        <button onclick="viewProduct('PROD1')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">İncele</button>
-                        <button onclick="addToCart('PROD1')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Sepete Ekle</button>
-                        <button onclick="removeFromCart('PROD1')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Sepetten Çıkar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <div class="flex flex-col items-center">
-                    <img src="https://picsum.photos/201" alt="Ürün 2" class="w-48 h-48 object-cover rounded-lg mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Test Ürünü 2</h3>
-                    <p class="text-2xl font-bold text-blue-600 my-2">299.99 TL</p>
-                    <div class="space-y-2 w-full">
-                        <button onclick="viewProduct('PROD2')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">İncele</button>
-                        <button onclick="addToCart('PROD2')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Sepete Ekle</button>
-                        <button onclick="removeFromCart('PROD2')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Sepetten Çıkar</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- İstek Listesi -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">İstek Listesi</h2>
-                <div class="space-y-6">
-                    <div class="space-y-2">
-                        <h3 class="text-lg font-medium text-gray-900">Ürün 1</h3>
-                        <p class="text-xl font-semibold text-blue-600">149.99 TL</p>
-                        <button onclick="addToWishlist('PROD1')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">İstek Listesine Ekle</button>
-                        <button onclick="removeFromWishlist('PROD1')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">İstek Listesinden Çıkar</button>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h3 class="text-lg font-medium text-gray-900">Ürün 2</h3>
-                        <p class="text-xl font-semibold text-blue-600">299.99 TL</p>
-                        <button onclick="addToWishlist('PROD2')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">İstek Listesine Ekle</button>
-                        <button onclick="removeFromWishlist('PROD2')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">İstek Listesinden Çıkar</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- İletişim Formu -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">İletişim Formu</h2>
-                <form id="contactForm" class="space-y-4">
-                    <div>
-                        <input type="text" name="name" placeholder="Adınız" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-150">
-                    </div>
-                    <div>
-                        <input type="email" name="email" placeholder="E-posta" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-150">
-                    </div>
-                    <div>
-                        <textarea name="message" placeholder="Mesajınız" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-150 h-32"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Gönder</button>
-                </form>
-            </div>
+<body>
+    <h1>Analytics Widget Test Sayfası</h1>
+    <div class="about"></div>
+    <div class="container">
+        <!-- Kullanıcı Tanımlama -->
+        <div class="card">
+            <h2>Kullanıcı İşlemleri</h2>
+            <button onclick="identifyUser()">Kullanıcıyı Tanımla</button>
+            <button onclick="handleLogin()">Giriş Yap</button>
+            <button onclick="handleRegister()">Kayıt Ol</button>
+            <button onclick="handleForgotPassword()">Şifremi Unuttum</button>
         </div>
 
-        <!-- Sepet ve Ödeme -->
-        <div class="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Sepet</h2>
-            <div id="cartItems" class="space-y-2 mb-4"></div>
-            <div class="space-y-3">
-                <button onclick="startCheckout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Ödemeye Geç</button>
-                <button onclick="completeCheckout('CHK' + Date.now())" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Ödemeyi Tamamla</button>
-                <button onclick="cancelCheckout('CHK' + Date.now())" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">Ödemeyi İptal Et</button>
+        <!-- Ürün Kartları -->
+        <div class="card product">
+            <img src="https://picsum.photos/200" alt="Ürün 1">
+            <h3>Test Ürünü 1</h3>
+            <p>149.99 TL</p>
+            <button onclick="viewProduct('PROD1')">İncele</button>
+            <button onclick="addToCart('PROD1')">Sepete Ekle</button>
+            <button onclick="removeFromCart('PROD1')">Sepetten Çıkar</button>
+        </div>
+
+        <div class="card product">
+            <img src="https://picsum.photos/201" alt="Ürün 2">
+            <h3>Test Ürünü 2</h3>
+            <p>299.99 TL</p>
+            <button onclick="viewProduct('PROD2')">İncele</button>
+            <button onclick="addToCart('PROD2')">Sepete Ekle</button>
+            <button onclick="removeFromCart('PROD2')">Sepetten Çıkar</button>
+        </div>
+
+        <!-- İstek Listesi -->
+        <div class="card">
+            <h2>İstek Listesi</h2>
+            <div class="product">
+                <h3>Ürün 1</h3>
+                <p>149.99 TL</p>
+                <button onclick="addToWishlist('PROD1')">Ürün 1'i İstek Listesine Ekle</button>
+                <button onclick="removeFromWishlist('PROD1')">Ürün 1'i İstek Listesinden Çıkar</button>
             </div>
+
+            <div class="product">
+                <h3>Ürün 2</h3>
+                <p>299.99 TL</p>
+                <button onclick="addToWishlist('PROD2')">Ürün 2'yi İstek Listesine Ekle</button>
+                <button onclick="removeFromWishlist('PROD2')">Ürün 2'yi İstek Listesinden Çıkar</button>
+            </div>
+
+        </div>
+
+        <!-- İletişim Formu -->
+        <div class="card">
+            <h2>İletişim Formu</h2>
+            <form name="contactForm" id="contactForm">
+                <input value="GTM Test Userr"    type="text" name="name" placeholder="Adınız" >
+                <input value="gtm_user123456@example.com" type="email" name="email" placeholder="E-posta" >
+                <textarea name="message" placeholder="Mesajınız" >Merhaba, bu bir test mesajıdır.</textarea>
+                <button type="submit">Gönder</button>
+            </form>
         </div>
     </div>
 
+    <!-- Sepet ve Ödeme -->
+    <div class="checkout">
+        <h2>Sepet</h2>
+        <div id="cartItems"></div>
+        <button onclick="startCheckout()">Ödemeye Geç</button>
+        <button onclick="completeCheckout('CHK' + Date.now())">Ödemeyi Tamamla</button>
+        <button onclick="cancelCheckout('CHK' + Date.now())">Ödemeyi İptal Et</button>
+    </div>
     <script
         src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=3dec1a83-9663-47dc-ae61-faf173ca8771"></script>
 
@@ -161,6 +202,7 @@
             e.preventDefault();
             analytics.trackFormSubmission(form);
             form.reset();
+            return false;
         });
 
         // Auth kontrolü
@@ -171,7 +213,7 @@
                 return false;
             }
             return callback(user);
-            }
+        }
 
         // Kullanıcı tanımlama
         function identifyUser() {
@@ -350,20 +392,9 @@
         function updateCart() {
             const cartItems = document.getElementById('cartItems');
             cartItems.innerHTML = `
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <p class="text-gray-900">Test Ürünü 1</p>
-                        <p class="font-semibold text-blue-600">149.99 TL</p>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <p class="text-gray-900">Test Ürünü 2</p>
-                        <p class="font-semibold text-blue-600">299.99 TL</p>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
-                        <p class="font-semibold text-gray-900">Toplam:</p>
-                        <p class="font-bold text-blue-600">449.98 TL</p>
-                    </div>
-                </div>
+                <p>Test Ürünü 1 - 149.99 TL</p>
+                <p>Test Ürünü 2 - 299.99 TL</p>
+                <p><strong>Toplam: 449.98 TL</strong></p>
             `;
         }
 

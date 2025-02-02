@@ -22,6 +22,7 @@
     },
 
     track: async function(eventName, eventData = {}, metadata = {}) {
+      console.log('Tracking event:', { eventName, eventData, metadata });
       if (!eventName) {
         console.error('Event name is required');
         return;
@@ -143,8 +144,8 @@
         console.error('Valid form element is required');
         return;
       }
-
-      const handler = (e) => {
+    
+      const handler = async (e) => {
         e.preventDefault();
         
         const formData = new FormData(form);
@@ -158,17 +159,31 @@
           }
         }
         
-        this.track(eventName, {
-          formId: form.id,
-          formName: form.name,
-          formAction: form.action,
-          formMethod: form.method,
-          data
-        }, metadata);
-
-        form.submit();
+        try {
+          await this.track(eventName, {
+            formId: form.id || 'default-form',
+            formAction: form.action || window.location.href,
+            formMethod: form.method || 'POST',
+            data
+          }, metadata);
+    
+          // Form verilerini asıl hedefe gönder
+          const formSubmit = new FormData(form);
+          const response = await fetch(form.action, {
+            method: form.method || 'POST',
+            body: formSubmit
+          });
+    
+          if (!response.ok) {
+            throw new Error('Form submission failed');
+          }
+    
+        } catch (error) {
+          console.error('Form submission error:', error);
+          throw error;
+        }
       };
-
+    
       form.addEventListener('submit', handler);
       return () => form.removeEventListener('submit', handler);
     },

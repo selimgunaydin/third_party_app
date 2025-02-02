@@ -98,7 +98,6 @@ export class EventValidationPipe implements PipeTransform {
     return (
       typeof data === 'object' &&
       typeof data.formId === 'string' &&
-      typeof data.formName === 'string' &&
       typeof data.formAction === 'string' &&
       typeof data.formMethod === 'string' &&
       typeof data.data === 'object'

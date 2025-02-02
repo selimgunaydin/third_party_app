@@ -105,9 +105,6 @@ export class FormSubmissionEventData {
   formId: string;
 
   @ApiProperty()
-  formName: string;
-
-  @ApiProperty()
   formAction: string;
 
   @ApiProperty()
