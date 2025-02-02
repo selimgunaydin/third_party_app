@@ -151,7 +151,7 @@ export const convertTailwind = {
     const response = await api.post<string>("/api/convert-tailwind", {
       html: htmlString,
     });
-    return response.data;
+    return response.data.css;
   },
 };
 
