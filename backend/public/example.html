@@ -4,153 +4,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Widget Test Sayfası</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .product {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .product img {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        input,
-        textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .checkout {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-    </style>
+    <title>TechStore | Analytics Widget Test Sayfası</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 
-<body>
-    <h1>Analytics Widget Test Sayfası</h1>
-    <div class="about"></div>
-    <div class="container">
-        <!-- Kullanıcı Tanımlama -->
-        <div class="card">
-            <h2>Kullanıcı İşlemleri</h2>
-            <button onclick="identifyUser()">Kullanıcıyı Tanımla</button>
-            <button onclick="handleLogin()">Giriş Yap</button>
-            <button onclick="handleRegister()">Kayıt Ol</button>
-            <button onclick="handleForgotPassword()">Şifremi Unuttum</button>
-        </div>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-2xl font-bold text-blue-600">TechStore</h1>
+                </div>
 
-        <!-- Ürün Kartları -->
-        <div class="card product">
-            <img src="https://picsum.photos/200" alt="Ürün 1">
-            <h3>Test Ürünü 1</h3>
-            <p>149.99 TL</p>
-            <button onclick="viewProduct('PROD1')">İncele</button>
-            <button onclick="addToCart('PROD1')">Sepete Ekle</button>
-            <button onclick="removeFromCart('PROD1')">Sepetten Çıkar</button>
-        </div>
+                <!-- Arama -->
+                <div class="flex-1 max-w-2xl mx-8">
+                    <div class="relative">
+                        <input type="text" placeholder="Ürün ara..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <button class="absolute right-2 top-2 text-gray-400 hover:text-blue-600">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
 
-        <div class="card product">
-            <img src="https://picsum.photos/201" alt="Ürün 2">
-            <h3>Test Ürünü 2</h3>
-            <p>299.99 TL</p>
-            <button onclick="viewProduct('PROD2')">İncele</button>
-            <button onclick="addToCart('PROD2')">Sepete Ekle</button>
-            <button onclick="removeFromCart('PROD2')">Sepetten Çıkar</button>
-        </div>
-
-        <!-- İstek Listesi -->
-        <div class="card">
-            <h2>İstek Listesi</h2>
-            <div class="product">
-                <h3>Ürün 1</h3>
-                <p>149.99 TL</p>
-                <button onclick="addToWishlist('PROD1')">Ürün 1'i İstek Listesine Ekle</button>
-                <button onclick="removeFromWishlist('PROD1')">Ürün 1'i İstek Listesinden Çıkar</button>
+                <!-- Sağ Menü -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="handleLogin()" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-user mr-1"></i>
+                        <span>Giriş</span>
+                    </button>
+                    <button onclick="viewWishlist()" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-heart mr-1"></i>
+                        <span>Favoriler</span>
+                    </button>
+                    <button onclick="viewCart()" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-shopping-cart mr-1"></i>
+                        <span>Sepet</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="product">
-                <h3>Ürün 2</h3>
-                <p>299.99 TL</p>
-                <button onclick="addToWishlist('PROD2')">Ürün 2'yi İstek Listesine Ekle</button>
-                <button onclick="removeFromWishlist('PROD2')">Ürün 2'yi İstek Listesinden Çıkar</button>
+            <!-- Kategoriler -->
+            <nav class="flex space-x-8 py-4">
+                <a href="#" class="text-gray-600 hover:text-blue-600">Telefonlar</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600">Bilgisayarlar</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600">Tabletler</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600">Aksesuarlar</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600">Kulaklıklar</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600">Akıllı Saatler</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Test Kontrolleri -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Analytics Test Kontrolleri</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="identifyUser()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Kullanıcıyı Tanımla</button>
+                    <button onclick="handleLogin()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Test Girişi Yap</button>
+                    <button onclick="handleForgotPassword()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Şifremi Unuttum</button>
+                </div>
             </div>
 
-        </div>
+            <!-- Ürünler -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Ürün 1 -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="relative group">
+                        <img src="https://picsum.photos/400/400?random=1" alt="iPhone 14 Pro" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="addToWishlist('PROD1')" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">iPhone 14 Pro</h3>
+                    <p class="text-sm text-gray-600 mb-2">256GB, Uzay Siyahı</p>
+                    <p class="text-lg font-bold text-blue-600 mb-4">54.999 TL</p>
+                    <div class="space-y-2">
+                        <button onclick="viewProduct('IPHONE14PRO')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
+                        <button onclick="addToCart('IPHONE14PRO')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
+                    </div>
+                </div>
 
-        <!-- İletişim Formu -->
-        <div class="card">
-            <h2>İletişim Formu</h2>
-            <form name="contactForm" id="contactForm">
-                <input value="GTM Test Userr"    type="text" name="name" placeholder="Adınız" >
-                <input value="gtm_user123456@example.com" type="email" name="email" placeholder="E-posta" >
-                <textarea name="message" placeholder="Mesajınız" >Merhaba, bu bir test mesajıdır.</textarea>
-                <button type="submit">Gönder</button>
-            </form>
-        </div>
-    </div>
+                <!-- Ürün 2 -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="relative group">
+                        <img src="https://picsum.photos/400/400?random=2" alt="MacBook Pro" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="addToWishlist('PROD2')" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">MacBook Pro</h3>
+                    <p class="text-sm text-gray-600 mb-2">M2 Pro, 16GB RAM, 512GB SSD</p>
+                    <p class="text-lg font-bold text-blue-600 mb-4">72.999 TL</p>
+                    <div class="space-y-2">
+                        <button onclick="viewProduct('MACBOOKPRO')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
+                        <button onclick="addToCart('MACBOOKPRO')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
+                    </div>
+                </div>
 
-    <!-- Sepet ve Ödeme -->
-    <div class="checkout">
-        <h2>Sepet</h2>
-        <div id="cartItems"></div>
-        <button onclick="startCheckout()">Ödemeye Geç</button>
-        <button onclick="completeCheckout('CHK' + Date.now())">Ödemeyi Tamamla</button>
-        <button onclick="cancelCheckout('CHK' + Date.now())">Ödemeyi İptal Et</button>
-    </div>
-    <script
-        src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=3dec1a83-9663-47dc-ae61-faf173ca8771"></script>
+                <!-- Ürün 3 -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="relative group">
+                        <img src="https://picsum.photos/400/400?random=3" alt="iPad Air" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="addToWishlist('PROD3')" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">iPad Air</h3>
+                    <p class="text-sm text-gray-600 mb-2">256GB, Gök Mavisi</p>
+                    <p class="text-lg font-bold text-blue-600 mb-4">24.999 TL</p>
+                    <div class="space-y-2">
+                        <button onclick="viewProduct('IPADAIR')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
+                        <button onclick="addToCart('IPADAIR')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
+                    </div>
+                </div>
+
+                <!-- Ürün 4 -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="relative group">
+                        <img src="https://picsum.photos/400/400?random=4" alt="AirPods Pro" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="addToWishlist('PROD4')" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">AirPods Pro</h3>
+                    <p class="text-sm text-gray-600 mb-2">2. Nesil, Beyaz</p>
+                    <p class="text-lg font-bold text-blue-600 mb-4">7.999 TL</p>
+                    <div class="space-y-2">
+                        <button onclick="viewProduct('AIRPODSPRO')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
+                        <button onclick="addToCart('AIRPODSPRO')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Formları -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <!-- İletişim Formu -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">İletişim Formu</h2>
+                    <form name="contactForm" id="contactForm" class="space-y-4">
+                        <input value="GTM Test Userr" type="text" name="name" placeholder="Adınız" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input value="gtm_user123456@example.com" type="email" name="email" placeholder="E-posta" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <textarea name="message" placeholder="Mesajınız" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-32">Merhaba, bu bir test mesajıdır.</textarea>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Gönder</button>
+                    </form>
+                </div>
+
+                <!-- Sepet -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Sepetim</h2>
+                    <div id="cartItems" class="mb-4 space-y-4">
+                        <!-- Sepet öğeleri buraya dinamik olarak eklenecek -->
+                    </div>
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-gray-600">Ara Toplam:</span>
+                            <span id="subtotal" class="text-lg font-semibold text-gray-800">0.00 TL</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-gray-600">KDV (%18):</span>
+                            <span id="tax" class="text-gray-800">0.00 TL</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-4 text-lg font-bold">
+                            <span class="text-gray-800">Toplam:</span>
+                            <span id="total" class="text-blue-600">0.00 TL</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="startCheckout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150" id="checkoutButton" disabled>Ödemeye Geç</button>
+                        <button onclick="completeCheckout('CHK' + Date.now())" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150" id="completeButton" disabled>Ödemeyi Tamamla</button>
+                        <button onclick="cancelCheckout('CHK' + Date.now())" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150" id="cancelButton" disabled>Ödemeyi İptal Et</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Kurumsal -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Kurumsal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Hakkımızda</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Kariyer</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">İletişim</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Müşteri Hizmetleri -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Müşteri Hizmetleri</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Sıkça Sorulan Sorular</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Kargo Takip</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">İade ve Değişim</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Gizlilik Politikası</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kategoriler -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Kategoriler</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Telefonlar</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Bilgisayarlar</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Tabletler</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Aksesuarlar</a></li>
+                    </ul>
+                </div>
+
+                <!-- Sosyal Medya -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Bizi Takip Edin</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white text-2xl">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white text-2xl">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white text-2xl">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white text-2xl">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 TechStore. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=3dec1a83-9663-47dc-ae61-faf173ca8771"></script>
 
     <script>
         // Fake GTM Data Layer
@@ -239,54 +344,203 @@
             });
         }
 
-        // Sepete ekleme
+        // Sepet verilerini tutan obje
+        let cart = {
+            items: [],
+            total: 0,
+            tax: 0,
+            subtotal: 0
+        };
+
+        // Para birimini formatla
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR', {
+                style: 'currency',
+                currency: 'TRY'
+            }).format(amount);
+        }
+
+        // Sepeti güncelle
+        function updateCart() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            const subtotalSpan = document.getElementById('subtotal');
+            const taxSpan = document.getElementById('tax');
+            const totalSpan = document.getElementById('total');
+            const checkoutButton = document.getElementById('checkoutButton');
+            const completeButton = document.getElementById('completeButton');
+            const cancelButton = document.getElementById('cancelButton');
+
+            // Sepet boşsa
+            if (cart.items.length === 0) {
+                cartItemsDiv.innerHTML = '<p class="text-gray-500 text-center py-4">Sepetiniz boş</p>';
+                checkoutButton.disabled = true;
+                completeButton.disabled = true;
+                cancelButton.disabled = true;
+                subtotalSpan.textContent = formatCurrency(0);
+                taxSpan.textContent = formatCurrency(0);
+                totalSpan.textContent = formatCurrency(0);
+                return;
+            }
+
+            // Sepet öğelerini listele
+            cartItemsDiv.innerHTML = cart.items.map(item => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-800">${item.name}</h3>
+                            <p class="text-sm text-gray-600">${item.description}</p>
+                            <p class="text-sm font-bold text-blue-600">${formatCurrency(item.price)}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-700 transition duration-150">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Toplamları güncelle
+            cart.subtotal = cart.items.reduce((sum, item) => sum + item.price, 0);
+            cart.tax = cart.subtotal * 0.18;
+            cart.total = cart.subtotal + cart.tax;
+
+            subtotalSpan.textContent = formatCurrency(cart.subtotal);
+            taxSpan.textContent = formatCurrency(cart.tax);
+            totalSpan.textContent = formatCurrency(cart.total);
+
+            // Butonları aktifleştir
+            checkoutButton.disabled = false;
+            completeButton.disabled = false;
+            cancelButton.disabled = false;
+
+            // Analytics'e sepet güncellemesini bildir
+            analytics.cartUpdated({
+                cartId: 'CART' + Date.now(),
+                items: cart.items,
+                total: cart.total,
+                currency: 'TRY'
+            });
+        }
+
+        // Sepete ürün ekle
         function addToCart(productId) {
-            const user = getGTMUser();
-            analytics.addToCart({
-                productId,
-                    name: document.querySelector(`button[onclick="addToCart('${productId}')"]`).previousElementSibling.previousElementSibling.previousElementSibling.textContent,
-                    price: parseFloat(document.querySelector(`button[onclick="addToCart('${productId}')"]`).previousElementSibling.previousElementSibling.textContent),
+            const products = {
+                'IPHONE14PRO': {
+                    id: 'IPHONE14PRO',
+                    name: 'iPhone 14 Pro',
+                    description: '256GB, Uzay Siyahı',
+                    price: 54999,
+                    image: 'https://picsum.photos/400/400?random=1'
+                },
+                'MACBOOKPRO': {
+                    id: 'MACBOOKPRO',
+                    name: 'MacBook Pro',
+                    description: 'M2 Pro, 16GB RAM, 512GB SSD',
+                    price: 72999,
+                    image: 'https://picsum.photos/400/400?random=2'
+                },
+                'IPADAIR': {
+                    id: 'IPADAIR',
+                    name: 'iPad Air',
+                    description: '256GB, Gök Mavisi',
+                    price: 24999,
+                    image: 'https://picsum.photos/400/400?random=3'
+                },
+                'AIRPODSPRO': {
+                    id: 'AIRPODSPRO',
+                    name: 'AirPods Pro',
+                    description: '2. Nesil, Beyaz',
+                    price: 7999,
+                    image: 'https://picsum.photos/400/400?random=4'
+                }
+            };
+
+            const product = products[productId];
+            if (product) {
+                cart.items.push(product);
+                updateCart();
+
+                // Analytics'e sepete ekleme olayını bildir
+                analytics.addToCart({
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
                     quantity: 1,
-                userId: user.id
-            });
-            updateCart();
+                    userId: getGTMUser()?.id
+                });
+            }
         }
 
-        // Sepetten çıkarma
+        // Sepetten ürün çıkar
         function removeFromCart(productId) {
-            const user = getGTMUser();
-            analytics.removeFromCart({
-                productId,
-                    name: document.querySelector(`button[onclick="removeFromCart('${productId}')"]`).previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent,
-                userId: user.id
-            });
-            updateCart();
+            const index = cart.items.findIndex(item => item.id === productId);
+            if (index > -1) {
+                const removedItem = cart.items[index];
+                cart.items.splice(index, 1);
+                updateCart();
+
+                // Analytics'e sepetten çıkarma olayını bildir
+                analytics.removeFromCart({
+                    productId: removedItem.id,
+                    name: removedItem.name,
+                    userId: getGTMUser()?.id
+                });
+            }
         }
 
-        // Ödeme başlatma
+        // Ödeme başlat
         function startCheckout() {
-            const user = getGTMUser();
-            analytics.checkoutStarted({
-                checkoutId: 'CHK' + Date.now(),
-                total: 449.98,
-                currency: 'TRY',
-                userId: user.id,
-                products: [
-                        {
-                            productId: 'PROD1',
-                            name: 'Test Ürünü 1',
-                            price: 149.99,
-                            quantity: 1
-                        },
-                        {
-                            productId: 'PROD2',
-                            name: 'Test Ürünü 2',
-                            price: 299.99,
-                            quantity: 1
-                        }
-                    ]
-            });
-            updateCart();
+            if (cart.items.length > 0) {
+                analytics.checkoutStarted({
+                    checkoutId: 'CHK' + Date.now(),
+                    total: cart.total,
+                    currency: 'TRY',
+                    userId: getGTMUser()?.id,
+                    products: cart.items.map(item => ({
+                        productId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: 1
+                    }))
+                });
+            }
+        }
+
+        // Ödeme tamamla
+        function completeCheckout(checkoutId) {
+            if (cart.items.length > 0) {
+                analytics.checkoutCompleted({
+                    checkoutId,
+                    total: cart.total,
+                    currency: 'TRY',
+                    paymentMethod: 'credit_card',
+                    status: 'success',
+                    userId: getGTMUser()?.id,
+                    products: cart.items.map(item => ({
+                        productId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: 1
+                    }))
+                });
+                // Sepeti temizle
+                cart.items = [];
+                updateCart();
+            }
+        }
+
+        // Ödeme iptal
+        function cancelCheckout(checkoutId) {
+            if (cart.items.length > 0) {
+                analytics.checkoutCancelled({
+                    checkoutId,
+                    total: cart.total,
+                    currency: 'TRY',
+                    status: 'cancelled',
+                    userId: getGTMUser()?.id,
+                    errorMessage: 'Kullanıcı tarafından iptal edildi'
+                });
+            }
         }
 
         // Kullanıcı girişi
@@ -346,59 +600,7 @@
             });
         }
 
-        // Ödeme tamamlandı
-        function completeCheckout(checkoutId) {
-            requireAuth((user) => {
-                analytics.checkoutCompleted({
-                    checkoutId,
-                    total: 449.98,
-                    currency: 'TRY',
-                    paymentMethod: 'credit_card',
-                    status: 'success',
-                    userId: user.id,
-                    products: [
-                        {
-                            productId: 'PROD1',
-                            name: 'Test Ürünü 1',
-                            price: 149.99,
-                            quantity: 1
-                        },
-                        {
-                            productId: 'PROD2',
-                            name: 'Test Ürünü 2',
-                            price: 299.99,
-                            quantity: 1
-                        }
-                    ]
-                });
-            });
-        }
-
-        // Ödeme iptal edildi
-        function cancelCheckout(checkoutId) {
-            requireAuth((user) => {
-                analytics.checkoutCancelled({
-                    checkoutId,
-                    total: 449.98,
-                    currency: 'TRY',
-                    status: 'cancelled',
-                    userId: user.id,
-                    errorMessage: 'Kullanıcı tarafından iptal edildi'
-                });
-            });
-        }
-
-        // Sepeti güncelle (görsel amaçlı)
-        function updateCart() {
-            const cartItems = document.getElementById('cartItems');
-            cartItems.innerHTML = `
-                <p>Test Ürünü 1 - 149.99 TL</p>
-                <p>Test Ürünü 2 - 299.99 TL</p>
-                <p><strong>Toplam: 449.98 TL</strong></p>
-            `;
-        }
-
-        // İlk yüklemede sepeti güncelle
+        // Sayfa yüklendiğinde sepeti güncelle
         updateCart();
     </script>
 </body>
