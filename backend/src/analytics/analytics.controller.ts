@@ -177,6 +177,61 @@ export class AnalyticsController {
     return this.analyticsService.getTimeBasedAnalytics(req.user._id, daysValue);
   }
 
+  @Get('page-duration')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Sayfa bazlı süre istatistiklerini getirir' })
+  @ApiQuery({
+    name: 'path',
+    required: false,
+    type: String,
+    description: 'Belirli bir sayfa yolu için filtreleme',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Başlangıç tarihi (ISO formatında)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'Bitiş tarihi (ISO formatında)',
+  })
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getPageDurationStats(
+    @Req() req: RequestWithUser,
+    @Query('path') path?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.analyticsService.getPageDurationStats(
+      req.user._id,
+      path,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
+  }
+
+  @Get('page-duration/:path')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Belirli bir sayfa için detaylı süre bilgilerini getirir' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Kaç kayıt getirileceği',
+  })
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getDetailedPageDuration(
+    @Req() req: RequestWithUser,
+    @Param('path') path: string,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ) {
+    const limitValue = limit || 100;
+    return this.analyticsService.getDetailedPageDuration(req.user._id, path, limitValue);
+  }
+
   private mapToAnalyticsResponse(analytics: Analytics): AnalyticsResponseDto {
     const obj = analytics.toObject();
     return {

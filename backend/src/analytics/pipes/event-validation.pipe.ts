@@ -8,7 +8,8 @@ import {
   CheckoutEventData, 
   FormSubmissionEventData,
   AuthEventData,
-  WishlistEventData
+  WishlistEventData,
+  PageDurationEventData
 } from '../dto/event-types';
 
 @Injectable()
@@ -45,6 +46,8 @@ export class EventValidationPipe implements PipeTransform {
         return this.validateWishlistData(eventData);
       case EventName.IDENTIFY:
         return typeof eventData === 'object' && eventData !== null;
+      case EventName.PAGE_DURATION:
+        return this.validatePageDurationData(eventData);
       default:
         return false;
     }
@@ -123,6 +126,17 @@ export class EventValidationPipe implements PipeTransform {
       (data.productName === undefined || typeof data.productName === 'string') &&
       (data.category === undefined || typeof data.category === 'string') &&
       (data.price === undefined || typeof data.price === 'number')
+    );
+  }
+
+  private validatePageDurationData(data: any): data is PageDurationEventData {
+    return (
+      typeof data === 'object' &&
+      typeof data.path === 'string' &&
+      typeof data.title === 'string' &&
+      typeof data.duration === 'number' &&
+      typeof data.startTime === 'string' &&
+      typeof data.endTime === 'string'
     );
   }
 } 

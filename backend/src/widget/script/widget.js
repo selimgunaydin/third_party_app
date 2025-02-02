@@ -63,12 +63,71 @@
     },
 
     pageView: function(metadata = {}) {
+      this._startPageTracking();
       return this.track('PAGE_VIEW', {
         title: document.title,
         url: window.location.href,
         path: window.location.pathname,
         referrer: document.referrer
       }, metadata);
+    },
+
+    _startPageTracking: function() {
+      if (this._pageTrackingStarted) {
+        this._endPageTracking();
+      }
+
+      this._pageTrackingStarted = {
+        startTime: new Date().toISOString(),
+        path: window.location.pathname,
+        title: document.title
+      };
+
+      // Sayfa kapatıldığında süreyi gönder
+      window.addEventListener('beforeunload', this._handleBeforeUnload.bind(this));
+
+      // Hash değişimlerini takip et (SPA'lar için)
+      window.addEventListener('hashchange', this._handleRouteChange.bind(this));
+
+      // History API değişimlerini takip et (SPA'lar için)
+      const originalPushState = window.history.pushState;
+      window.history.pushState = (...args) => {
+        originalPushState.apply(window.history, args);
+        this._handleRouteChange();
+      };
+
+      const originalReplaceState = window.history.replaceState;
+      window.history.replaceState = (...args) => {
+        originalReplaceState.apply(window.history, args);
+        this._handleRouteChange();
+      };
+    },
+
+    _endPageTracking: function() {
+      if (!this._pageTrackingStarted) return;
+
+      const endTime = new Date().toISOString();
+      const duration = new Date(endTime) - new Date(this._pageTrackingStarted.startTime);
+
+      this.track('PAGE_DURATION', {
+        path: this._pageTrackingStarted.path,
+        title: this._pageTrackingStarted.title,
+        duration: duration,
+        startTime: this._pageTrackingStarted.startTime,
+        endTime: endTime
+      });
+
+      this._pageTrackingStarted = null;
+      window.removeEventListener('beforeunload', this._handleBeforeUnload);
+    },
+
+    _handleBeforeUnload: function() {
+      this._endPageTracking();
+    },
+
+    _handleRouteChange: function() {
+      this._endPageTracking();
+      this._startPageTracking();
     },
 
     identify: function(userId, traits = {}) {

@@ -187,4 +187,78 @@ export class AnalyticsService {
       throw error;
     }
   }
+
+  async getPageDurationStats(userId: string, path?: string, startDate?: Date, endDate?: Date) {
+    try {
+      const query: any = {
+        eventName: 'PAGE_DURATION',
+        userId: userId.toString(),
+      };
+
+      if (path) {
+        query['eventData.path'] = path;
+      }
+
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) query.createdAt.$gte = startDate;
+        if (endDate) query.createdAt.$lte = endDate;
+      }
+
+      const result = await this.analyticsModel.aggregate([
+        {
+          $match: query,
+        },
+        {
+          $group: {
+            _id: '$eventData.path',
+            averageDuration: { $avg: '$eventData.duration' },
+            totalDuration: { $sum: '$eventData.duration' },
+            visits: { $sum: 1 },
+            minDuration: { $min: '$eventData.duration' },
+            maxDuration: { $max: '$eventData.duration' },
+            lastVisit: { $max: '$eventData.endTime' },
+          },
+        },
+        {
+          $project: {
+            path: '$_id',
+            averageDuration: { $round: ['$averageDuration', 2] },
+            totalDuration: 1,
+            visits: 1,
+            minDuration: 1,
+            maxDuration: 1,
+            lastVisit: 1,
+            _id: 0,
+          },
+        },
+        {
+          $sort: { visits: -1 },
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error in getPageDurationStats:', error);
+      throw error;
+    }
+  }
+
+  async getDetailedPageDuration(userId: string, path: string, limit = 100) {
+    try {
+      return await this.analyticsModel
+        .find({
+          eventName: 'PAGE_DURATION',
+          userId: userId.toString(),
+          'eventData.path': path,
+        })
+        .sort({ 'eventData.startTime': -1 })
+        .limit(limit)
+        .select('eventData createdAt')
+        .exec();
+    } catch (error) {
+      this.logger.error('Error in getDetailedPageDuration:', error);
+      throw error;
+    }
+  }
 } 

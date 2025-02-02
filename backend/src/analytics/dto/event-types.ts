@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export enum EventName {
   PAGE_VIEW = 'PAGE_VIEW',
+  PAGE_DURATION = 'PAGE_DURATION',
   IDENTIFY = 'IDENTIFY',
   ELEMENT_CLICK = 'ELEMENT_CLICK',
   ADD_TO_CART = 'ADD_TO_CART',
@@ -31,6 +32,24 @@ export class PageViewEventData {
 
   @ApiProperty()
   referrer: string;
+}
+
+// Page Duration Event Data
+export class PageDurationEventData {
+  @ApiProperty()
+  path: string;
+
+  @ApiProperty()
+  title: string;
+
+  @ApiProperty()
+  duration: number; // milliseconds cinsinden
+
+  @ApiProperty()
+  startTime: string;
+
+  @ApiProperty()
+  endTime: string;
 }
 
 // Element Click Event Data
@@ -153,6 +172,7 @@ export class WishlistEventData {
 // Event Data Type Union
 export type EventData =
   | PageViewEventData
+  | PageDurationEventData
   | Record<string, any> // identify event data (traits)
   | ElementClickEventData
   | ProductEventData
