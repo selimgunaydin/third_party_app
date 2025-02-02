@@ -5,12 +5,14 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  Headers,
+  Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { WidgetService } from './widget.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiHeader } from '@nestjs/swagger';
 
 @ApiTags('Widget')
 @Controller()
@@ -29,16 +31,9 @@ export class WidgetController {
   })
   @ApiResponse({ status: 404, description: 'Widget script dosyası bulunamadı' })
   @ApiResponse({ status: 500, description: 'Sunucu hatası' })
-  @ApiQuery({
-    name: 'apiKey',
-    required: true,
-    description: 'Widget için API anahtarı',
-    type: String,
-  })
-  @Get('/api/scripts/widget/script/widget.js')
-  async getScript(@Query('apiKey') apiKey: string, @Res() res: Response) {
+  @Get('/api/widget.js')
+  getScript(@Res() res: Response) {
     try {
-      const components = await this.widgetService.getComponentsByApiKey(apiKey);
       const scriptPath = path.join(
         process.cwd(),
         'src',
@@ -54,18 +49,8 @@ export class WidgetController {
         );
       }
 
-      let script = fs.readFileSync(scriptPath, 'utf8');
+      const script = fs.readFileSync(scriptPath, 'utf8');
 
-      // Components verisini script içine yerleştir
-      script = script.replace(
-        '__COMPONENTS_DATA__',
-        JSON.stringify(components),
-      );
-      script = script.replace('__API_KEY__', JSON.stringify(apiKey));
-      script = script.replace(
-        '__API_URL__',
-        JSON.stringify(process.env.API_URL),
-      );
       res.setHeader('Content-Type', 'application/javascript');
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -81,5 +66,17 @@ export class WidgetController {
           .send(`console.error("Script loading failed: ${error.message}")`);
       }
     }
+  }
+
+  @Get('/api/widget/components')
+  @ApiHeader({
+    name: 'X-API-Key',
+    required: true,
+    description: 'Widget için API anahtarı',
+  })
+  async getComponents(@Req() req: Request, @Res() res: Response) {
+    const apiKey = req.headers['x-api-key'] as string;
+    const components = await this.widgetService.getComponentsByApiKey(apiKey);
+    res.json(components);
   }
 }

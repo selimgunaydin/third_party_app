@@ -29,7 +29,8 @@ async function bootstrap() {
       'Access-Control-Allow-Origin',
       'Access-Control-Allow-Headers',
       'Access-Control-Allow-Methods',
-      'Access-Control-Allow-Credentials'
+      'Access-Control-Allow-Credentials',
+      'X-API-Key'
     ],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: true,

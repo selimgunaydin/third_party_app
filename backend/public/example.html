@@ -255,7 +255,7 @@
         </div>
     </footer>
 
-    <script src="http://localhost:3001/api/scripts/widget/script/widget.js?apiKey=3dec1a83-9663-47dc-ae61-faf173ca8771"></script>
+    <script src="http://localhost:3001/api/widget.js"></script>
 
     <script>
         // Fake GTM Data Layer
@@ -280,11 +280,19 @@
             return gtmData ? gtmData.user : null;
         }
 
+        const config = {
+            apiKey: '3dec1a83-9663-47dc-ae61-faf173ca8771',
+            apiUrl: 'http://localhost:3001'
+        };
+
         // Analytics widget'ını yükle
-        const analytics = new ThirdPartyAnalytics();
+        const analytics = new ThirdPartyAnalytics(config);
 
         // Sayfa görüntüleme olayını otomatik kaydet
         analytics.pageView();
+
+        // Widget'ı başlat
+        analytics.initializeComponents()
 
         // GTM kullanıcısını tanımla
         const gtmUser = getGTMUser();
