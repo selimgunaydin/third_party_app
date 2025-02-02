@@ -40,3 +40,23 @@ export const useTimeBasedAnalytics = () => {
     queryFn: () => analytics.getTimeBasedAnalytics(),
   });
 };
+
+interface PageDurationParams {
+  path?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const usePageDurationStats = (params?: PageDurationParams) => {
+  return useQuery({
+    queryKey: ['page-duration-stats', params?.path, params?.startDate, params?.endDate],
+    queryFn: () => analytics.getPageDurationStats(params?.path, params?.startDate, params?.endDate),
+  });
+};
+
+export const useDetailedPageDuration = (path: string, limit?: number) => {
+  return useQuery({
+    queryKey: ['detailed-page-duration', path, limit],
+    queryFn: () => analytics.getDetailedPageDuration(path, limit),
+  });
+};

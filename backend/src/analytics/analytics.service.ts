@@ -196,7 +196,10 @@ export class AnalyticsService {
       };
 
       if (path) {
-        query['eventData.path'] = path;
+        query['eventData.path'] = { 
+          $regex: path, 
+          $options: 'i' 
+        };
       }
 
       if (startDate || endDate) {
@@ -250,7 +253,10 @@ export class AnalyticsService {
         .find({
           eventName: 'PAGE_DURATION',
           userId: userId.toString(),
-          'eventData.path': path,
+          'eventData.path': { 
+            $regex: path, 
+            $options: 'i' 
+          },
         })
         .sort({ 'eventData.startTime': -1 })
         .limit(limit)

@@ -73,7 +73,7 @@
             <!-- Ürünler -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Ürün 1 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 product-card">
                     <div class="relative group">
                         <img src="https://picsum.photos/400/400?random=1" alt="iPhone 14 Pro" class="w-full h-48 object-cover rounded-lg mb-4">
                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -84,7 +84,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800">iPhone 14 Pro</h3>
                     <p class="text-sm text-gray-600 mb-2">256GB, Uzay Siyahı</p>
-                    <p class="text-lg font-bold text-blue-600 mb-4">54.999 TL</p>
+                    <p id="product-price" class="text-lg font-bold text-blue-600 mb-4">54.999 TL</p>
                     <div class="space-y-2">
                         <button onclick="viewProduct('IPHONE14PRO')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
                         <button onclick="addToCart('IPHONE14PRO')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
@@ -92,7 +92,7 @@
                 </div>
 
                 <!-- Ürün 2 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 product-card">
                     <div class="relative group">
                         <img src="https://picsum.photos/400/400?random=2" alt="MacBook Pro" class="w-full h-48 object-cover rounded-lg mb-4">
                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -103,7 +103,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800">MacBook Pro</h3>
                     <p class="text-sm text-gray-600 mb-2">M2 Pro, 16GB RAM, 512GB SSD</p>
-                    <p class="text-lg font-bold text-blue-600 mb-4">72.999 TL</p>
+                    <p id="product-price" class="text-lg font-bold text-blue-600 mb-4">72.999 TL</p>
                     <div class="space-y-2">
                         <button onclick="viewProduct('MACBOOKPRO')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
                         <button onclick="addToCart('MACBOOKPRO')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
@@ -111,7 +111,7 @@
                 </div>
 
                 <!-- Ürün 3 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 product-card">
                     <div class="relative group">
                         <img src="https://picsum.photos/400/400?random=3" alt="iPad Air" class="w-full h-48 object-cover rounded-lg mb-4">
                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -122,7 +122,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800">iPad Air</h3>
                     <p class="text-sm text-gray-600 mb-2">256GB, Gök Mavisi</p>
-                    <p class="text-lg font-bold text-blue-600 mb-4">24.999 TL</p>
+                    <p id="product-price" class="text-lg font-bold text-blue-600 mb-4">24.999 TL</p>
                     <div class="space-y-2">
                         <button onclick="viewProduct('IPADAIR')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
                         <button onclick="addToCart('IPADAIR')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
@@ -130,7 +130,7 @@
                 </div>
 
                 <!-- Ürün 4 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 product-card">
                     <div class="relative group">
                         <img src="https://picsum.photos/400/400?random=4" alt="AirPods Pro" class="w-full h-48 object-cover rounded-lg mb-4">
                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -141,7 +141,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800">AirPods Pro</h3>
                     <p class="text-sm text-gray-600 mb-2">2. Nesil, Beyaz</p>
-                    <p class="text-lg font-bold text-blue-600 mb-4">7.999 TL</p>
+                    <p id="product-price" class="text-lg font-bold text-blue-600 mb-4">7.999 TL</p>
                     <div class="space-y-2">
                         <button onclick="viewProduct('AIRPODSPRO')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">İncele</button>
                         <button onclick="addToCart('AIRPODSPRO')" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Sepete Ekle</button>
@@ -337,8 +337,8 @@
             const user = getGTMUser();
             analytics.productViewed({
                 productId,
-                name: document.querySelector(`button[onclick="viewProduct('${productId}')"]`).previousElementSibling.previousElementSibling.textContent,
-                price: parseFloat(document.querySelector(`button[onclick="viewProduct('${productId}')"]`).previousElementSibling.textContent),
+                name: document.querySelector(`button[onclick="viewProduct('${productId}')"]`).closest('.product-card').querySelector('h3').textContent,
+                price: parseFloat(document.querySelector(`button[onclick="viewProduct('${productId}')"]`).closest('.product-card').querySelector('#product-price').textContent.split(' ')[0]),
                 category: 'Test Ürünleri',
                 user: user.id
             });
@@ -414,8 +414,8 @@
             cancelButton.disabled = false;
 
             // Analytics'e sepet güncellemesini bildir
-            analytics.cartUpdated({
-                cartId: 'CART' + Date.now(),
+            analytics.addToCart({
+                productId: 'CART' + Date.now(),
                 items: cart.items,
                 total: cart.total,
                 currency: 'TRY'

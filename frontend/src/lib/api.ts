@@ -121,6 +121,7 @@ export const analytics = {
     const response = await api.get(`/api/analytics/events?${params.toString()}`);
     return response.data;
   },
+
   getMostViewedProducts: async () => {
     const response = await api.get('/api/analytics/most-viewed-products');
     return response.data;
@@ -138,6 +139,24 @@ export const analytics = {
 
   getTimeBasedAnalytics: async () => {
     const response = await api.get('/api/analytics/time-based');
+    return response.data;
+  },
+
+  getPageDurationStats: async (path?: string, startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams();
+    if (path) params.append('path', path);
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const response = await api.get(`/api/analytics/page-duration?${params.toString()}`);
+    return response.data;
+  },
+
+  getDetailedPageDuration: async (path: string, limit?: number) => {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    
+    const response = await api.get(`/api/analytics/page-duration/${path}?${params.toString()}`);
     return response.data;
   }
 };
