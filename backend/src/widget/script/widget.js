@@ -32,8 +32,10 @@
         const payload = {
           apiKey: this.apiKey,
           eventName,
-          eventData,
-          userId: this.userId,
+          eventData: {
+            ...eventData,
+            customerId: this.userId
+          },
           sessionId: this.sessionId,
           metadata: {
             ...metadata,

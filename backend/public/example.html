@@ -333,7 +333,7 @@
             const user = getGTMUser();
             if (user) {
                 analytics.identify(user.id, {
-                    userId: user.id,
+                    customerId: user.id,
                     name: user.name,
                     email: user.email,
                     registeredAt: user.createdAt
@@ -349,7 +349,7 @@
                 name: document.querySelector(`button[onclick="viewProduct('${productId}')"]`).closest('.product-card').querySelector('h3').textContent,
                 price: parseFloat(document.querySelector(`button[onclick="viewProduct('${productId}')"]`).closest('.product-card').querySelector('#product-price').textContent.split(' ')[0]),
                 category: 'Test Ürünleri',
-                user: user.id
+                customerId: user.id
             });
         }
 
@@ -475,7 +475,7 @@
                     name: product.name,
                     price: product.price,
                     quantity: 1,
-                    userId: getGTMUser()?.id
+                    customerId: getGTMUser()?.id
                 });
             }
         }
@@ -492,7 +492,7 @@
                 analytics.removeFromCart({
                     productId: removedItem.id,
                     name: removedItem.name,
-                    userId: getGTMUser()?.id
+                    customerId: getGTMUser()?.id
                 });
             }
         }
@@ -504,7 +504,7 @@
                     checkoutId: 'CHK' + Date.now(),
                     total: cart.total,
                     currency: 'TRY',
-                    userId: getGTMUser()?.id,
+                    customerId: getGTMUser()?.id,
                     products: cart.items.map(item => ({
                         productId: item.id,
                         name: item.name,
@@ -524,7 +524,7 @@
                     currency: 'TRY',
                     paymentMethod: 'credit_card',
                     status: 'success',
-                    userId: getGTMUser()?.id,
+                    customerId: getGTMUser()?.id,
                     products: cart.items.map(item => ({
                         productId: item.id,
                         name: item.name,
@@ -546,7 +546,7 @@
                     total: cart.total,
                     currency: 'TRY',
                     status: 'cancelled',
-                    userId: getGTMUser()?.id,
+                    customerId: getGTMUser()?.id,
                     errorMessage: 'Kullanıcı tarafından iptal edildi'
                 });
             }
@@ -556,7 +556,7 @@
         function handleLogin() {
             const user = getGTMUser();
             analytics.login({
-                userId: user.id,
+                customerId: user.id,
                 email: user.email,
                 method: 'email',
                 status: 'success'
@@ -567,7 +567,7 @@
         function handleRegister() {
             const user = getGTMUser();
             analytics.register({
-                userId: user.id,
+                customerId: user.id,
                 email: user.email,
                 method: 'email',
                 status: 'success'
@@ -578,7 +578,7 @@
         function handleForgotPassword() {
             const user = getGTMUser();
             analytics.forgotPassword({
-                userId: user.id,
+                customerId: user.id,
                 email: user.email,
                 status: 'sent'
             });
@@ -589,7 +589,7 @@
             requireAuth((user) => {
                 analytics.addWishlist({
                     productId,
-                    userId: user.id,
+                    customerId: user.id,
                     productName: document.querySelector(`button[onclick="addToWishlist('${productId}')"]`).closest('.product').querySelector('h3').textContent,
                     price: parseFloat(document.querySelector(`button[onclick="addToWishlist('${productId}')"]`).closest('.product').querySelector('p').textContent),
                     category: 'Test Ürünleri'
@@ -602,7 +602,7 @@
             requireAuth((user) => {
                 analytics.removeWishlist({
                     productId,
-                    userId: user.id,
+                    customerId: user.id,
                     productName: document.querySelector(`button[onclick="removeFromWishlist('${productId}')"]`).closest('.product').querySelector('h3').textContent,
                     category: 'Test Ürünleri'
                 });
