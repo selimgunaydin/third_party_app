@@ -231,6 +231,8 @@ const AnalyticsDashboard = () => {
     );
   }
 
+  console.log(filteredEvents);
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <h1 className="text-2xl font-bold mb-6">Analytics Dashboard</h1>
@@ -300,7 +302,7 @@ const AnalyticsDashboard = () => {
                   <CardBody>
                     <div className="text-center">
                       <div className="text-xl font-bold">
-                        {new Set(filteredEvents.map(e => e.userId)).size}
+                        {new Set(filteredEvents.map(e => e.eventData?.userId)).size}
                       </div>
                       <div className="text-sm text-gray-500">Tekil Kullanıcı</div>
                     </div>

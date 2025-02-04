@@ -264,12 +264,12 @@
         // Fake GTM User Data
         window.dataLayer.push({
             'user': {
-                'id': 'GTM_USER_123456',
-                'email': 'gtm_user123456@example.com',
-                'name': 'GTM Test Userr',
+                'id': 'GTM_USER_123415617',
+                'email': 'gtm_user1234567@example.com',
+                'name': 'GTM Test Userrr',
                 'isAuthenticated': true,
                 'groups': ['customer'],
-                'createdAt': '2024-01-01T00:00:00.000Z'
+                'createdAt': '2024-01-02T00:00:00.000Z'
             }
         });
 
@@ -333,6 +333,7 @@
             const user = getGTMUser();
             if (user) {
                 analytics.identify(user.id, {
+                    userId: user.id,
                     name: user.name,
                     email: user.email,
                     registeredAt: user.createdAt
