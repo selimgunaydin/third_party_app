@@ -268,12 +268,13 @@ export class AnalyticsService {
     }
   }
 
-  async getMostSearchedQueries(limit = 10): Promise<any[]> {
+  async getMostSearchedQueries(userId: string, limit = 10): Promise<any[]> {
     try {
       const result = await this.analyticsModel.aggregate([  
         {
           $match: {
             eventName: 'SEARCH',
+            userId: userId.toString(),
           },
         },
         {

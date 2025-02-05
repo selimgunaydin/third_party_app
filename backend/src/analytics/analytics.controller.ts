@@ -162,10 +162,11 @@ export class AnalyticsController {
   })
   @ApiResponse({ status: 200, description: 'Başarılı' })
   async getMostSearchedQueries(
+    @Req() req: RequestWithUser,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
   ) {
     const limitValue = limit || 10;
-    return this.analyticsService.getMostSearchedQueries(limitValue);
+    return this.analyticsService.getMostSearchedQueries(req.user._id, limitValue);
   }
 
   @Get('order-statistics')
