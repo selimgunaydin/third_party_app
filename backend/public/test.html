@@ -422,14 +422,6 @@
             checkoutButton.disabled = false;
             completeButton.disabled = false;
             cancelButton.disabled = false;
-
-            // Analytics'e sepet güncellemesini bildir
-            analytics.addToCart({
-                productId: 'CART' + Date.now(),
-                items: cart.items,
-                total: cart.total,
-                currency: 'TRY'
-            });
         }
 
         // Sepete ürün ekle
