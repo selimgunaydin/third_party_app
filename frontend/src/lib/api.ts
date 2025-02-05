@@ -142,6 +142,11 @@ export const analytics = {
     return response.data;
   },
 
+  getMostSearchedProducts: async (productId: string, limit?: number) => {
+    const response = await api.get(`/api/analytics/most-searched-queries?limit=${limit}`);
+    return response.data;
+  },
+
   getPageDurationStats: async (path?: string, startDate?: string, endDate?: string) => {
     const params = new URLSearchParams();
     if (path) params.append('path', path);

@@ -23,7 +23,7 @@
                 <div class="flex-1 max-w-2xl mx-8">
                     <div class="relative">
                         <input type="text" placeholder="Ürün ara..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <button class="absolute right-2 top-2 text-gray-400 hover:text-blue-600">
+                        <button onclick="handleSearch()" class="absolute right-2 top-2 text-gray-400 hover:text-blue-600">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
@@ -66,6 +66,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button onclick="identifyUser()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Kullanıcıyı Tanımla</button>
                     <button onclick="handleLogin()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Test Girişi Yap</button>
+                    <button onclick="handleRegister()" class="bg-red-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Test Kayıt Yap</button>      
                     <button onclick="handleForgotPassword()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">Şifremi Unuttum</button>
                 </div>
             </div>
@@ -559,11 +560,19 @@
                 customerId: user.id,
                 email: user.email,
                 method: 'email',
-                status: 'success'
+                status: 'success',
             });
         }
 
-        // Kullanıcı kaydı
+        function handleRegister() {
+            const user = getGTMUser();
+            analytics.register({
+                customerId: user.id,
+                email: user.email,
+                method: 'email',
+                status: 'success',
+            });
+        }
         function handleRegister() {
             const user = getGTMUser();
             analytics.register({
@@ -580,7 +589,7 @@
             analytics.forgotPassword({
                 customerId: user.id,
                 email: user.email,
-                status: 'sent'
+                status: 'sent',
             });
         }
 
@@ -594,6 +603,15 @@
                     price: parseFloat(document.querySelector(`button[onclick="addToWishlist('${productId}')"]`).closest('.product').querySelector('p').textContent),
                     category: 'Test Ürünleri'
                 });
+            });
+        }
+
+        function handleSearch() {
+            const query = document.querySelector('input[placeholder="Ürün ara..."]').value;
+            const user = getGTMUser();
+            analytics.search({
+                query: query,
+                customerId: user.id
             });
         }
 

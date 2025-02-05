@@ -6,6 +6,32 @@ interface AnalyticsParams {
   endDate?: string;
 }
 
+interface Product {
+  _id: string;
+  productName: string;
+  productPrice: number;
+  viewCount: number;
+  addToCartCount: number;
+}
+
+interface TimeBasedEvent {
+  eventName: string;
+  count: number;
+}
+
+interface TimeBasedAnalytics {
+  events: TimeBasedEvent[];
+  totalEvents: number;
+}
+
+interface OrderStatistics {
+  totalOrders: number;
+  totalAmount: number;
+  averageOrderAmount: number;
+  minOrderAmount: number;
+  maxOrderAmount: number;
+}
+
 export const useEvents = (params?: AnalyticsParams) => {
   return useQuery({
     queryKey: ['events', params?.startDate, params?.endDate],
@@ -14,30 +40,37 @@ export const useEvents = (params?: AnalyticsParams) => {
 };
 
 export const useMostViewedProducts = () => {
-  return useQuery({
+  return useQuery<Product[]>({
     queryKey: ['most-viewed-products'],
     queryFn: () => analytics.getMostViewedProducts(),
   });
 };
 
 export const useMostAddedProducts = () => {
-  return useQuery({
+  return useQuery<Product[]>({
     queryKey: ['most-added-products'],
     queryFn: () => analytics.getMostAddedProducts(),
   });
 };
 
 export const useOrderStatistics = () => {
-  return useQuery({
+  return useQuery<OrderStatistics>({
     queryKey: ['order-statistics'],
     queryFn: () => analytics.getOrderStatistics(),
   });
 };
 
 export const useTimeBasedAnalytics = () => {
-  return useQuery({
+  return useQuery<TimeBasedAnalytics[]>({
     queryKey: ['time-based-analytics'],
     queryFn: () => analytics.getTimeBasedAnalytics(),
+  });
+};
+
+export const useMostSearchedProducts = (productId: string, limit?: number) => {
+  return useQuery<Product[]>({
+    queryKey: ['most-searched-products', productId, limit],
+    queryFn: () => analytics.getMostSearchedProducts(productId, limit),
   });
 };
 

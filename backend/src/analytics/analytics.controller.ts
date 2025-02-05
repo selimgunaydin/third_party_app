@@ -151,6 +151,23 @@ export class AnalyticsController {
     return this.analyticsService.getMostAddedToCartProducts(req.user._id, limitValue);
   }
 
+  @Get('most-searched-queries')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'En çok aranan sorguları getirir' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Kaç ürün getirileceği',
+  })
+  @ApiResponse({ status: 200, description: 'Başarılı' })
+  async getMostSearchedQueries(
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ) {
+    const limitValue = limit || 10;
+    return this.analyticsService.getMostSearchedQueries(limitValue);
+  }
+
   @Get('order-statistics')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Sipariş istatistiklerini getirir' })

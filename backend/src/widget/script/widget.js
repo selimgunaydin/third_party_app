@@ -34,7 +34,7 @@
           eventName,
           eventData: {
             ...eventData,
-            customerId: this.userId
+            customerId: this.customerId
           },
           sessionId: this.sessionId,
           metadata: {
@@ -132,12 +132,12 @@
       this._startPageTracking();
     },
 
-    identify: function(userId, traits = {}) {
-      if (!userId) {
-        console.error('UserId is required for identify');
+    identify: function(customerId, traits = {}) {
+      if (!customerId) {
+        console.error('CustomerId is required for identify');
         return;
       }
-      this.userId = userId;
+      this.customerId = customerId;
       return this.track('IDENTIFY', traits);
     },
 
@@ -266,40 +266,48 @@
     },
 
     login: function(authData, metadata = {}) {
-      if (!authData || !authData.userId) {
-        console.error('Auth data with userId is required');
+      if (!authData || !authData.customerId) {
+        console.error('Auth data with customerId is required');
         return;
       }
       return this.track('LOGIN', authData, metadata);
     },
 
     register: function(authData, metadata = {}) {
-      if (!authData || !authData.userId) {
-        console.error('Auth data with userId is required');
+      if (!authData || !authData.customerId) {
+        console.error('Auth data with customerId is required');
         return;
       }
       return this.track('REGISTER', authData, metadata);
     },
 
     addWishlist: function(wishlistData, metadata = {}) {
-      if (!wishlistData || !wishlistData.productId || !wishlistData.userId) {
-        console.error('Wishlist data with productId and userId is required');
+      if (!wishlistData || !wishlistData.productId || !wishlistData.customerId) {
+        console.error('Wishlist data with productId and customerId is required');
         return;
       }
       return this.track('ADD_WISHLIST', wishlistData, metadata);
     },
 
+    search: function(searchData, metadata = {}) {
+      if (!searchData || !searchData.query) {
+        console.error('Search data with query is required');
+        return;
+      }
+      return this.track('SEARCH', searchData, metadata);
+    },
+
     removeWishlist: function(wishlistData, metadata = {}) {
-      if (!wishlistData || !wishlistData.productId || !wishlistData.userId) {
-        console.error('Wishlist data with productId and userId is required');
+      if (!wishlistData || !wishlistData.productId || !wishlistData.customerId) {
+        console.error('Wishlist data with productId and customerId is required');
         return;
       }
       return this.track('REMOVE_WISHLIST', wishlistData, metadata);
     },
 
     forgotPassword: function(authData, metadata = {}) {
-      if (!authData || !authData.userId) {
-        console.error('Auth data with userId is required');
+      if (!authData || !authData.customerId) {
+        console.error('Auth data with customerId is required');
         return;
       }
       return this.track('FORGOT_PASSWORD', authData, metadata);

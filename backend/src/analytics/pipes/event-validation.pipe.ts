@@ -9,7 +9,8 @@ import {
   FormSubmissionEventData,
   AuthEventData,
   WishlistEventData,
-  PageDurationEventData
+  PageDurationEventData,
+  SearchEventData
 } from '../dto/event-types';
 
 @Injectable()
@@ -48,6 +49,8 @@ export class EventValidationPipe implements PipeTransform {
         return typeof eventData === 'object' && eventData !== null;
       case EventName.PAGE_DURATION:
         return this.validatePageDurationData(eventData);
+      case EventName.SEARCH:
+        return this.validateSearchData(eventData);
       default:
         return false;
     }
@@ -60,6 +63,13 @@ export class EventValidationPipe implements PipeTransform {
       typeof data.url === 'string' &&
       typeof data.path === 'string' &&
       typeof data.referrer === 'string'
+    );
+  }
+
+  private validateSearchData(data: any): data is SearchEventData {
+    return (
+      typeof data === 'object' &&
+      typeof data.query === 'string'
     );
   }
 
@@ -110,7 +120,7 @@ export class EventValidationPipe implements PipeTransform {
   private validateAuthData(data: any): data is AuthEventData {
     return (
       typeof data === 'object' &&
-      typeof data.userId === 'string' &&
+      typeof data.customerId === 'string' &&
       (data.email === undefined || typeof data.email === 'string') &&
       (data.method === undefined || typeof data.method === 'string') &&
       (data.status === undefined || typeof data.status === 'string') &&
@@ -122,7 +132,7 @@ export class EventValidationPipe implements PipeTransform {
     return (
       typeof data === 'object' &&
       typeof data.productId === 'string' &&
-      typeof data.userId === 'string' &&
+      typeof data.customerId === 'string' &&
       (data.productName === undefined || typeof data.productName === 'string') &&
       (data.category === undefined || typeof data.category === 'string') &&
       (data.price === undefined || typeof data.price === 'number')

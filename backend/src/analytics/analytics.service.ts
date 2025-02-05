@@ -267,4 +267,34 @@ export class AnalyticsService {
       throw error;
     }
   }
+
+  async getMostSearchedQueries(limit = 10): Promise<any[]> {
+    try {
+      const result = await this.analyticsModel.aggregate([  
+        {
+          $match: {
+            eventName: 'SEARCH',
+          },
+        },
+        {
+          $group: {
+            _id: '$eventData.query',
+            count: { $sum: 1 },
+            lastSearch: { $max: '$createdAt' },
+          },
+        },    
+        {
+          $sort: { count: -1 },
+        },
+        {
+          $limit: limit,
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error in getMostSearchedQueries:', error);
+      throw error;
+    }
+  }
 } 

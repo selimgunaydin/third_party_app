@@ -17,6 +17,7 @@ export enum EventName {
   ADD_WISHLIST = 'ADD_WISHLIST',
   REMOVE_WISHLIST = 'REMOVE_WISHLIST',
   FORGOT_PASSWORD = 'FORGOT_PASSWORD',
+  SEARCH = 'SEARCH',
 }
 
 // Page View Event Data
@@ -136,7 +137,7 @@ export class FormSubmissionEventData {
 // Auth Event Data
 export class AuthEventData {
   @ApiProperty()
-  userId: string;
+  customerId: string;
 
   @ApiProperty({ required: false })
   email?: string;
@@ -151,13 +152,19 @@ export class AuthEventData {
   errorMessage?: string;
 }
 
+// Search Event Data
+export class SearchEventData {
+  @ApiProperty()
+  query: string; 
+}
+
 // Wishlist Event Data
 export class WishlistEventData {
   @ApiProperty()
   productId: string;
 
   @ApiProperty()
-  userId: string;
+  customerId: string;
 
   @ApiProperty({ required: false })
   productName?: string;
@@ -179,4 +186,5 @@ export type EventData =
   | CheckoutEventData
   | FormSubmissionEventData
   | AuthEventData
-  | WishlistEventData; 
+  | WishlistEventData
+  | SearchEventData;

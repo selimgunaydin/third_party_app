@@ -43,12 +43,7 @@ export default function DashboardLayout({
       name: "Analytics Dashboard",
       href: "/dashboard/analytics",
       icon: HiOutlineChartBar,
-    },
-    {
-      name: "Analytics Report",
-      href: "/dashboard/analytics/analytics-report",
-      icon: HiOutlineChartBar,
-    },
+    }
   ];
 
   const componentItems = [
