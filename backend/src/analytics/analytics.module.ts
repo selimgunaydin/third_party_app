@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Analytics, AnalyticsSchema } from '../schemas/analytics.schema';
-import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
-import { UserModule } from '../user/user.module';
+import { AnalyticsService } from './analytics.service';
+import { Analytics, AnalyticsSchema } from '../schemas/analytics.schema';
+import { CustomersModule } from '../customers/customers.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { UserModule } from '../user/user.module';
       { name: Analytics.name, schema: AnalyticsSchema },
     ]),
     UserModule,
+    forwardRef(() => CustomersModule),
   ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],

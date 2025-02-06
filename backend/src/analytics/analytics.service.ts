@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Analytics, AnalyticsDocument } from '../schemas/analytics.schema';
+import { CustomersService } from '../customers/customers.service';
 
 @Injectable()
 export class AnalyticsService {
@@ -10,6 +11,8 @@ export class AnalyticsService {
   constructor(
     @InjectModel(Analytics.name)
     private readonly analyticsModel: Model<AnalyticsDocument>,
+    @Inject(forwardRef(() => CustomersService))
+    private readonly customersService: CustomersService,
   ) {}
 
   async trackEvent(eventData: {
@@ -24,13 +27,29 @@ export class AnalyticsService {
     metadata?: Record<string, any>;
     userId: string;
   }) {
-    eventData.eventName = eventData.eventName.toUpperCase();
-    const event = new this.analyticsModel(eventData);
-    return await event.save();
+    try {
+      eventData.eventName = eventData.eventName.toUpperCase();
+      const event = new this.analyticsModel(eventData);
+      await event.save();
+
+      // Update customer data
+      await this.customersService.updateCustomerFromEvent({
+        userId: eventData.userId,
+        eventName: eventData.eventName,
+        eventData: eventData.eventData,
+        ipAddress: eventData.ipAddress,
+        userAgent: eventData.userAgent,
+      });
+
+      return event;
+    } catch (error) {
+      this.logger.error('Error in trackEvent:', error);
+      throw error;
+    }
   }
 
   async getEventsByUserId(userId: string, startDate?: Date, endDate?: Date) {
-    const query: any = { userId };
+    const query: Record<string, any> = { userId };
     
     if (startDate || endDate) {
       query.createdAt = {};
