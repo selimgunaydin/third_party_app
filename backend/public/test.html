@@ -265,12 +265,12 @@
         // Fake GTM User Data
         window.dataLayer.push({
             'user': {
-                'id': 'GTM_USER_123415617',
-                'email': 'gtm_user1234567@example.com',
-                'name': 'GTM Test Userrr',
+                'id': '123321123',
+                'email': 'selim61@gmail.com',
+                'name': 'Selim',
                 'isAuthenticated': true,
                 'groups': ['customer'],
-                'createdAt': '2024-01-02T00:00:00.000Z'
+                'createdAt': '2024-01-05T00:00:00.000Z'
             }
         });
 
@@ -289,21 +289,23 @@
         // Analytics widget'ını yükle
         const analytics = new ThirdPartyAnalytics(config);
 
+                // GTM kullanıcısını tanımla
+                const gtmUser = getGTMUser();
+                if (gtmUser && gtmUser.isAuthenticated) {
+                    analytics.identify(gtmUser.id, {
+                        email: gtmUser.email,
+                        name: gtmUser.name,
+                        registeredAt: gtmUser.createdAt
+                    });
+                }
+
         // Sayfa görüntüleme olayını otomatik kaydet
         analytics.pageView();
 
         // Widget'ı başlat
         analytics.initializeComponents()
 
-        // GTM kullanıcısını tanımla
-        const gtmUser = getGTMUser();
-        if (gtmUser && gtmUser.isAuthenticated) {
-            analytics.identify(gtmUser.id, {
-                email: gtmUser.email,
-                name: gtmUser.name,
-                registeredAt: gtmUser.createdAt
-            });
-        }
+
 
         // Tüm butonları izle
         document.querySelectorAll('button').forEach(button => {

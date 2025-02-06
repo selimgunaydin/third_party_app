@@ -24,6 +24,7 @@ export class CustomersService {
   }) {
     try {
       let customer = await this.customerModel.findOne({ userId: eventData.userId });
+
       
       if (!customer) {
         customer = new this.customerModel({
@@ -107,10 +108,10 @@ export class CustomersService {
         orderStats,
         timeBasedStats
       ] = await Promise.all([
-        this.analyticsService.getMostViewedProducts(userId),
-        this.analyticsService.getMostAddedToCartProducts(userId),
-        this.analyticsService.getOrderStatistics(userId),
-        this.analyticsService.getTimeBasedAnalytics(userId),
+        this.analyticsService.getMostViewedProductsByCustomerId(userId),
+        this.analyticsService.getMostAddedToCartProductsByCustomerId(userId),
+        this.analyticsService.getOrderStatisticsByCustomerId(userId),
+        this.analyticsService.getTimeBasedAnalyticsByCustomerId(userId),
       ]);
 
       return {

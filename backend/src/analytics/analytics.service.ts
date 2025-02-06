@@ -34,7 +34,7 @@ export class AnalyticsService {
 
       // Update customer data
       await this.customersService.updateCustomerFromEvent({
-        userId: eventData.userId,
+        userId: eventData.eventData.customerId,
         eventName: eventData.eventName,
         eventData: eventData.eventData,
         ipAddress: eventData.ipAddress,
@@ -96,6 +96,39 @@ export class AnalyticsService {
     }
   }
 
+  async getMostViewedProductsByCustomerId(customerId: string, limit = 10): Promise<any[]> {
+    try {
+      const result = await this.analyticsModel.aggregate([
+        {
+          $match: {
+            eventName: 'PRODUCT_VIEWED',
+            'eventData.customerId': customerId.toString(),
+          },
+        },
+        {
+          $group: {
+            _id: '$eventData.productId',
+            viewCount: { $sum: 1 },
+            productName: { $first: '$eventData.name' },
+            productPrice: { $first: '$eventData.price' }, 
+            lastViewed: { $max: '$createdAt' },
+          },
+        },
+        {
+          $sort: { viewCount: -1 },
+        },
+        {
+          $limit: limit,
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error in getMostViewedProducts:', error);
+      throw error;
+    }
+  }
+
   async getMostAddedToCartProducts(userId: string, limit = 10): Promise<any[]> {
     try {
       const result = await this.analyticsModel.aggregate([
@@ -103,6 +136,39 @@ export class AnalyticsService {
           $match: {
             eventName: 'ADD_TO_CART',
             userId: userId.toString(),
+          },
+        },
+        {
+          $group: {
+            _id: '$eventData.productId',
+            addToCartCount: { $sum: 1 },
+            productName: { $first: '$eventData.name' },
+            productPrice: { $first: '$eventData.price' },
+            lastAdded: { $max: '$createdAt' },
+          },
+        },
+        {
+          $sort: { addToCartCount: -1 },
+        },
+        {
+          $limit: limit,
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error in getMostAddedToCartProducts:', error);
+      throw error;
+    }
+  }
+
+  async getMostAddedToCartProductsByCustomerId(customerId: string, limit = 10): Promise<any[]> {
+    try {
+      const result = await this.analyticsModel.aggregate([
+        {
+          $match: {
+            eventName: 'ADD_TO_CART',
+            'eventData.customerId': customerId.toString(),
           },
         },
         {
@@ -163,6 +229,41 @@ export class AnalyticsService {
     }
   }
 
+  async getOrderStatisticsByCustomerId(customerId: string): Promise<any> {
+    try {
+      const result = await this.analyticsModel.aggregate([
+        {
+          $match: {
+            eventName: 'CHECKOUT_COMPLETED',
+            'eventData.customerId': customerId.toString(),
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalOrders: { $sum: 1 },
+            totalAmount: { $sum: '$eventData.total' },
+            averageOrderAmount: { $avg: '$eventData.total' },
+            minOrderAmount: { $min: '$eventData.total' },
+            maxOrderAmount: { $max: '$eventData.total' },
+          },
+        },
+      ]);
+
+      return result[0] || {
+        totalOrders: 0,
+        totalAmount: 0,
+        averageOrderAmount: 0,
+        minOrderAmount: 0,
+        maxOrderAmount: 0,
+      };
+    } catch (error) {
+      this.logger.error('Error in getOrderStatistics:', error);
+      throw error;
+    }
+  }
+
+
   async getTimeBasedAnalytics(userId: string, days = 30): Promise<any> {
     try {
       const date = new Date();
@@ -173,6 +274,50 @@ export class AnalyticsService {
           $match: {
             createdAt: { $gte: date },
             userId: userId.toString(),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+              eventName: '$eventName',
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.date',
+            events: {
+              $push: {
+                eventName: '$_id.eventName',
+                count: '$count',
+              },
+            },
+            totalEvents: { $sum: '$count' },
+          },
+        },
+        {
+          $sort: { '_id': 1 },
+        },
+      ]);
+      return result;
+    } catch (error) {
+      this.logger.error('Error in getTimeBasedAnalytics:', error);
+      throw error;
+    }
+  }
+
+  async getTimeBasedAnalyticsByCustomerId(customerId: string, days = 30): Promise<any> {
+    try {
+      const date = new Date();
+      date.setDate(date.getDate() - days);
+
+      const result = await this.analyticsModel.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: date },
+            'eventData.customerId': customerId.toString(),
           },
         },
         {
