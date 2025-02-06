@@ -33,9 +33,9 @@ export class ProductsService {
     }).exec();
   }
 
-  async updateProduct(id: string, updateData: Partial<CreateProductDto>): Promise<Product | null> {
-    return this.productModel.findByIdAndUpdate(
-      id,
+  async updateProduct(sku: string, updateData: Partial<CreateProductDto>): Promise<Product | null> {
+    return this.productModel.findOneAndUpdate(
+      { sku },
       { $set: updateData },
       { new: true }
     ).exec();
@@ -101,7 +101,7 @@ export class ProductsService {
 
             if (existingProduct) {
               this.logger.debug(`Mevcut ürün güncelleniyor - SKU: ${productData.sku}`);
-              return this.updateProduct(existingProduct._id.toString(), productData);
+              return this.updateProduct(existingProduct.sku.toString(), productData);
             } else {
               this.logger.debug(`Yeni ürün oluşturuluyor - SKU: ${productData.sku}`);
               return this.create(userId, productData);
