@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+  <product>
+    <name>Örnek Ürün 1</name>
+    <sku>SKU001</sku>
+    <price>99.99</price>
+    <description>Ürün açıklaması 1</description>
+    <stock>101</stock>
+    <image>https://picsum.photos/400/400?random=1</image>
+    <link>https://www.google.com</link>
+    <category>Elektronik</category>
+  </product>
+  <product>
+    <name>Örnek Ürün 2</name>
+    <sku>SKU002</sku>
+    <price>149.99</price>
+    <description>Ürün açıklaması 2</description>
+    <stock>50</stock>
+    <image>https://picsum.photos/400/400?random=2</image>
+    <link>https://www.google.com</link>
+    <category>Giyim</category>
+  </product>
+</products>

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -9,13 +9,20 @@ import { WidgetModule } from './widget/widget.module';
 import { ConvertTailwindModule } from './utils/convert-tailwind.module';
 import { UserModule } from './user/user.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || ''),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'src'),
       serveRoot: '/api/scripts',
@@ -37,6 +44,8 @@ import { AnalyticsModule } from './analytics/analytics.module';
     ConvertTailwindModule,
     UserModule,
     AnalyticsModule,
+    UserModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}
