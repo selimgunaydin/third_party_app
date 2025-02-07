@@ -17,9 +17,6 @@ import { CustomerAnalyticsDialog } from './CustomerAnalyticsDialog';
 const columns = [
   { key: 'userId', label: 'Kullanıcı ID' },
   { key: 'lastVisit', label: 'Son Ziyaret' },
-  { key: 'totalOrders', label: 'Toplam Sipariş' },
-  { key: 'totalSpent', label: 'Toplam Harcama' },
-  { key: 'averageOrderValue', label: 'Ort. Sipariş Değeri' },
   { key: 'actions', label: 'İşlemler' },
 ];
 
@@ -67,9 +64,6 @@ export function CustomersList() {
               <TableRow key={customer.userId}>
                 <TableCell>{customer.userId}</TableCell>
                 <TableCell>{formatDate(customer.lastVisit)}</TableCell>
-                <TableCell>{customer.analytics.totalOrders}</TableCell>
-                <TableCell>₺{customer.analytics.totalSpent.toFixed(2)}</TableCell>
-                <TableCell>₺{customer.analytics.averageOrderValue.toFixed(2)}</TableCell>
                 <TableCell>
                   <Button
                     color="primary"
